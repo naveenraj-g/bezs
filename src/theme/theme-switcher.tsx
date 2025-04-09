@@ -26,7 +26,7 @@ const themes: string[] = [
 
 const themeModes: string[] = ["light", "dark"];
 
-export const ThemeSwitcher = ({ isAppNav }: { isAppNav: boolean }) => {
+export const ThemeSwitcher = ({ isAppNav }: { isAppNav?: boolean }) => {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
 

@@ -4,10 +4,12 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { ThemeSwitcher } from "@/theme/theme-switcher";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 const RootNavBarPage = () => {
   const { data } = useSession();
+  const t = useTranslations("HomePage");
 
   return (
     <>
@@ -66,7 +68,7 @@ const RootNavBarPage = () => {
                   })
                 )}
               >
-                Open app
+                {t("title")}
               </Link>
             )}
           </li>
