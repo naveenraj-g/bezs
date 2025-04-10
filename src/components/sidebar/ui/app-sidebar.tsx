@@ -20,10 +20,10 @@ import { cn } from "@/lib/utils";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 
 import { House, LogOut, Settings2 } from "lucide-react";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
+import { Link } from "@/i18n/navigation";
 
 const items = [
   {

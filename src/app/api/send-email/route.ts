@@ -1,3 +1,4 @@
+import { SMTP_EMAIL, SMTP_PASS } from "@/lib/constants/env";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
@@ -10,8 +11,8 @@ export async function POST(req: Request) {
       port: 587,
       secure: false,
       auth: {
-        user: "gnvv2002@gmail.com",
-        pass: "eyno gbrh wgcb ynqi",
+        user: SMTP_EMAIL,
+        pass: SMTP_PASS,
       },
     });
 
