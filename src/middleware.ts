@@ -1,60 +1,73 @@
-// import axios from "axios";
-// import { NextRequest, NextResponse } from "next/server";
-// import { Session } from "./modules/auth/types/auth-types";
-
-// async function getMiddlewareSession(req: NextRequest) {
-//   const { data: session } = await axios.get<Session>("/api/auth/get-session", {
-//     baseURL: req.nextUrl.origin,
-//     headers: {
-//       cookie: req.headers.get("cookie") || "",
-//     },
-//   });
-
-//   return session;
-// }
-
-// const publicRoutes = ["/sign", "/email-verification", "/reset-password"];
-// const protectedRoutes = ["/bezs"];
-
-// export async function middleware(req: NextRequest) {
-//   const session = await getMiddlewareSession(req);
-//   const url = req.url;
-//   const pathname = req.nextUrl.pathname;
-//   console.log("Middleware");
-
-//   if (publicRoutes.some((route) => pathname.startsWith(route))) {
-//     return session
-//       ? NextResponse.redirect(new URL("/bezs", url))
-//       : NextResponse.next();
-//   }
-
-//   if (protectedRoutes.some((route) => pathname.startsWith(route))) {
-//     return session
-//       ? NextResponse.next()
-//       : NextResponse.redirect(new URL("/signin", url));
-//   }
-
-//   return NextResponse.next();
-// }
-
-// export const config = {
-//   //   runtime: "nodejs",
-//   matcher: [
-//     // Skip Next.js internals and all static files, unless found in search params
-//     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-//     // Always run for API routes
-//     "/(api|trpc)(.*)",
-//   ],
-// };
+import axios from "axios";
+import { NextRequest, NextResponse } from "next/server";
+import { Session } from "./modules/auth/types/auth-types";
 
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 
-export default createMiddleware(routing);
+// export default createMiddleware(routing);
+
+const I18nMiddleware = createMiddleware(routing);
+
+async function getMiddlewareSession(req: NextRequest) {
+  const { data: session } = await axios.get<Session>("/api/auth/get-session", {
+    baseURL: req.nextUrl.origin,
+    headers: {
+      cookie: req.headers.get("cookie") || "",
+    },
+  });
+
+  return session;
+}
+
+const getPathWithoutLocale = (pathname: string): string => {
+  const parts = pathname.split("/");
+  return parts.length > 2 ? `/${parts.slice(2).join("/")}` : "/";
+};
+
+const publicRoutes = [
+  "/sign",
+  "/email-verification",
+  "/reset-password",
+  "/2fa-verification",
+];
+const protectedRoutes = ["/bezs"];
+
+export async function middleware(req: NextRequest) {
+  const session = await getMiddlewareSession(req);
+  const url = req.url;
+  const pathname = req.nextUrl.pathname;
+  console.log("Middleware");
+
+  const [, locale] = req.nextUrl.pathname.split("/");
+  const refinedPathname = getPathWithoutLocale(pathname);
+
+  const res = I18nMiddleware(req);
+
+  if (publicRoutes.some((route) => refinedPathname.startsWith(route))) {
+    // const locale = req.cookies.get("NEXT_LOCALE")?.value || "en";
+    return session
+      ? NextResponse.redirect(new URL("/bezs", url))
+      : NextResponse.next();
+  }
+
+  if (protectedRoutes.some((route) => refinedPathname.startsWith(route))) {
+    return session
+      ? NextResponse.next()
+      : NextResponse.redirect(new URL("/signin", url));
+  }
+
+  // return NextResponse.next();
+  return res;
+}
+
+// export const config = {
+//   matcher: [
+//     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+//     "/(api|trpc)(.*)",
+//   ],
+// };
 
 export const config = {
-  // Match all pathnames except for
-  // - … if they start with `/api`, `/trpc`, `/_next` or `/_vercel`
-  // - … the ones containing a dot (e.g. `favicon.ico`)
-  matcher: "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
+  matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)"],
 };
