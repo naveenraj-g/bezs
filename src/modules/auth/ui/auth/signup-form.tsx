@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { authClient } from "../../services/better-auth/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import OauthButton from "./oauth-button";
 import { useState } from "react";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const signUpFormSchema = z.object({
   name: z
@@ -38,6 +38,7 @@ const signUpFormSchema = z.object({
 type SignUpForm = z.infer<typeof signUpFormSchema>;
 
 export function SignUpForm() {
+  const t = useTranslations("auth.signup");
   const router = useRouter();
   const [inputType, setInputType] = useState("password");
 
@@ -87,7 +88,7 @@ export function SignUpForm() {
   return (
     <Card className="w-[400px]">
       <CardHeader>
-        <CardTitle className="text-xl">Sign Up</CardTitle>
+        <CardTitle className="text-xl">{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -97,7 +98,7 @@ export function SignUpForm() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("nameInputLable")}</FormLabel>
                   <FormControl>
                     <Input placeholder="name" {...field} />
                   </FormControl>
@@ -110,7 +111,7 @@ export function SignUpForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("emailInputLable")}</FormLabel>
                   <FormControl>
                     <Input placeholder="example@gmail.com" {...field} />
                   </FormControl>
@@ -123,7 +124,7 @@ export function SignUpForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t("passwordInputLable")}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -150,12 +151,12 @@ export function SignUpForm() {
               )}
             />
             <p>
-              Already have an account?{" "}
+              {t("existAccount")}{" "}
               <Link
                 href="/signin"
                 className="text-blue-400 underline-offset-4 hover:underline"
               >
-                Sign In
+                {t("signinLink")}
               </Link>
             </p>
             <Button
@@ -168,15 +169,23 @@ export function SignUpForm() {
                   <Loader2 className="animate-spin" />
                 </>
               ) : (
-                "Create an account"
+                t("buttonLable")
               )}
             </Button>
           </form>
         </Form>
-        <p className="text-center my-3">or</p>
+        <p className="text-center my-3">{t("or")}</p>
         <div className="space-y-1">
-          <OauthButton oauthName="google" label="Google" />
-          <OauthButton oauthName="github" label="GitHub" />
+          <OauthButton
+            oauthName="google"
+            label={t("googleOauthLable")}
+            isFormSubmitting={isSubmitting}
+          />
+          <OauthButton
+            oauthName="github"
+            label={t("githubOauthLable")}
+            isFormSubmitting={isSubmitting}
+          />
         </div>
       </CardContent>
     </Card>

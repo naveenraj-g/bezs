@@ -10,13 +10,13 @@ const AccountSettingsPage = async () => {
     headers: await headers(),
   });
   return (
-    <>
+    <div className="w-full">
       <h1 className="text-xl">Account</h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-300/80">
         Manage your account.
       </p>
       <ManageAccount session={session} />
-    </>
+    </div>
   );
 };
 

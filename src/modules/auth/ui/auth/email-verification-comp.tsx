@@ -2,19 +2,20 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 const EmailVerificationComp = ({ email }: { email: string }) => {
+  const t = useTranslations("auth.emailVerification");
+
   return (
-    <Card>
+    <Card className="m-4">
       <CardHeader>
-        <CardTitle>Verify Email</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <p>
-          Hey, we send email verification email to your email go and verify
-          email. If you verified email then refresh this page. If email not
-          received then{" "}
+          {t("desc")}{" "}
           <span
             className="link cursor-pointer underline"
             onClick={async () => {
@@ -32,7 +33,7 @@ const EmailVerificationComp = ({ email }: { email: string }) => {
               }
             }}
           >
-            request again
+            {t("emailReq")}
           </span>
         </p>
       </CardContent>

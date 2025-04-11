@@ -9,16 +9,17 @@ import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 
 type Props = {
   oauthName: "google" | "github";
-  label: "Google" | "GitHub";
+  label: string;
+  isFormSubmitting: boolean;
 };
 
-const OauthButton = ({ oauthName, label }: Props) => {
+const OauthButton = ({ oauthName, label, isFormSubmitting }: Props) => {
   const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   return (
     <div className="w-full space-y-3 mt-3">
       <Button
-        disabled={isAuthLoading}
+        disabled={isAuthLoading || isFormSubmitting}
         className=" after:flex-1 w-full cursor-pointer text-md"
         onClick={async () => {
           setIsAuthLoading(true);

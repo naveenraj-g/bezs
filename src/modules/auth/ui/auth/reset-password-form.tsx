@@ -20,7 +20,9 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const resetPassFormSchema = z.object({
   password: z
@@ -32,6 +34,7 @@ const resetPassFormSchema = z.object({
 type resetPassForm = z.infer<typeof resetPassFormSchema>;
 
 export function ResetPassForm() {
+  const t = useTranslations("auth.resetPassword");
   const searchParams = useSearchParams();
   const { push } = useRouter();
   const [token, setToken] = useState<string | null>(null);
@@ -88,7 +91,7 @@ export function ResetPassForm() {
     <>
       <Card className="w-[400px]">
         <CardHeader>
-          <CardTitle className="card-title">Reset Password</CardTitle>
+          <CardTitle className="card-title">{t("title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -98,7 +101,7 @@ export function ResetPassForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New Password</FormLabel>
+                    <FormLabel>{t("newPasswordInputLable")}</FormLabel>
                     <FormControl>
                       <Input placeholder="*****" {...field} type="password" />
                     </FormControl>
@@ -112,8 +115,11 @@ export function ResetPassForm() {
                   className="w-full cursor-pointer"
                   disabled={isSubmitting}
                 >
-                  Reset
-                  {isSubmitting && <Loader2 className="animate-spin" />}
+                  {isSubmitting ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    t("buttonLable")
+                  )}
                 </Button>
               </div>
             </form>

@@ -17,12 +17,12 @@ import { usePathname } from "next/navigation";
 const Accountsettings = [
   {
     name: "Account",
-    url: "/bezs/settings/account",
+    url: "/bezs/dashboard/settings/account",
     icon: UserRound,
   },
   {
     name: "Security",
-    url: "/bezs/settings/security",
+    url: "/bezs/dashboard/settings/security",
     icon: LockKeyhole,
   },
 ];

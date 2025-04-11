@@ -22,12 +22,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { Dispatch, SetStateAction, useState } from "react";
 import { authClient } from "../../services/better-auth/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import OauthButton from "./oauth-button";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const signInFormSchema = z.object({
   email: z.string().email(),
@@ -41,6 +41,7 @@ type SignInForm = z.infer<typeof signInFormSchema>;
 
 export function SignInForm() {
   const router = useRouter();
+  const t = useTranslations("auth.signin");
   const [isForgetClick, setIsForgetClick] = useState(false);
   const [inputType, setInputType] = useState("password");
 
@@ -90,7 +91,7 @@ export function SignInForm() {
     <>
       <Card className="w-[400px]">
         <CardHeader>
-          <CardTitle className="text-xl">Sign In</CardTitle>
+          <CardTitle className="text-xl">{t("title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -100,7 +101,7 @@ export function SignInForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("emailInputLable")}</FormLabel>
                     <FormControl>
                       <Input placeholder="example@gmail.com" {...field} />
                     </FormControl>
@@ -113,7 +114,7 @@ export function SignInForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t("passwordInputLable")}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -143,19 +144,19 @@ export function SignInForm() {
                         className="cursor-pointer"
                         onClick={() => setIsForgetClick(true)}
                       >
-                        Forget Password
+                        {t("forgetPass")}
                       </Button>
                     </div>
                   </FormItem>
                 )}
               />
               <p>
-                Don&apos;t have an account?{" "}
+                {t("createAccount")}{" "}
                 <Link
                   href="/signup"
                   className="text-blue-400 underline-offset-4 hover:underline"
                 >
-                  Sign Up
+                  {t("signupLink")}
                 </Link>
               </p>
               <Button
@@ -168,15 +169,23 @@ export function SignInForm() {
                     <Loader2 className="animate-spin" />
                   </>
                 ) : (
-                  "Login"
+                  t("buttonLable")
                 )}
               </Button>
             </form>
           </Form>
-          <p className="text-center my-3">or</p>
+          <p className="text-center my-3">{t("or")}</p>
           <div className="space-y-1">
-            <OauthButton oauthName="google" label="Google" />
-            <OauthButton oauthName="github" label="GitHub" />
+            <OauthButton
+              oauthName="google"
+              label={t("googleOauthLable")}
+              isFormSubmitting={isSubmitting}
+            />
+            <OauthButton
+              oauthName="github"
+              label={t("githubOauthLable")}
+              isFormSubmitting={isSubmitting}
+            />
           </div>
         </CardContent>
       </Card>
@@ -203,6 +212,8 @@ export function ForgetPasswordAlert({
   isForgetClick: boolean;
   setIsForgetClick: Dispatch<SetStateAction<boolean>>;
 }) {
+  const t = useTranslations("auth.forgetPassDialog");
+
   const form = useForm<ForgetPasswordForm>({
     resolver: zodResolver(forgetPasswordAlertSchema),
     defaultValues: {
@@ -244,7 +255,7 @@ export function ForgetPasswordAlert({
     <Dialog open={isForgetClick} onOpenChange={setIsForgetClick}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="mb-4">Forget Password</DialogTitle>
+          <DialogTitle className="mb-4">{t("title")}</DialogTitle>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -252,7 +263,7 @@ export function ForgetPasswordAlert({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("formLable")}</FormLabel>
                     <FormControl>
                       <Input placeholder="example@gmail.com" {...field} />
                     </FormControl>
@@ -266,7 +277,11 @@ export function ForgetPasswordAlert({
                 disabled={isSubmitting}
               >
                 {" "}
-                {isSubmitting ? <Loader2 className="animate-spin" /> : "Submit"}
+                {isSubmitting ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  t("submitBtnLable")
+                )}
               </Button>
             </form>
           </Form>

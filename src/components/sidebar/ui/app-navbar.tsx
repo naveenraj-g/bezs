@@ -7,7 +7,9 @@ import {
   Check,
   ChevronRight,
   Globe,
+  Grip,
   LogOut,
+  Search,
   Settings2,
 } from "lucide-react";
 
@@ -33,20 +35,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "@/theme/theme-switcher";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { usePathname, useRouter } from "next/navigation";
 import { capitalizeString } from "@/utils/helper";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Locale, useLocale, useTranslations } from "next-intl";
+import { startTransition, useTransition } from "react";
+import { useParams } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
 const AppNavbar = ({ session }: { session: Session }) => {
+  const t = useTranslations("bezs");
+
   const router = useRouter();
   const pathname = usePathname();
-
-  console.log(pathname);
+  const params = useParams();
+  const currentLocale = useLocale();
+  console.log(currentLocale);
+  // const [isPending, startTransition] = useTransition();
 
   const {
     user: { name, email, image },
   } = session;
-
-  const today = new Date();
 
   async function handleLogout() {
     console.log("logout button clicked.");
@@ -65,50 +73,76 @@ const AppNavbar = ({ session }: { session: Session }) => {
     });
   }
 
-  const pathSegments = pathname.split("/").filter(Boolean);
-  const pathSegmentsLength = pathSegments.length;
+  console.log(pathname);
+
+  function handleLocaleChange(lang: "en" | "hi") {
+    startTransition(() => {
+      router.replace(
+        // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // // @ts-ignore
+        // { pathname, params },
+        // { locale: lang as Locale }
+        pathname,
+        { locale: lang }
+      );
+    });
+  }
 
   return (
-    <nav className="flex items-center justify-between">
-      {pathname.includes("settings") ? (
-        <Breadcrumb>
-          <BreadcrumbList>
-            {pathSegments.map((pathSegment, index) => {
-              return index + 1 === pathSegmentsLength ? (
-                <BreadcrumbItem key={pathSegment}>
-                  <BreadcrumbPage className="text-base">
-                    {capitalizeString(pathSegment)}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              ) : (
-                <BreadcrumbList key={pathSegment}>
-                  <BreadcrumbItem key={pathSegment}>
-                    <BreadcrumbLink
-                      href={
-                        pathSegment === "bezs"
-                          ? "/bezs"
-                          : `/bezs/${pathSegment}`
-                      }
-                      className="text-base"
-                    >
-                      {pathSegment === "bezs"
-                        ? "Home"
-                        : capitalizeString(pathSegment)}
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="[&>svg]:size-4.5" />
-                </BreadcrumbList>
-              );
-            })}
-          </BreadcrumbList>
-        </Breadcrumb>
-      ) : (
-        <div>
-          <h1 className="text-2xl mb-0.5">Welcome back, {name} 👋</h1>
-          <p className="text-zinc-300">{format(today, "MMMM dd, yyy")}</p>
-        </div>
-      )}
+    <nav className="flex items-center justify-between px-4 py-2 bg-zinc-200/50 dark:bg-zinc-900 shadow">
+      <div className="mt-1.5">
+        {/* <h1 className="text-2xl mb-0.5">
+            {t("welcome")}, {name} 👋
+          </h1>
+          <p className="text-zinc-300">{format(today, "MMMM dd, yyy")}</p> */}
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Grip className="h-6 w-6 cursor-pointer" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Dummy</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="w-[20rem] relative">
+        <Input placeholder="Search" className="pl-8 border-zinc-500" />
+        <Search className="dark:text-zinc-300 absolute w-[1.1rem] h-[1.1rem] top-[25%] left-2" />
+      </div>
       <div className="flex items-center gap-6">
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="cursor-pointer flex items-center justify-between w-full">
+              <p>{currentLocale.toUpperCase()}</p>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="center"
+              side="bottom"
+              sideOffset={18}
+              className="space-y-1"
+            >
+              <DropdownMenuItem
+                className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
+                onClick={() => handleLocaleChange("en")}
+              >
+                EN
+                {currentLocale === "en" && (
+                  <Check className="!h-[1.2rem] !w-[1.2rem]" />
+                )}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
+                onClick={() => handleLocaleChange("hi")}
+              >
+                HI
+                {currentLocale === "hi" && (
+                  <Check className="!h-[1.2rem] !w-[1.2rem]" />
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <Bell className="h-5 w-5 text-zinc-500 dark:text-zinc-300 cursor-pointer" />
         <DropdownMenu>
           <DropdownMenuTrigger className="cursor-pointer">
@@ -157,12 +191,19 @@ const AppNavbar = ({ session }: { session: Session }) => {
                     sideOffset={18}
                     className="space-y-1"
                   >
-                    <div className="flex items-center justify-between px-1 py-0.5 cursor-pointer hover:bg-secondary">
-                      <p>EN</p>
+                    <div
+                      className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
+                      onClick={() => handleLocaleChange("en")}
+                    >
+                      EN
                       <Check className="!h-[1.2rem] !w-[1.2rem]" />
                     </div>
-                    <div className="px-1 py-0.5 cursor-pointer hover:bg-secondary">
-                      <p>HI</p>
+
+                    <div
+                      className="px-1 py-0.5 cursor-pointer hover:bg-secondary"
+                      onClick={() => handleLocaleChange("hi")}
+                    >
+                      HI
                     </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -170,11 +211,16 @@ const AppNavbar = ({ session }: { session: Session }) => {
 
               {/* Third element */}
               <DropdownMenuItem
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => router.push("/bezs/settings")}
+                className="cursor-pointer"
+                // onClick={() => router.push("/bezs/settings")}
               >
-                <Settings2 className="!h-[1.2rem] !w-[1.2rem] dark:text-white" />
-                <p>Settings</p>
+                <Link
+                  href="/bezs/settings/account"
+                  className="flex items-center gap-2 cursor-pointer w-full"
+                >
+                  <Settings2 className="!h-[1.2rem] !w-[1.2rem] dark:text-white" />
+                  <p>Settings</p>
+                </Link>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

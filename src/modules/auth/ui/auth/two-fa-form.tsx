@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/input-otp";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const FormSchema = z.object({
   otp: z.string().min(6, {
@@ -37,6 +38,7 @@ const FormSchema = z.object({
 });
 
 const TwoFaForm = () => {
+  const t = useTranslations("auth.two-fa-form");
   const router = useRouter();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -70,8 +72,8 @@ const TwoFaForm = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>2FA Authentication</CardTitle>
-        <CardDescription>Enter your OTP to verify yourself</CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("subTitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -84,7 +86,7 @@ const TwoFaForm = () => {
               name="otp"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>One-Time Password</FormLabel>
+                  <FormLabel>{t("otpInputLable")}</FormLabel>
                   <FormControl>
                     <InputOTP maxLength={6} {...field}>
                       <InputOTPGroup>
@@ -97,9 +99,7 @@ const TwoFaForm = () => {
                       </InputOTPGroup>
                     </InputOTP>
                   </FormControl>
-                  <FormDescription>
-                    Please enter the one-time password sent to your phone.
-                  </FormDescription>
+                  <FormDescription>{t("otpInputDesc")}</FormDescription>
                   <FormMessage />
                   <div>
                     <Button
@@ -126,7 +126,7 @@ const TwoFaForm = () => {
                         });
                       }}
                     >
-                      Request OTP
+                      {t("reqOTP")}
                     </Button>
                   </div>
                 </FormItem>
@@ -138,7 +138,7 @@ const TwoFaForm = () => {
               className="cursor-pointer"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {isSubmitting ? t("buttonLableSubmitting") : t("buttonLable")}
             </Button>
           </form>
         </Form>

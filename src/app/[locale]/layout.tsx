@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/theme/theme-provider";
 import { NextIntlClientProvider } from "next-intl";
+import NextTopLoader from "nextjs-toploader";
+import { getMessages } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,13 +30,14 @@ export default async function RootLayout({
   params: { locale: string };
 }>) {
   const { locale } = await params;
+  const message = await getMessages();
 
   return (
     <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={message}>
           <ThemeProvider
             attribute="data-theme"
             defaultTheme="zinc-dark"
@@ -43,6 +46,7 @@ export default async function RootLayout({
           >
             {children}
             <Toaster />
+            <NextTopLoader showSpinner={false} />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

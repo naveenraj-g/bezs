@@ -114,7 +114,7 @@ const ManageAccount = ({ session }: { session: Session }) => {
   }
 
   return (
-    <div className="mt-10 flex flex-col gap-10">
+    <div className="mt-8 flex flex-col gap-10">
       <Card className="p-4">
         <Form {...userInfoForm}>
           <form

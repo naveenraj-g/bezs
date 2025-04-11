@@ -87,6 +87,7 @@ const AccountSecurityPage = ({ session }: { session: Session }) => {
 
   const {
     formState: { isSubmitting: twoFaIsSubmitting },
+    setValue: twoFaFormSetValue,
   } = twoFaForm;
 
   async function onEmailChange(values: EmailChangeForm) {
@@ -161,6 +162,7 @@ const AccountSecurityPage = ({ session }: { session: Session }) => {
         {
           onSuccess() {
             toast("2FA enabled successfully!");
+            twoFaFormSetValue("password", "");
           },
           onError(ctx) {
             toast("An error occurred!", {
@@ -181,6 +183,7 @@ const AccountSecurityPage = ({ session }: { session: Session }) => {
         {
           onSuccess() {
             toast("2FA Disabled successfully!");
+            twoFaFormSetValue("password", "");
           },
           onError(ctx) {
             toast("An error occurred!", {
@@ -196,7 +199,7 @@ const AccountSecurityPage = ({ session }: { session: Session }) => {
 
   return (
     <>
-      <div className="mt-10 flex flex-col gap-10">
+      <div className="mt-8 flex flex-col gap-10">
         <Card className="p-4">
           <Form {...emailChangeForm}>
             <h1>Change Email</h1>

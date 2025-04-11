@@ -19,23 +19,44 @@ import {
 import { cn } from "@/lib/utils";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 
-import { House, LogOut, Settings2 } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { Check, House, LogOut, Settings2 } from "lucide-react";
+import { useParams } from "next/navigation";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Locale, useLocale } from "next-intl";
+import { useTransition } from "react";
 
 const items = [
   {
     title: "Home",
-    url: "/bezs",
+    url: "/bezs/dashboard",
     icon: House,
   },
 ];
 
 const AppSidebar = () => {
   const router = useRouter();
-  const path = usePathname();
+  const pathname = usePathname();
+  const params = useParams();
+  const currentLocale = useLocale();
+
+  const [isPending, startTransition] = useTransition();
+
+  function handleLocaleChange(lang: string) {
+    startTransition(() => {
+      router.replace(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        { pathname, params },
+        { locale: lang as Locale }
+      );
+    });
+    // startTransition(() => {
+    //   const newPath = pathname.replace(`/${currentLocale}`, `/${lang}`);
+    //   router.push(newPath);
+    // });
+  }
 
   async function handleLogout() {
     console.log("logout button clicked.");
@@ -56,7 +77,7 @@ const AppSidebar = () => {
 
   return (
     <Sidebar
-      className="w-fit bg-zinc-200/50 dark:bg-zinc-900"
+      className="w-fit h-full bg-zinc-200/50 dark:bg-zinc-900 border-r-2"
       collapsible="none"
     >
       <SidebarContent className="py-3 px-1">
@@ -74,7 +95,7 @@ const AppSidebar = () => {
                     <Link
                       href={item.url}
                       className={cn(
-                        path === item.url && "bg-sidebar-accent",
+                        pathname.includes(item.url) && "bg-sidebar-accent",
                         "px-3 py-5"
                       )}
                     >
@@ -91,13 +112,44 @@ const AppSidebar = () => {
         <SidebarGroup>
           <SidebarMenu className="flex flex-col gap-2">
             <SidebarMenuItem>
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger className="px-2 py-1 cursor-pointer hover:bg-sidebar-accent rounded">
                   EN
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem>EN</DropdownMenuItem>
                   <DropdownMenuItem>HI</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu> */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="px-2 py-1 cursor-pointer flex items-center justify-between w-full hover:bg-sidebar-accent rounded">
+                  <p>{currentLocale.toUpperCase()}</p>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  side="bottom"
+                  sideOffset={18}
+                  className="space-y-1"
+                >
+                  <DropdownMenuItem
+                    className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
+                    onClick={() => handleLocaleChange("en")}
+                  >
+                    EN
+                    {currentLocale === "en" && (
+                      <Check className="!h-[1.2rem] !w-[1.2rem]" />
+                    )}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
+                    onClick={() => handleLocaleChange("hi")}
+                  >
+                    HI
+                    {currentLocale === "hi" && (
+                      <Check className="!h-[1.2rem] !w-[1.2rem]" />
+                    )}
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </SidebarMenuItem>
@@ -125,12 +177,14 @@ const AppSidebar = () => {
               >
                 <SidebarMenuButton
                   className="cursor-pointer"
-                  onClick={() => {
-                    router.push("/bezs/settings");
-                    router.refresh();
-                  }}
+                  // onClick={() => {
+                  //   router.push("/bezs/settings");
+                  //   router.refresh();
+                  // }}
                 >
-                  <Settings2 className="!w-5 !h-5" />
+                  <Link href="/bezs/dashboard/settings">
+                    <Settings2 className="!w-5 !h-5" />
+                  </Link>
                 </SidebarMenuButton>
               </ActionTooltipProvider>
             </SidebarMenuItem>
