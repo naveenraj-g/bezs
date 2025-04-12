@@ -16,7 +16,7 @@ const HomePageTab = () => {
           href="/bezs/dashboard"
           className={cn(
             buttonVariants({ variant: "ghost" }),
-            "rounded-none border-b-2 border-b-transparent",
+            "rounded-none border-b-2 border-b-transparent border-r-2",
             isDashboard && "text-primary border-b-2 border-b-primary"
           )}
         >

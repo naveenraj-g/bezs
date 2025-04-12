@@ -23,6 +23,15 @@ import { toast } from "sonner";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { Switch } from "@/components/ui/switch";
 
+type accountsType = {
+  id: string;
+  provider: string;
+  createdAt: Date;
+  updatedAt: Date;
+  accountId: string;
+  scopes: string[];
+}[];
+
 const emailChangeFormSchema = z.object({
   newEmail: z.string().email(),
   callbackURL: z.string().default("/bezs"),
@@ -49,9 +58,19 @@ type EmailChangeForm = z.infer<typeof emailChangeFormSchema>;
 type PasswordChangeForm = z.infer<typeof passwordChangeFormSchema>;
 type TwoFaForm = z.infer<typeof twoFaSchema>;
 
-const AccountSecurityPage = ({ session }: { session: Session }) => {
+const AccountSecurityPage = ({
+  session,
+  accounts,
+}: {
+  session: Session;
+  accounts: accountsType;
+}) => {
   const router = useRouter();
   const { user } = session;
+
+  const hasCredentialAccount = accounts.find(
+    (acc) => acc.provider === "credential"
+  );
 
   const emailChangeForm = useForm<EmailChangeForm>({
     resolver: zodResolver(emailChangeFormSchema),
@@ -200,133 +219,143 @@ const AccountSecurityPage = ({ session }: { session: Session }) => {
   return (
     <>
       <div className="mt-8 flex flex-col gap-10">
-        <Card className="p-4">
-          <Form {...emailChangeForm}>
-            <h1>Change Email</h1>
-            <form
-              onSubmit={emailChangeForm.handleSubmit(onEmailChange)}
-              className="space-y-8"
-            >
-              <FormField
-                control={emailChangeForm.control}
-                name="newEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="example@gmail.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                className="cursor-pointer"
-                disabled={emailIsSubmitting}
-              >
-                {emailIsSubmitting ? "Changing..." : "Change"}
-              </Button>
-            </form>
-          </Form>
-        </Card>
+        {!hasCredentialAccount ? (
+          <p>
+            Security is not applicable for account that has only social logins.
+          </p>
+        ) : (
+          <>
+            <Card className="p-4">
+              <Form {...emailChangeForm}>
+                <h1>Change Email</h1>
+                <form
+                  onSubmit={emailChangeForm.handleSubmit(onEmailChange)}
+                  className="space-y-8"
+                >
+                  <FormField
+                    control={emailChangeForm.control}
+                    name="newEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="example@gmail.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    className="cursor-pointer"
+                    disabled={emailIsSubmitting}
+                  >
+                    {emailIsSubmitting ? "Changing..." : "Change"}
+                  </Button>
+                </form>
+              </Form>
+            </Card>
 
-        <Card className="p-4">
-          <Form {...passwordChangeForm}>
-            <h1>Update Password</h1>
-            <form
-              onSubmit={passwordChangeForm.handleSubmit(onPasswordChange)}
-              className="space-y-8"
-            >
-              <FormField
-                control={passwordChangeForm.control}
-                name="currentPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Current Password</FormLabel>
-                    <FormControl>
-                      <Input placeholder="******" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={passwordChangeForm.control}
-                name="newPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Password</FormLabel>
-                    <FormControl>
-                      <Input placeholder="******" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                disabled={passwordIsSubmitting}
-                className="cursor-pointer"
-              >
-                {passwordIsSubmitting ? "Changing..." : "Change"}
-              </Button>
-            </form>
-          </Form>
-        </Card>
+            <Card className="p-4">
+              <Form {...passwordChangeForm}>
+                <h1>Update Password</h1>
+                <form
+                  onSubmit={passwordChangeForm.handleSubmit(onPasswordChange)}
+                  className="space-y-8"
+                >
+                  <FormField
+                    control={passwordChangeForm.control}
+                    name="currentPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Password</FormLabel>
+                        <FormControl>
+                          <Input placeholder="******" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={passwordChangeForm.control}
+                    name="newPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Password</FormLabel>
+                        <FormControl>
+                          <Input placeholder="******" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    disabled={passwordIsSubmitting}
+                    className="cursor-pointer"
+                  >
+                    {passwordIsSubmitting ? "Changing..." : "Change"}
+                  </Button>
+                </form>
+              </Form>
+            </Card>
 
-        <Card className="p-4">
-          <Form {...twoFaForm}>
-            <form
-              onSubmit={twoFaForm.handleSubmit(onTwoFaChange)}
-              className="space-y-8"
-            >
-              <FormField
-                control={twoFaForm.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Enable 2FA</FormLabel>
-                      <FormDescription>
-                        Enhance your account security by enabling Two Factor
-                        Authentication.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        className="cursor-pointer"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+            <Card className="p-4">
+              <Form {...twoFaForm}>
+                <form
+                  onSubmit={twoFaForm.handleSubmit(onTwoFaChange)}
+                  className="space-y-8"
+                >
+                  <FormField
+                    control={twoFaForm.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Enable 2FA
+                          </FormLabel>
+                          <FormDescription>
+                            Enhance your account security by enabling Two Factor
+                            Authentication.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            className="cursor-pointer"
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={twoFaForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input placeholder="******" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                disabled={twoFaIsSubmitting}
-                type="submit"
-                className="cursor-pointer"
-              >
-                {twoFaIsSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </form>
-          </Form>
-        </Card>
+                  <FormField
+                    control={twoFaForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input placeholder="******" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    disabled={twoFaIsSubmitting}
+                    type="submit"
+                    className="cursor-pointer"
+                  >
+                    {twoFaIsSubmitting ? "Submitting..." : "Submit"}
+                  </Button>
+                </form>
+              </Form>
+            </Card>
+          </>
+        )}
       </div>
     </>
   );

@@ -49,7 +49,6 @@ const AppNavbar = ({ session }: { session: Session }) => {
   const pathname = usePathname();
   const params = useParams();
   const currentLocale = useLocale();
-  console.log(currentLocale);
   // const [isPending, startTransition] = useTransition();
 
   const {
@@ -72,8 +71,6 @@ const AppNavbar = ({ session }: { session: Session }) => {
       },
     });
   }
-
-  console.log(pathname);
 
   function handleLocaleChange(lang: "en" | "hi") {
     startTransition(() => {
@@ -215,7 +212,7 @@ const AppNavbar = ({ session }: { session: Session }) => {
                 // onClick={() => router.push("/bezs/settings")}
               >
                 <Link
-                  href="/bezs/settings/account"
+                  href="/bezs/dashboard/settings/account"
                   className="flex items-center gap-2 cursor-pointer w-full"
                 >
                   <Settings2 className="!h-[1.2rem] !w-[1.2rem] dark:text-white" />
