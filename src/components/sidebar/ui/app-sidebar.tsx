@@ -75,6 +75,10 @@ const AppSidebar = () => {
     });
   }
 
+  if (pathname.includes("app") || pathname.includes("calendar")) {
+    return null;
+  }
+
   return (
     <Sidebar
       className="w-fit h-full bg-zinc-200/50 dark:bg-zinc-900 border-r-2"

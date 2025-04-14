@@ -41,6 +41,8 @@ import { Locale, useLocale, useTranslations } from "next-intl";
 import { startTransition, useTransition } from "react";
 import { useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import AppsList from "@/modules/bezs/ui/apps-list";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AppNavbar = ({ session }: { session: Session }) => {
   const t = useTranslations("bezs");
@@ -96,8 +98,12 @@ const AppNavbar = ({ session }: { session: Session }) => {
           <DropdownMenuTrigger>
             <Grip className="h-6 w-6 cursor-pointer" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>Dummy</DropdownMenuItem>
+          <DropdownMenuContent className="shadow py-2" sideOffset={15}>
+            {/* <DropdownMenuItem className="hover:bg-none"> */}
+            <ScrollArea className="h-[500px] w-[500px]">
+              <AppsList isNavItem />
+            </ScrollArea>
+            {/* </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

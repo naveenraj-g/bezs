@@ -8,6 +8,7 @@ const HomePageTab = () => {
   const pathname = usePathname();
   const isDashboard = pathname.includes("dashboard");
   const isApps = pathname.includes("apps");
+  const isCalendar = pathname.includes("calendar");
 
   return (
     <>
@@ -26,11 +27,21 @@ const HomePageTab = () => {
           href="/bezs/apps"
           className={cn(
             buttonVariants({ variant: "ghost" }),
-            "rounded-none border-b-2 border-b-transparent",
+            "rounded-none border-b-2 border-b-transparent border-r-2",
             isApps && "text-primary border-b-2 border-b-primary"
           )}
         >
           Apps
+        </Link>
+        <Link
+          href="/bezs/calendar"
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            "rounded-none border-b-2 border-b-transparent",
+            isCalendar && "text-primary border-b-2 border-b-primary"
+          )}
+        >
+          Calendar
         </Link>
       </div>
     </>

@@ -3,7 +3,7 @@ import BreadCrumb from "@/components/sidebar/ui/breadcrumb";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import HomePageTab from "@/modules/bezs/ui/home-page-tab";
 
-const HomeLayout = ({ children }: { children: React.ReactNode }) => {
+const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="h-[calc(100vh-132px)]">
       <HomePageTab />
