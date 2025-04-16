@@ -1,6 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
-import UsersListTable from "@/modules/admin/ui/users-list-table";
 
 const AdminPage = async () => {
   return (
@@ -11,9 +10,9 @@ const AdminPage = async () => {
       </div>
       <Link
         className={buttonVariants({ variant: "link", size: "sm" })}
-        href="/bezs/admin/user-management"
+        href="/bezs/admin/manage-users"
       >
-        User Management
+        Manage Users
       </Link>
     </div>
   );
