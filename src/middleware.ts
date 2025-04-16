@@ -44,6 +44,10 @@ export async function middleware(req: NextRequest) {
 
   const res = I18nMiddleware(req);
 
+  if (refinedPathname.includes("admin") && session?.user?.role !== "admin") {
+    return NextResponse.redirect(new URL("/", url));
+  }
+
   if (publicRoutes.some((route) => refinedPathname.startsWith(route))) {
     // const locale = req.cookies.get("NEXT_LOCALE")?.value || "en";
     return session

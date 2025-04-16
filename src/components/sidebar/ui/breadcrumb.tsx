@@ -22,7 +22,7 @@ const BreadCrumb = () => {
         {pathSegments.map((pathSegment, index) => {
           return index + 1 === pathSegmentsLength ? (
             <BreadcrumbItem key={pathSegment}>
-              <BreadcrumbPage className="text-base">
+              <BreadcrumbPage className="text-base text-primary font-medium">
                 {capitalizeString(
                   pathSegment === "bezs" ? "Home" : pathSegment
                 )}
