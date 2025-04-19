@@ -53,6 +53,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useAdminModal } from "../stores/use-admin-modal-store";
 
 type usersStateType = typeof authClient.$Infer.Session.user;
 type paginationStateType = {
@@ -100,6 +101,9 @@ const getIsSortedTypeField = (
 };
 
 const UsersListTable = () => {
+  const openModal = useAdminModal((state) => state.onOpen);
+  const triggerRefetch = useAdminModal((state) => state.trigger);
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -161,6 +165,7 @@ const UsersListTable = () => {
     searchValue,
     sortDirection,
     filterValue,
+    triggerRefetch,
   ]);
 
   const handlePrevPage = () => {
@@ -275,7 +280,11 @@ const UsersListTable = () => {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button size="sm" className="cursor-pointer">
+            <Button
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => openModal("addUser", "")}
+            >
               <Plus /> Add user
             </Button>
           </div>
@@ -473,7 +482,9 @@ const UsersListTable = () => {
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user?.id}>
-                  <TableCell>{user?.name}</TableCell>
+                  <TableCell>
+                    <p className="max-w-[150px] truncate">{user?.name}</p>
+                  </TableCell>
                   <TableCell>{user?.email}</TableCell>
                   <TableCell>{user?.role}</TableCell>
                   <TableCell>{user?.emailVerified ? "Yes" : "No"}</TableCell>
@@ -481,20 +492,26 @@ const UsersListTable = () => {
                   <TableCell className="flex items-center justify-between gap-4">
                     {format(user?.createdAt, "do 'of' MMM, yyyy")}
                     <DropdownMenu>
-                      <DropdownMenuTrigger>
+                      <DropdownMenuTrigger className="cursor-pointer">
                         <Ellipsis className="font-medium" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" side="left">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer">
                           <User />
                           View profile
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => openModal("editUser", user.id)}
+                        >
                           <PencilLine />
                           Edit details
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="space-x-2">
+                        <DropdownMenuItem
+                          className="space-x-2 cursor-pointer"
+                          onClick={() => openModal("deleteUser", user.id)}
+                        >
                           <div className="flex items-center gap-2">
                             <Trash2 />
                             Delete user

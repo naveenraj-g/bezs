@@ -73,6 +73,10 @@ export function SignInForm() {
           router.push("/2fa-verification");
         },
         onError(ctx) {
+          // console.log(ctx);
+          // if ((ctx.error.code = "EMAIL_NOT_VERIFIED")) {
+          //   router.push(`/email-verification?email=${form.getValues("email")}`);
+          // }
           toast("Error!", {
             description: ctx.error.message,
           });

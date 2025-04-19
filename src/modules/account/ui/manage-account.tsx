@@ -165,7 +165,7 @@ const ManageAccount = ({
                   <FormItem className="flex-1">
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Naveen Raj" {...field} />
+                      <Input placeholder="your name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

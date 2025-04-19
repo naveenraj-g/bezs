@@ -20,11 +20,17 @@ const BreadCrumb = () => {
     <Breadcrumb className="px-4 py-2 border-b-2">
       <BreadcrumbList>
         {pathSegments.map((pathSegment, index) => {
+          const formattedPathSegment = pathSegment
+            .split("-")
+            .join(" ")
+            .toLowerCase();
           return index + 1 === pathSegmentsLength ? (
             <BreadcrumbItem key={pathSegment}>
               <BreadcrumbPage className="text-base text-primary font-medium">
                 {capitalizeString(
-                  pathSegment === "bezs" ? "Home" : pathSegment
+                  formattedPathSegment === "bezs"
+                    ? "Home"
+                    : formattedPathSegment
                 )}
               </BreadcrumbPage>
             </BreadcrumbItem>
@@ -33,13 +39,15 @@ const BreadCrumb = () => {
               <BreadcrumbItem key={pathSegment}>
                 <Link
                   href={
-                    pathSegment === "bezs" ? "/bezs" : `/bezs/${pathSegment}`
+                    formattedPathSegment === "bezs"
+                      ? "/bezs"
+                      : `/bezs/${pathSegment}`
                   }
                   className="text-base hover:text-foreground"
                 >
                   {pathSegment === "bezs"
                     ? "Home"
-                    : capitalizeString(pathSegment)}
+                    : capitalizeString(formattedPathSegment)}
                 </Link>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="[&>svg]:size-4.5" />

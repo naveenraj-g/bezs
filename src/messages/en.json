@@ -46,7 +46,7 @@
     },
     "emailVerification": {
       "title": "Verify Email",
-      "desc": "Hey, we send email verification email to your email go and verify email. If you verified email then refresh this page. If email not received then",
+      "desc": "We’ve sent a verification link to your email. Please check your inbox and verify your email address. Once verified, refresh this page to continue. If email not received then",
       "emailReq": "request again"
     }
   },
