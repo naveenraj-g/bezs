@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { admin, twoFactor } from "better-auth/plugins";
+import { admin, organization, twoFactor, username } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import axios from "axios";
@@ -120,6 +120,8 @@ export const auth = betterAuth({
       defaultRole: "user",
       adminRoles: ["admin"],
     }),
+    username(),
+    organization(),
     nextCookies(),
   ],
 });

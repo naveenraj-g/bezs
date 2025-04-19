@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { z } from "zod";
@@ -29,8 +30,19 @@ import OauthButton from "./oauth-button";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
+const usernameOrEmailSchema = z.string().refine(
+  (value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const usernameRegex = /^[a-zA-Z0-9._]{3,15}$/;
+    return emailRegex.test(value) || usernameRegex.test(value);
+  },
+  {
+    message: "Enter a valid username or email",
+  }
+);
+
 const signInFormSchema = z.object({
-  email: z.string().email(),
+  usernameOrEmail: usernameOrEmailSchema,
   password: z
     .string()
     .min(8, "Password must have atleast two characters")
@@ -48,7 +60,7 @@ export function SignInForm() {
   const form = useForm<SignInForm>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
-      email: "",
+      usernameOrEmail: "",
       password: "",
     },
   });
@@ -58,31 +70,53 @@ export function SignInForm() {
   } = form;
 
   async function onSubmit(values: SignInForm) {
-    const { email, password } = values;
+    const { usernameOrEmail, password } = values;
 
-    await authClient.signIn.email(
-      {
-        email,
-        password,
-        callbackURL: "/bezs",
-      },
-      {
-        onSuccess: async () => {
-          toast("Success!");
-          await authClient.twoFactor.sendOtp();
-          router.push("/2fa-verification");
+    console.log(usernameOrEmail);
+
+    const isEmailLogin = usernameOrEmail.includes("@");
+
+    if (isEmailLogin) {
+      await authClient.signIn.email(
+        {
+          email: usernameOrEmail,
+          password,
+          callbackURL: "/bezs",
         },
-        onError(ctx) {
-          // console.log(ctx);
-          // if ((ctx.error.code = "EMAIL_NOT_VERIFIED")) {
-          //   router.push(`/email-verification?email=${form.getValues("email")}`);
-          // }
-          toast("Error!", {
-            description: ctx.error.message,
-          });
+        {
+          onSuccess: async () => {
+            toast("Success!");
+            await authClient.twoFactor.sendOtp();
+            router.push("/2fa-verification");
+          },
+          onError(ctx) {
+            toast("Error!", {
+              description: ctx.error.message,
+            });
+          },
+        }
+      );
+    } else {
+      await authClient.signIn.username(
+        {
+          username: usernameOrEmail,
+          password,
+          callbackURL: "/bezs",
         },
-      }
-    );
+        {
+          onSuccess: async () => {
+            toast("Success!");
+            await authClient.twoFactor.sendOtp();
+            router.push("/2fa-verification");
+          },
+          onError(ctx: any) {
+            toast("Error!", {
+              description: ctx.error.message,
+            });
+          },
+        }
+      );
+    }
   }
 
   function handleInputTypeChange() {
@@ -102,12 +136,15 @@ export function SignInForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="email"
+                name="usernameOrEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("emailInputLable")}</FormLabel>
+                    <FormLabel>{t("usernameOrEmailInputLable")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="example@gmail.com" {...field} />
+                      <Input
+                        placeholder="@username or example@gmail.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

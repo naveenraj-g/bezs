@@ -24,6 +24,10 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 const signUpFormSchema = z.object({
+  username: z
+    .string()
+    .min(2, "Username must have atleast two characters")
+    .max(15, "Username must have atmost 20 characters"),
   name: z
     .string()
     .min(2, "Name must have atleast two characters")
@@ -45,6 +49,7 @@ export function SignUpForm() {
   const form = useForm<SignUpForm>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
+      username: "",
       name: "",
       email: "",
       password: "",
@@ -56,10 +61,11 @@ export function SignUpForm() {
   } = form;
 
   async function onSubmit(values: SignUpForm) {
-    const { email, name, password } = values;
+    const { email, name, password, username } = values;
 
     await authClient.signUp.email(
       {
+        username,
         email,
         name,
         password,
@@ -93,6 +99,19 @@ export function SignUpForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("usernameInputLable")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="@username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"
