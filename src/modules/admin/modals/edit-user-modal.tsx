@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { CircleCheckBig, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { set } from "date-fns";
 
 const createUserFormSchema = z.object({
   name: z.string().min(3, { message: "name must be atleast 3 characters." }),
@@ -75,6 +76,7 @@ export const EditUserModal = () => {
 
   const roles = ["user", "admin"];
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userDetails, setUserDetails] = useState<userDetails>({
     id: "",
     name: "",
@@ -107,6 +109,7 @@ export const EditUserModal = () => {
       if (!userId) return;
 
       try {
+        setIsLoading(true);
         const { data } = await axios.post("/api/get-user", {
           userId,
         });
@@ -120,11 +123,15 @@ export const EditUserModal = () => {
           banReason: data?.user.banReason,
           banExpires: data?.user.banExpires,
         });
+        setIsLoading(false);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         toast("Error", {
           description: "Failed to fetch user data.",
         });
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
       }
     })();
   }, [userId, form]);
@@ -206,7 +213,11 @@ export const EditUserModal = () => {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="name" {...field} />
+                        <Input
+                          placeholder="name"
+                          {...field}
+                          disabled={isLoading}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -221,7 +232,11 @@ export const EditUserModal = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="example@gmail.com" {...field} />
+                        <Input
+                          placeholder="example@gmail.com"
+                          {...field}
+                          disabled={isLoading}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -249,6 +264,7 @@ export const EditUserModal = () => {
                               value={role}
                               key={i}
                               className="flex items-center"
+                              disabled={isLoading}
                             >
                               {role}
                               {role === userDetails?.role && (
@@ -267,7 +283,7 @@ export const EditUserModal = () => {
                   <Button
                     type="submit"
                     className="cursor-pointer"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isLoading}
                   >
                     {isSubmitting ? (
                       <>

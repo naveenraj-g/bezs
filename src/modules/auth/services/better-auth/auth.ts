@@ -121,7 +121,20 @@ export const auth = betterAuth({
       adminRoles: ["admin"],
     }),
     username(),
-    organization(),
+    organization({
+      allowUserToCreateOrganization: async (user) => {
+        const adminUser = await prisma.user.findFirst({
+          where: {
+            id: user.id,
+          },
+          select: {
+            role: true,
+          },
+        });
+
+        return adminUser?.role === "admin";
+      },
+    }),
     nextCookies(),
   ],
 });

@@ -1,8 +1,8 @@
 import UsersListTable from "@/modules/admin/ui/users-list-table";
 
-const UserManagementPage = () => {
+const ManageUsersPage = () => {
   return (
-    <div className="p-6 space-y-8 max-w-[1280px] mx-auto">
+    <div className="space-y-8 mx-auto">
       <div>
         <h1 className="text-2xl font-semibold">Manage Users</h1>
         <p className="text-sm">
@@ -14,4 +14,4 @@ const UserManagementPage = () => {
   );
 };
 
-export default UserManagementPage;
+export default ManageUsersPage;

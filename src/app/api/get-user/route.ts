@@ -7,12 +7,12 @@ export async function POST(req: Request) {
 
   const session = await getServerSession();
 
-  if (session?.user.role !== "admin") {
+  if (!session?.user?.role || session?.user.role !== "admin") {
     return NextResponse.json({ error: "unauthorized" }, { status: 403 });
   }
 
   try {
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },

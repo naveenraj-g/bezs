@@ -43,6 +43,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --breakpoint-xs: 30rem;
 
   @keyframes accordion-down {
     from {
@@ -89,7 +90,7 @@
   --chart-3: hsl(197 37% 24%);
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -125,7 +126,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);
@@ -161,7 +162,7 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -197,7 +198,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);
@@ -233,7 +234,7 @@
   --chart-4: hsl(43, 74%, 66%);
   --chart-5: hsl(27, 87%, 67%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -269,7 +270,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);
@@ -305,7 +306,7 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -341,7 +342,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);
@@ -377,7 +378,7 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -413,7 +414,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);
@@ -449,7 +450,7 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -485,7 +486,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);
@@ -521,7 +522,7 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -557,7 +558,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);
@@ -593,7 +594,7 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
@@ -629,7 +630,7 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
-  --sidebar: var(--primary-foreground);
+  /* --sidebar: var(--primary-foreground); */
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--chart-1);
   --sidebar-primary-foreground: var(--sidebar-foreground);

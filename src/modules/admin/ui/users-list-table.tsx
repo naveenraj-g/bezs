@@ -141,7 +141,7 @@ const UsersListTable = () => {
           },
         });
 
-        setUsers(allUsers.data?.users);
+        setUsers(allUsers.data?.users || []);
 
         const currentParams = qs.parse(searchParams.toString());
         const newQs = qs.stringify({
@@ -226,7 +226,7 @@ const UsersListTable = () => {
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         <div className="flex items-center gap-6 justify-between flex-wrap">
           <div className="flex gap-4 items-center">
             <h1 className="text-lg font-semibold">All Users ({totalUsers})</h1>
@@ -283,7 +283,7 @@ const UsersListTable = () => {
             <Button
               size="sm"
               className="cursor-pointer"
-              onClick={() => openModal("addUser", "")}
+              onClick={() => openModal({ type: "addUser" })}
             >
               <Plus /> Add user
             </Button>
@@ -344,6 +344,66 @@ const UsersListTable = () => {
                         ) && <Check className="ml-auto" />}
                       </DropdownMenuItem>
                       {sortBy === "name" && (
+                        <DropdownMenuItem
+                          onClick={handleSortColumnsReset}
+                          disabled={isLoading}
+                        >
+                          <X /> Reset
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableHead>
+                <TableHead>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      Username{" "}
+                      {sortBy !== "username" && (
+                        <ChevronsUpDown className="inline-block h-4 w-4 text-zinc-400" />
+                      )}
+                      {getIsSortedTypeField(
+                        sortBy,
+                        sortDirection,
+                        "username",
+                        "asc"
+                      ) && (
+                        <ChevronUp className="inline-block h-4 w-4 text-zinc-400" />
+                      )}
+                      {getIsSortedTypeField(
+                        sortBy,
+                        sortDirection,
+                        "username",
+                        "desc"
+                      ) && (
+                        <ChevronDown className="inline-block h-4 w-4 text-zinc-400" />
+                      )}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" sideOffset={10}>
+                      <DropdownMenuItem
+                        disabled={isLoading}
+                        onClick={() => handleSortColumns("username", "asc")}
+                      >
+                        <ChevronUp /> Asc
+                        {getIsSortedTypeField(
+                          sortBy,
+                          sortDirection,
+                          "username",
+                          "asc"
+                        ) && <Check className="ml-auto" />}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        disabled={isLoading}
+                        onClick={() => handleSortColumns("username", "desc")}
+                      >
+                        <ChevronDown /> Desc
+                        {getIsSortedTypeField(
+                          sortBy,
+                          sortDirection,
+                          "username",
+                          "desc"
+                        ) && <Check className="ml-auto" />}
+                      </DropdownMenuItem>
+                      {sortBy === "username" && (
                         <DropdownMenuItem
                           onClick={handleSortColumnsReset}
                           disabled={isLoading}
@@ -485,6 +545,7 @@ const UsersListTable = () => {
                   <TableCell>
                     <p className="max-w-[150px] truncate">{user?.name}</p>
                   </TableCell>
+                  <TableCell>{user?.username}</TableCell>
                   <TableCell>{user?.email}</TableCell>
                   <TableCell>{user?.role}</TableCell>
                   <TableCell>{user?.emailVerified ? "Yes" : "No"}</TableCell>
@@ -502,7 +563,9 @@ const UsersListTable = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => openModal("editUser", user.id)}
+                          onClick={() =>
+                            openModal({ type: "editUser", userId: user.id })
+                          }
                         >
                           <PencilLine />
                           Edit details
@@ -510,7 +573,9 @@ const UsersListTable = () => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="space-x-2 cursor-pointer"
-                          onClick={() => openModal("deleteUser", user.id)}
+                          onClick={() =>
+                            openModal({ type: "deleteUser", userId: user.id })
+                          }
                         >
                           <div className="flex items-center gap-2">
                             <Trash2 />
@@ -526,6 +591,12 @@ const UsersListTable = () => {
             </TableBody>
           </Table>
         </div>
+        {users.length === 0 && (
+          <p className="text-center mb-12 mt-6 flex justify-center items-center gap-2">
+            <TriangleAlert className="text-rose-600 w-5 h-5" />
+            No users found or Create a new user.
+          </p>
+        )}
 
         <div className="flex gap-6 items-center justify-end">
           <div className="flex items-center gap-2">
@@ -555,7 +626,9 @@ const UsersListTable = () => {
               size="icon"
               variant="ghost"
               className="cursor-pointer border"
-              disabled={pagination.pageIndex === 1 || isLoading}
+              disabled={
+                pagination.pageIndex === 1 || isLoading || users.length === 0
+              }
               onClick={handlePrevPage}
             >
               <ChevronLeft />
@@ -564,7 +637,11 @@ const UsersListTable = () => {
               size="icon"
               variant="ghost"
               className="cursor-pointer border"
-              disabled={pagination.pageIndex === +totalPages || isLoading}
+              disabled={
+                pagination.pageIndex === +totalPages ||
+                isLoading ||
+                users.length === 0
+              }
               onClick={handleNextPage}
             >
               <ChevronRight />

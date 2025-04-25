@@ -10,14 +10,14 @@ import {
 import { Link, usePathname } from "@/i18n/navigation";
 import { capitalizeString } from "@/utils/helper";
 
-const BreadCrumb = () => {
+const BreadCrumb = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
 
   const pathSegments = pathname.split("/").filter(Boolean);
   const pathSegmentsLength = pathSegments.length;
 
   return (
-    <Breadcrumb className="px-4 py-2 border-b-2">
+    <Breadcrumb className={`px-4 py-2 ${className}`}>
       <BreadcrumbList>
         {pathSegments.map((pathSegment, index) => {
           const formattedPathSegment = pathSegment

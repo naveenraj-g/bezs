@@ -16,9 +16,7 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -35,7 +33,12 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 const UpdateInfoFormSchema = z.object({
-  image: z.string().url().optional(),
+  image: z
+    .string()
+    .url()
+    .optional()
+    .or(z.literal(""))
+    .transform((val) => val || undefined),
   name: z
     .string()
     .min(2, "Name must have at least 2 characters")

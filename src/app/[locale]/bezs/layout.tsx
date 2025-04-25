@@ -21,20 +21,8 @@ const AppListingLayout = async ({
   return (
     <>
       <AppNavbar session={session} />
-      {/* <SidebarProvider
-        style={{
-          "--sidebar-width": "0rem",
-          "--sidebar-width-mobile": "0rem",
-        }}
-        className="h-screen flex"
-      > */}
-      {/* <AppSettingsSidebar /> */}
-      {/* <AppSidebar /> */}
-      <BreadCrumb />
-      {/* <ScrollArea className="h-screen w-full"> */}
+      {/* <BreadCrumb /> */}
       <main className="">{children}</main>
-      {/* </ScrollArea> */}
-      {/* </SidebarProvider> */}
     </>
   );
 };
