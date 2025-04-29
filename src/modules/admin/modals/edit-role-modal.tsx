@@ -21,86 +21,81 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useAdminModal } from "../stores/use-admin-modal-store";
-import {
-  authClient,
-  useSession,
-} from "@/modules/auth/services/better-auth/auth-client";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { editRole, getRole } from "../serveractions/admin-actions";
+import { useEffect } from "react";
 
-const createOrganizationFormSchema = z.object({
+const editRoleFormSchema = z.object({
   name: z.string().min(3, { message: "name must be atleast 3 characters." }),
-  slug: z
+  description: z
     .string()
-    .min(3, { message: "slug is required." })
-    .refine((val) => val === val.toLowerCase(), {
-      message: "Slug must be in lowercase.",
-    }),
-  logoUrl: z
-    .string()
-    .url()
-    .optional()
-    .or(z.literal(""))
-    .transform((val) => val || undefined),
+    .min(3, { message: "description must be atleast 3 character long." })
+    .max(150, { message: "description must be atleast 150 character long." }),
 });
 
-type CreateOrganizationFormSchemaType = z.infer<
-  typeof createOrganizationFormSchema
->;
+type EditRoleFormSchemaType = z.infer<typeof editRoleFormSchema>;
 
-export const CreateOrganizationModal = () => {
+export const EditRoleModal = () => {
   const session = useSession();
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
+  const roleId = useAdminModal((state) => state.roleId) || "";
   const incrementTriggerRefetch = useAdminModal(
     (state) => state.incrementTrigger
   );
 
-  const isModalOpen = isOpen && modalType === "addOrganization";
+  const isModalOpen = isOpen && modalType === "editRole";
 
-  const form = useForm<CreateOrganizationFormSchemaType>({
-    resolver: zodResolver(createOrganizationFormSchema),
+  const form = useForm<EditRoleFormSchemaType>({
+    resolver: zodResolver(editRoleFormSchema),
     defaultValues: {
       name: "",
-      slug: "",
-      logoUrl: "",
+      description: "",
     },
   });
+
+  useEffect(() => {
+    if (isModalOpen && roleId) {
+      (async () => {
+        try {
+          const role = await getRole({ roleId });
+          form.setValue("name", role?.name || "");
+          form.setValue("description", role?.description || "");
+        } catch (err) {
+          toast("Error", {
+            description: (err as Error)?.message,
+          });
+        }
+      })();
+    }
+  }, [isModalOpen, roleId, form]);
 
   const {
     formState: { isSubmitting },
   } = form;
 
-  async function handleCreateUser(values: CreateOrganizationFormSchemaType) {
+  async function handleEditRole(values: EditRoleFormSchemaType) {
     if (session.data?.user.role !== "admin") {
       return;
     }
 
-    const { name, slug, logoUrl } = values;
+    const { name, description } = values;
 
-    await authClient.organization.create(
-      {
-        name,
-        slug,
-        logo: logoUrl,
-      },
-      {
-        onSuccess() {
-          toast("Organization Created.");
-        },
-        onError(ctx) {
-          toast("Error", {
-            description: ctx.error.message,
-          });
-        },
-      }
-    );
-
-    incrementTriggerRefetch();
-    form.reset();
-    closeModal();
+    try {
+      await editRole({ roleId, name, description });
+      toast("Role updated successfully.");
+      form.reset();
+      incrementTriggerRefetch();
+      closeModal();
+    } catch (err) {
+      toast("Error!", {
+        description: (err as Error).message,
+      });
+    }
   }
 
   return (
@@ -108,12 +103,12 @@ export const CreateOrganizationModal = () => {
       <DialogContent className="p-8 ">
         <DialogHeader>
           <DialogTitle className="mb-6 text-2xl text-center">
-            Create Organization
+            Edit Role
           </DialogTitle>
           <div>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(handleCreateUser)}
+                onSubmit={form.handleSubmit(handleEditRole)}
                 className="space-y-8"
               >
                 <FormField
@@ -132,26 +127,12 @@ export const CreateOrganizationModal = () => {
 
                 <FormField
                   control={form.control}
-                  name="slug"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Slug (Lowercase)</FormLabel>
+                      <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="my-org" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="logoUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Logo URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https/..." {...field} />
+                        <Input placeholder="..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -166,10 +147,10 @@ export const CreateOrganizationModal = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        Submit <Loader2 className="animate-spin" />
+                        update <Loader2 className="animate-spin" />
                       </>
                     ) : (
-                      "Submit"
+                      "Update"
                     )}
                   </Button>
                   <DialogClose asChild>

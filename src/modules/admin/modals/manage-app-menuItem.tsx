@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { AppMenuItem } from "@prisma/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,7 @@ import { useEffect, useState } from "react";
 import { OrganizationType } from "@/modules/auth/types/auth-types";
 import { MemberType } from "@/modules/auth/types/auth-types";
 import { Input } from "@/components/ui/input";
-import { addMemberToOrg } from "../serveractions/admin-actions";
+import { addMemberToOrg, getAppMenuItem } from "../serveractions/admin-actions";
 import {
   Form,
   FormControl,
@@ -63,19 +64,17 @@ const addUserformSchema = z.object({
 
 type AddUserformSchemaType = z.infer<typeof addUserformSchema>;
 
-export const ManageOrgModal = () => {
+export const ManageAppMenuItemsModal = () => {
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
-  const organizationId = useAdminModal((state) => state.orgId) || "";
+  const appId = useAdminModal((state) => state.appId) || "";
   const triggerRefetch = useAdminModal((state) => state.trigger);
   const incrementTriggerRefetch = useAdminModal(
     (state) => state.incrementTrigger
   );
 
-  const [organization, setOrganization] = useState<
-    Organization | null | undefined
-  >();
+  const [appMenuItems, setAppMenuItems] = useState<AppMenuItem[]>([]);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,34 +92,29 @@ export const ManageOrgModal = () => {
 
   useEffect(() => {
     (async () => {
-      setIsLoading(true);
-      const orgData = await authClient.organization.getFullOrganization(
-        {
-          query: { organizationId: organizationId },
-        },
-        {
-          onSuccess() {
-            setError(null);
-          },
-          onError(ctx) {
-            toast("Error!", {
-              description: ctx.error.message,
-            });
-            setError(ctx.error.message);
-            setIsLoading(false);
-          },
-        }
-      );
-      setOrganization(orgData?.data);
-      setIsLoading(false);
+      if (!appId) {
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const itemsData = await getAppMenuItem({ appId });
+
+        setAppMenuItems(itemsData || []);
+      } catch (err) {
+        setError((err as Error).message);
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+      }
     })();
-  }, [triggerRefetch, organizationId]);
+  }, [appId, triggerRefetch]);
 
   const session = useSession();
 
   if (!session) return;
 
-  const isModalOpen = isOpen && modalType === "manageOrgMembers";
+  const isModalOpen = isOpen && modalType === "manageAppMenuItem";
 
   async function onSubmitAddUser(values: AddUserformSchemaType) {
     const args = {
@@ -165,6 +159,8 @@ export const ManageOrgModal = () => {
       }
     );
   }
+
+  return null;
 
   return (
     <Dialog open={isModalOpen} onOpenChange={closeModal}>
@@ -229,7 +225,7 @@ export const ManageOrgModal = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {organization?.members.map((member) => (
+                {appMenuItems?.members.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>{member.user.name}</TableCell>
                     <TableCell>{member.user.email}</TableCell>

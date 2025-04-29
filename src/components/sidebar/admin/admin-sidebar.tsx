@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Building, User, UserCheck } from "lucide-react";
+import { Building, LayoutGrid, User, UserCog } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const data = [
@@ -26,7 +26,12 @@ const data = [
   {
     title: "Roles",
     url: "/bezs/admin/manage-roles",
-    icon: UserCheck,
+    icon: UserCog,
+  },
+  {
+    title: "Apps",
+    url: "/bezs/admin/manage-apps",
+    icon: LayoutGrid,
   },
 ];
 
@@ -45,8 +50,8 @@ export const AdminSideBar = () => {
                 key={i}
                 className={
                   pathname.includes(item.url)
-                    ? `bg-primary/40 hover:bg-primary/30 ${resolvedTheme === "zinc-dark" ? "text-zinc-100 hover:text-zinc-100" : "text-zinc-100 hover:text-zinc-100"}`
-                    : undefined
+                    ? `bg-primary hover:bg-primary/50 ${resolvedTheme === "zinc-dark" ? "text-zinc-900 hover:text-zinc-100" : "text-zinc-100 hover:text-zinc-100"}`
+                    : "hover:bg-primary/20"
                 }
               >
                 <Link

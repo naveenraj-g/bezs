@@ -39,9 +39,12 @@ const editOrgFormSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((val) => val || undefined),
-  slug: z.string().refine((val) => val === val.toLowerCase(), {
-    message: "Slug must be in lowercase.",
-  }),
+  slug: z
+    .string()
+    .min(3, { message: "slug is required." })
+    .refine((val) => val === val.toLowerCase(), {
+      message: "Slug must be in lowercase.",
+    }),
 });
 
 type EditOrgFormSchemaType = z.infer<typeof editOrgFormSchema>;
@@ -226,10 +229,10 @@ export const EditOrgModal = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        Submit <Loader2 className="animate-spin" />
+                        Update <Loader2 className="animate-spin" />
                       </>
                     ) : (
-                      "Submit"
+                      "Update"
                     )}
                   </Button>
                   <DialogClose asChild>

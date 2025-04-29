@@ -21,120 +21,81 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAdminModal } from "../stores/use-admin-modal-store";
-import {
-  authClient,
-  useSession,
-} from "@/modules/auth/services/better-auth/auth-client";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import { CircleCheckBig, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { set } from "date-fns";
+import { editApp, getApp } from "../serveractions/admin-actions";
 
-const createUserFormSchema = z.object({
+const editAppFormSchema = z.object({
   name: z.string().min(3, { message: "name must be atleast 3 characters." }),
-  email: z.string().email(),
-  role: z.string({ required_error: "Please select a Role for user." }),
-  banned: z.boolean().nullable().optional(),
-  banReason: z.string().nullable().optional(),
-  banExpires: z.date().nullable().optional(),
+  slug: z
+    .string()
+    .min(3, { message: "slug is required." })
+    .refine((val) => val === val.toLowerCase(), {
+      message: "Slug must be in lowercase.",
+    }),
+  description: z
+    .string()
+    .min(5, "Description must have atleast 5 characters")
+    .max(150, "Description must have atmost 150 characters"),
+  type: z.string().min(1, "Slug is required."),
 });
 
-type CreateUserFormSchemaType = z.infer<typeof createUserFormSchema>;
+type EditAppFormSchemaType = z.infer<typeof editAppFormSchema>;
 
-type userDetails = {
-  id: string;
-  name: string;
-  image: string;
-  role: string;
-  email: string;
-  emailVerified: boolean | null;
-  twoFactorEnabled: boolean | null;
-  banned: boolean | null;
-  banReason: string | null;
-  banExpires: Date | null;
-};
-
-export const EditUserModal = () => {
+export const EditAppModal = () => {
   const session = useSession();
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
-  const userId = useAdminModal((state) => state.userId);
+  const appId = useAdminModal((state) => state.appId) || "";
   const incrementTriggerRefetch = useAdminModal(
     (state) => state.incrementTrigger
   );
 
-  const roles = ["user", "admin"];
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [userDetails, setUserDetails] = useState<userDetails>({
-    id: "",
-    name: "",
-    image: "",
-    role: "",
-    email: "",
-    emailVerified: null,
-    twoFactorEnabled: null,
-    banned: null,
-    banReason: null,
-    banExpires: null,
-  });
 
-  const isModalOpen = isOpen && modalType === "editUser";
+  const isModalOpen = isOpen && modalType === "editApp";
 
-  const form = useForm<CreateUserFormSchemaType>({
-    resolver: zodResolver(createUserFormSchema),
+  const form = useForm<EditAppFormSchemaType>({
+    resolver: zodResolver(editAppFormSchema),
     defaultValues: {
       name: "",
-      email: "",
-      role: "",
-      banned: null,
-      banReason: null,
-      banExpires: null,
+      slug: "",
+      description: "",
+      type: "",
     },
   });
 
   useEffect(() => {
     (async () => {
-      if (!userId) return;
+      if (!appId) return;
 
       try {
         setIsLoading(true);
-        const { data } = await axios.post("/api/get-user", {
-          userId,
-        });
+        const appData = await getApp({ appId });
 
-        setUserDetails(data?.user);
         form.reset({
-          name: data?.user.name,
-          email: data?.user.email,
-          role: data?.user.role,
-          banned: data?.user.banned,
-          banReason: data?.user.banReason,
-          banExpires: data?.user.banExpires,
+          name: appData?.name,
+          slug: appData?.slug,
+          description: appData?.description,
+          type: appData?.type,
         });
         setIsLoading(false);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         toast("Error", {
-          description: "Failed to fetch user data.",
+          description: "Failed to fetch App data.",
         });
         setIsLoading(false);
       } finally {
         setIsLoading(false);
       }
     })();
-  }, [userId, form]);
+  }, [appId, form]);
 
   // console.log(userDetails);
 
@@ -142,54 +103,26 @@ export const EditUserModal = () => {
     formState: { isSubmitting },
   } = form;
 
-  async function handleCreateUser(values: CreateUserFormSchemaType) {
-    const { name, email, role } = values;
-
-    const userDetails = {
-      id: userId,
-      name,
-      email,
-      role,
-    };
-
+  async function handleCreateUser(values: EditAppFormSchemaType) {
     if (session?.data?.user.role !== "admin") {
       return;
     }
 
     try {
-      const { data } = await axios.post("/api/edit-user", userDetails);
-
-      if (data?.success) {
-        authClient.admin.revokeUserSessions({
-          userId: userId,
-        });
-      }
-      toast("Success", {
-        description: data?.success,
-      });
-      closeModal();
+      await editApp({ ...values, appId });
+      toast("App updated successfully.");
+      form.reset();
       incrementTriggerRefetch();
+      closeModal();
     } catch (err) {
       toast("Error!", {
-        description:
-          (err as any).response?.data?.error || "An unexpected error occurred.",
+        description: (err as Error).message,
       });
     }
   }
 
   function handleCloseModal() {
-    setUserDetails({
-      id: "",
-      name: "",
-      image: "",
-      role: "",
-      email: "",
-      emailVerified: null,
-      twoFactorEnabled: null,
-      banned: null,
-      banReason: null,
-      banExpires: null,
-    });
+    form.reset();
     closeModal();
   }
 
@@ -198,7 +131,7 @@ export const EditUserModal = () => {
       <DialogContent className="p-8 ">
         <DialogHeader>
           <DialogTitle className="mb-6 text-2xl text-center">
-            Edit User
+            Edit App
           </DialogTitle>
           <div>
             <Form {...form}>
@@ -226,14 +159,13 @@ export const EditUserModal = () => {
 
                 <FormField
                   control={form.control}
-                  // defaultValue={form.getValues("email")}
-                  name="email"
+                  name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Slug</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="example@gmail.com"
+                          placeholder="..."
                           {...field}
                           disabled={isLoading}
                         />
@@ -245,35 +177,35 @@ export const EditUserModal = () => {
 
                 <FormField
                   control={form.control}
-                  name="role"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {roles.map((role, i) => (
-                            <SelectItem
-                              value={role}
-                              key={i}
-                              className="flex items-center"
-                              disabled={isLoading}
-                            >
-                              {role}
-                              {role === userDetails?.role && (
-                                <CircleCheckBig className="!w-[14px] !h-[14px] text-green-500" />
-                              )}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="..."
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="..."
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

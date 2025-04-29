@@ -21,15 +21,13 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useAdminModal } from "../stores/use-admin-modal-store";
-import {
-  authClient,
-  useSession,
-} from "@/modules/auth/services/better-auth/auth-client";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { addApp } from "../serveractions/admin-actions";
 
-const createOrganizationFormSchema = z.object({
+const createAppFormSchema = z.object({
   name: z.string().min(3, { message: "name must be atleast 3 characters." }),
   slug: z
     .string()
@@ -37,19 +35,16 @@ const createOrganizationFormSchema = z.object({
     .refine((val) => val === val.toLowerCase(), {
       message: "Slug must be in lowercase.",
     }),
-  logoUrl: z
+  description: z
     .string()
-    .url()
-    .optional()
-    .or(z.literal(""))
-    .transform((val) => val || undefined),
+    .min(5, "Description must have atleast 5 characters")
+    .max(150, "Description must have atmost 150 characters"),
+  type: z.string().min(1, "Slug is required."),
 });
 
-type CreateOrganizationFormSchemaType = z.infer<
-  typeof createOrganizationFormSchema
->;
+type CreateAppFormSchemaType = z.infer<typeof createAppFormSchema>;
 
-export const CreateOrganizationModal = () => {
+export const CreateAppModal = () => {
   const session = useSession();
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
@@ -58,14 +53,15 @@ export const CreateOrganizationModal = () => {
     (state) => state.incrementTrigger
   );
 
-  const isModalOpen = isOpen && modalType === "addOrganization";
+  const isModalOpen = isOpen && modalType === "addApp";
 
-  const form = useForm<CreateOrganizationFormSchemaType>({
-    resolver: zodResolver(createOrganizationFormSchema),
+  const form = useForm<CreateAppFormSchemaType>({
+    resolver: zodResolver(createAppFormSchema),
     defaultValues: {
       name: "",
       slug: "",
-      logoUrl: "",
+      description: "",
+      type: "",
     },
   });
 
@@ -73,33 +69,24 @@ export const CreateOrganizationModal = () => {
     formState: { isSubmitting },
   } = form;
 
-  async function handleCreateUser(values: CreateOrganizationFormSchemaType) {
+  async function handleCreateUser(values: CreateAppFormSchemaType) {
     if (session.data?.user.role !== "admin") {
       return;
     }
 
-    const { name, slug, logoUrl } = values;
+    // const { name, slug, description, type } = values;
 
-    await authClient.organization.create(
-      {
-        name,
-        slug,
-        logo: logoUrl,
-      },
-      {
-        onSuccess() {
-          toast("Organization Created.");
-        },
-        onError(ctx) {
-          toast("Error", {
-            description: ctx.error.message,
-          });
-        },
-      }
-    );
+    try {
+      await addApp({ ...values });
+      toast("App created successfully.");
+      form.reset();
+    } catch (err) {
+      toast("Error!", {
+        description: (err as Error).message,
+      });
+    }
 
     incrementTriggerRefetch();
-    form.reset();
     closeModal();
   }
 
@@ -108,7 +95,7 @@ export const CreateOrganizationModal = () => {
       <DialogContent className="p-8 ">
         <DialogHeader>
           <DialogTitle className="mb-6 text-2xl text-center">
-            Create Organization
+            Create App
           </DialogTitle>
           <div>
             <Form {...form}>
@@ -135,9 +122,9 @@ export const CreateOrganizationModal = () => {
                   name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Slug (Lowercase)</FormLabel>
+                      <FormLabel>Slug</FormLabel>
                       <FormControl>
-                        <Input placeholder="my-org" {...field} />
+                        <Input placeholder="..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -146,12 +133,26 @@ export const CreateOrganizationModal = () => {
 
                 <FormField
                   control={form.control}
-                  name="logoUrl"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logo URL</FormLabel>
+                      <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="https/..." {...field} />
+                        <Input placeholder="...." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <FormControl>
+                        <Input placeholder="...." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -166,10 +167,10 @@ export const CreateOrganizationModal = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        Submit <Loader2 className="animate-spin" />
+                        Create <Loader2 className="animate-spin" />
                       </>
                     ) : (
-                      "Submit"
+                      "Create"
                     )}
                   </Button>
                   <DialogClose asChild>

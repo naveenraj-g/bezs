@@ -21,23 +21,21 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useAdminModal } from "../stores/use-admin-modal-store";
-import {
-  authClient,
-  useSession,
-} from "@/modules/auth/services/better-auth/auth-client";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import { addRole } from "../serveractions/auth-actions";
+import { addRole } from "../serveractions/admin-actions";
 
-const createOrganizationFormSchema = z.object({
+const createRoleFormSchema = z.object({
   name: z.string().min(3, { message: "name must be atleast 3 characters." }),
-  description: z.string(),
+  description: z
+    .string()
+    .min(3, { message: "description must be atleast 3 character long." })
+    .max(150, { message: "description must be atleast 150 character long." }),
 });
 
-type CreateOrganizationFormSchemaType = z.infer<
-  typeof createOrganizationFormSchema
->;
+type CreateRoleFormSchemaType = z.infer<typeof createRoleFormSchema>;
 
 export const CreateRoleModal = () => {
   const session = useSession();
@@ -50,8 +48,8 @@ export const CreateRoleModal = () => {
 
   const isModalOpen = isOpen && modalType === "addRole";
 
-  const form = useForm<CreateOrganizationFormSchemaType>({
-    resolver: zodResolver(createOrganizationFormSchema),
+  const form = useForm<CreateRoleFormSchemaType>({
+    resolver: zodResolver(createRoleFormSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -62,7 +60,7 @@ export const CreateRoleModal = () => {
     formState: { isSubmitting },
   } = form;
 
-  async function handleCreateUser(values: CreateOrganizationFormSchemaType) {
+  async function handleCreateRole(values: CreateRoleFormSchemaType) {
     if (session.data?.user.role !== "admin") {
       return;
     }
@@ -88,12 +86,12 @@ export const CreateRoleModal = () => {
       <DialogContent className="p-8 ">
         <DialogHeader>
           <DialogTitle className="mb-6 text-2xl text-center">
-            Create Organization
+            Create Role
           </DialogTitle>
           <div>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(handleCreateUser)}
+                onSubmit={form.handleSubmit(handleCreateRole)}
                 className="space-y-8"
               >
                 <FormField

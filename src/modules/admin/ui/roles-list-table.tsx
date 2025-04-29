@@ -156,7 +156,7 @@ export const RolesListTable = () => {
         router.push(`?${newQs}`);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        setError("Failed to fetch users.");
+        setError("Failed to fetch roles.");
       } finally {
         setIsLoading(false);
       }
@@ -385,10 +385,12 @@ export const RolesListTable = () => {
           <TableBody>
             {roles.map((role) => (
               <TableRow key={role?.id}>
-                <TableCell>
-                  <p className="max-w-[150px] truncate">{role?.name}</p>
+                <TableCell className="max-w-[80px] truncate">
+                  {role?.name}
                 </TableCell>
-                <TableCell>{role?.description}</TableCell>
+                <TableCell className="max-w-[80px] truncate">
+                  {role?.description}
+                </TableCell>
                 <TableCell className="flex items-center justify-between gap-4">
                   {format(role?.createdAt, "do 'of' MMM, yyyy")}
                   <DropdownMenu>
@@ -398,7 +400,7 @@ export const RolesListTable = () => {
                     <DropdownMenuContent align="start" side="left">
                       <DropdownMenuItem className="cursor-pointer">
                         <User />
-                        View Organization
+                        View Role
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
@@ -418,7 +420,7 @@ export const RolesListTable = () => {
                       >
                         <div className="flex items-center gap-2">
                           <Trash2 />
-                          Delete Organization
+                          Delete Role
                         </div>
                         <TriangleAlert className="text-rose-600" />
                       </DropdownMenuItem>

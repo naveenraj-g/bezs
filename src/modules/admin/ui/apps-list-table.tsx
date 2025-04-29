@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useAdminModal } from "../stores/use-admin-modal-store";
 import { format } from "date-fns";
 import qs from "query-string";
+import { App } from "@prisma/client";
 
 import {
   Table,
@@ -27,11 +28,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Check,
   ChevronDown,
@@ -40,11 +40,12 @@ import {
   ChevronsUpDown,
   ChevronUp,
   Ellipsis,
-  ListFilter,
   Loader2,
+  Lock,
   PencilLine,
   Plus,
   Search,
+  SquareMenu,
   Trash2,
   TriangleAlert,
   User,
@@ -52,17 +53,13 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
-import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import axios from "axios";
 
-type organizationsStateType = {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string | null;
-  metadata: string | null;
-  _count: { members: number };
-  createdAt: string;
+type appsStateType = App & {
+  _count: {
+    appMenuItems: number;
+    appPermissions: number;
+  };
 };
 type paginationStateType = {
   pageSize: number;
@@ -108,7 +105,7 @@ const getIsSortedTypeField = (
   );
 };
 
-export const OrganizationListTable = () => {
+export const AppsListTable = () => {
   const openModal = useAdminModal((state) => state.onOpen);
   const triggerRefetch = useAdminModal((state) => state.trigger);
 
@@ -122,9 +119,7 @@ export const OrganizationListTable = () => {
   const searchValue = searchParams.get("searchValue") || undefined;
   const filterValue = searchParams.get("filterValue") || undefined;
 
-  const [organizations, setOrganizations] = useState<organizationsStateType[]>(
-    []
-  );
+  const [apps, setApps] = useState<appsStateType[]>([]);
   const [pagination, setPagination] = useState<paginationStateType>({
     pageSize: 5,
     pageIndex: 1,
@@ -138,7 +133,7 @@ export const OrganizationListTable = () => {
       try {
         setIsLoading(true);
 
-        const res = await axios.post("/api/get-organizations", {
+        const res = await axios.post("/api/get-apps", {
           limit: pagination.pageSize,
           offset: (pagination.pageIndex - 1) * pagination.pageSize,
           sortBy,
@@ -150,7 +145,7 @@ export const OrganizationListTable = () => {
 
         const allOrg = res?.data.organizations;
 
-        setOrganizations(allOrg || []);
+        setApps(allOrg || []);
 
         const currentParams = qs.parse(searchParams.toString());
         const newQs = qs.stringify({
@@ -162,8 +157,9 @@ export const OrganizationListTable = () => {
         setError(null);
 
         router.push(`?${newQs}`);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        setError("Failed to fetch organizations.");
+        setError("Failed to fetch apps.");
       } finally {
         setIsLoading(false);
       }
@@ -239,9 +235,7 @@ export const OrganizationListTable = () => {
     <div className="space-y-4 w-full">
       <div className="flex items-center gap-6 justify-between flex-wrap">
         <div className="flex gap-4 items-center">
-          <h1 className="text-lg font-semibold">
-            All Organizations ({totalOrgs})
-          </h1>
+          <h1 className="text-lg font-semibold">All Apps ({totalOrgs})</h1>
           {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
           {error && <p className="text-rose-600">{error}</p>}
         </div>
@@ -249,7 +243,7 @@ export const OrganizationListTable = () => {
           <div className="relative">
             <Input
               className="max-w-[240px] dark:!bg-zinc-800 pl-7 h-8"
-              placeholder="Search organizations..."
+              placeholder="Search apps..."
               onBlur={handleSearchUsers}
             />
             <Search className="w-4 h-4 text-zinc-400 absolute top-[28%] left-1.5" />
@@ -257,9 +251,9 @@ export const OrganizationListTable = () => {
           <Button
             size="sm"
             className="cursor-pointer"
-            onClick={() => openModal({ type: "addOrganization" })}
+            onClick={() => openModal({ type: "addApp" })}
           >
-            <Plus /> Add Organization
+            <Plus /> Add App
           </Button>
         </div>
       </div>
@@ -388,7 +382,10 @@ export const OrganizationListTable = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableHead>
-              <TableHead>Members</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Menu Items</TableHead>
+              <TableHead>Permissions</TableHead>
               <TableHead>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
@@ -452,26 +449,42 @@ export const OrganizationListTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {organizations.map((org) => (
-              <TableRow key={org?.id}>
+            {apps.map((app) => (
+              <TableRow key={app?.id}>
                 <TableCell>
-                  <p className="max-w-[150px] truncate">{org?.name}</p>
+                  <p className="max-w-[150px] truncate">{app?.name}</p>
                 </TableCell>
-                <TableCell>{org?.slug}</TableCell>
+                <TableCell>{app?.slug}</TableCell>
+                <TableCell className="max-w-[150px] truncate">
+                  {app?.description}
+                </TableCell>
+                <TableCell>{app?.type}</TableCell>
                 <TableCell>
                   <Button
                     className="flex items-center cursor-pointer"
                     size="sm"
                     variant="outline"
                     onClick={() =>
-                      openModal({ type: "manageOrgMembers", orgId: org.id })
+                      openModal({ type: "manageAppMenuItem", appId: app.id })
                     }
                   >
-                    <User /> ({org?._count.members})
+                    <SquareMenu /> ({app?._count.appMenuItems})
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    className="flex items-center cursor-pointer"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      openModal({ type: "manageOrgMembers", appId: app.id })
+                    }
+                  >
+                    <Lock /> ({app?._count.appPermissions})
                   </Button>
                 </TableCell>
                 <TableCell className="flex items-center justify-between gap-4">
-                  {format(org?.createdAt, "do 'of' MMM, yyyy")}
+                  {format(app?.createdAt, "do 'of' MMM, yyyy")}
                   <DropdownMenu>
                     <DropdownMenuTrigger className="cursor-pointer">
                       <Ellipsis className="font-medium" />
@@ -479,12 +492,12 @@ export const OrganizationListTable = () => {
                     <DropdownMenuContent align="start" side="left">
                       <DropdownMenuItem className="cursor-pointer">
                         <User />
-                        View Organization
+                        View App
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() =>
-                          openModal({ type: "editOrg", orgId: org.id })
+                          openModal({ type: "editApp", appId: app.id })
                         }
                       >
                         <PencilLine />
@@ -494,12 +507,12 @@ export const OrganizationListTable = () => {
                       <DropdownMenuItem
                         className="space-x-2 cursor-pointer"
                         onClick={() =>
-                          openModal({ type: "deleteOrg", orgId: org.id })
+                          openModal({ type: "deleteApp", appId: app.id })
                         }
                       >
                         <div className="flex items-center gap-2">
                           <Trash2 />
-                          Delete Organization
+                          Delete App
                         </div>
                         <TriangleAlert className="text-rose-600" />
                       </DropdownMenuItem>
@@ -511,10 +524,10 @@ export const OrganizationListTable = () => {
           </TableBody>
         </Table>
       </div>
-      {organizations.length === 0 && (
+      {apps.length === 0 && (
         <p className="text-center mb-12 mt-6 flex justify-center items-center gap-2">
           <TriangleAlert className="text-rose-600 w-5 h-5" />
-          No organizations found or Create a new organization.
+          No Apps found or Create a new app.
         </p>
       )}
 
@@ -547,9 +560,7 @@ export const OrganizationListTable = () => {
             variant="ghost"
             className="cursor-pointer border"
             disabled={
-              pagination.pageIndex === 1 ||
-              isLoading ||
-              organizations.length === 0
+              pagination.pageIndex === 1 || isLoading || apps.length === 0
             }
             onClick={handlePrevPage}
           >
@@ -562,7 +573,7 @@ export const OrganizationListTable = () => {
             disabled={
               pagination.pageIndex === +totalPages ||
               isLoading ||
-              organizations.length === 0
+              apps.length === 0
             }
             onClick={handleNextPage}
           >

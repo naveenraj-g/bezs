@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const roles = await prisma.role.findMany({
+    const organizations = await prisma.app.findMany({
       skip: offset,
       take: limit,
       orderBy: {
@@ -35,11 +35,19 @@ export async function POST(req: Request) {
           mode: "insensitive",
         },
       },
+      include: {
+        _count: {
+          select: {
+            appMenuItems: true,
+            appPermissions: true,
+          },
+        },
+      },
     });
 
-    const rolesCount = await prisma.role.count();
+    const organizationsLength = await prisma.organization.count();
 
-    return NextResponse.json({ roles, length: rolesCount });
+    return NextResponse.json({ organizations, length: organizationsLength });
   } catch (err) {
     return NextResponse.json({ error: "User not found", err }, { status: 404 });
   }

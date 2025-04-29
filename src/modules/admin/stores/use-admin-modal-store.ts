@@ -11,7 +11,12 @@ export type ModalType =
   | "deleteOrg"
   | "addRole"
   | "editRole"
-  | "deleteRole";
+  | "deleteRole"
+  | "addApp"
+  | "editApp"
+  | "deleteApp"
+  | "manageAppMenuItem"
+  | "manageAppPermissions";
 
 interface AdminStore {
   type: ModalType | null;
@@ -19,6 +24,7 @@ interface AdminStore {
   userId?: string;
   orgId?: string;
   roleId?: string;
+  appId?: string;
   trigger: number;
   incrementTrigger: () => void;
   onOpen: (props: {
@@ -26,6 +32,7 @@ interface AdminStore {
     userId?: string;
     orgId?: string;
     roleId?: string;
+    appId?: string;
   }) => void;
   onClose: () => void;
 }
@@ -34,9 +41,16 @@ export const useAdminModal = create<AdminStore>((set) => ({
   type: null,
   isOpen: false,
   trigger: 0,
-  onOpen: ({ type, userId = "", orgId = "", roleId = "" }) =>
-    set({ isOpen: true, type, userId, orgId, roleId }),
+  onOpen: ({ type, userId = "", orgId = "", roleId = "", appId = "" }) =>
+    set({ isOpen: true, type, userId, orgId, roleId, appId }),
   onClose: () =>
-    set({ type: null, isOpen: false, userId: "", orgId: "", roleId: "" }),
+    set({
+      type: null,
+      isOpen: false,
+      userId: "",
+      orgId: "",
+      roleId: "",
+      appId: "",
+    }),
   incrementTrigger: () => set((state) => ({ trigger: state.trigger + 1 })),
 }));

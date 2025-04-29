@@ -146,10 +146,59 @@ model Invitation {
   @@map("invitation")
 }
 
-model Roles {
+model Role {
   id          String @id @default(uuid())
   name        String @unique
   description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([id])
+}
+
+model App {
+  id          String @id @default(uuid())
+  name        String @unique
+  slug        String @unique
+  type        String
+  description String
+
+  appMenuItems   AppMenuItem[]
+  appPermissions AppPermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([id])
+}
+
+model AppMenuItem {
+  id          String @id @default(uuid())
+  name        String
+  slug        String
+  description String
+  image       String
+  url         String
+
+  appId String
+  app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([id])
+}
+
+model AppPermission {
+  id          String @id @default(uuid())
+  action      String
+  actionName  String
+  actionType  String
+  description String
+
+  appId String
+  app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
