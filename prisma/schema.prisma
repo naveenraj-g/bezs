@@ -153,6 +153,9 @@ model Role {
   name        String @unique
   description String
 
+  menuPermission   MenuPermission[]
+  actionPermission ActionPermission[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -172,9 +175,11 @@ model App {
   type        AppType
   imageUrl    String?
 
-  appMenuItems    AppMenuItem[]
-  appActions      AppAction[]
-  appOrganization AppOrganization[]
+  appMenuItems     AppMenuItem[]
+  appActions       AppAction[]
+  appOrganization  AppOrganization[]
+  menuPermission   MenuPermission[]
+  actionPermission ActionPermission[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -205,6 +210,8 @@ model AppMenuItem {
   appId String
   app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
 
+  menuPermission MenuPermission[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -228,9 +235,43 @@ model AppAction {
   appId String
   app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
 
+  actionPermission ActionPermission[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([appId, actionName])
   @@index([id])
+}
+
+model MenuPermission {
+  id String @id @default(uuid())
+
+  roleId        String
+  appId         String
+  appMenuItemId String
+  role          Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  app           App         @relation(fields: [appId], references: [id], onDelete: Cascade)
+  appMenuItem   AppMenuItem @relation(fields: [appMenuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, appId, appMenuItemId])
+  @@index([roleId])
+  @@index([appId])
+  @@index([appMenuItemId])
+}
+
+model ActionPermission {
+  id String @id @default(uuid())
+
+  roleId      String
+  appId       String
+  appActionId String
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  app         App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  appAction   AppAction @relation(fields: [appActionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, appId, appActionId])
+  @@index([roleId])
+  @@index([appId])
+  @@index([appActionId])
 }

@@ -8,6 +8,8 @@ export type ModalType =
   | "addOrganization"
   | "manageOrgMembers"
   | "manageOrgApps"
+  | "manageRoleAppMenus"
+  | "manageRoleAppActions"
   | "editOrg"
   | "deleteOrg"
   | "addRole"

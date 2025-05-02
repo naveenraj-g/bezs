@@ -82,9 +82,8 @@ export const EditAppModal = () => {
   });
 
   useEffect(() => {
+    if (!appId || !isModalOpen) return;
     (async () => {
-      if (!appId) return;
-
       try {
         setIsLoading(true);
         const appData = await getApp({ appId });
@@ -106,7 +105,7 @@ export const EditAppModal = () => {
         setIsLoading(false);
       }
     })();
-  }, [appId, form]);
+  }, [isModalOpen, appId, form]);
 
   // console.log(userDetails);
 

@@ -49,12 +49,6 @@ const editOrgFormSchema = z.object({
 
 type EditOrgFormSchemaType = z.infer<typeof editOrgFormSchema>;
 
-type orgDetails = {
-  name: string | undefined;
-  logoUrl: string | null;
-  slug?: string;
-};
-
 export const EditOrgModal = () => {
   const session = useSession();
   const closeModal = useAdminModal((state) => state.onClose);
@@ -66,7 +60,6 @@ export const EditOrgModal = () => {
   );
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [orgDetails, setOrgDetails] = useState<orgDetails>({});
 
   const isModalOpen = isOpen && modalType === "editOrg";
 
@@ -80,6 +73,8 @@ export const EditOrgModal = () => {
   });
 
   useEffect(() => {
+    if (!organizationId || !isModalOpen) return;
+
     (async () => {
       setIsLoading(true);
       const orgData = await authClient.organization.getFullOrganization(
@@ -95,11 +90,6 @@ export const EditOrgModal = () => {
           },
         }
       );
-      setOrgDetails({
-        name: orgData?.data?.name,
-        logoUrl: orgData?.data?.logoUrl,
-        slug: orgData?.data?.slug,
-      });
 
       form.reset({
         name: orgData?.data?.name,
@@ -108,7 +98,7 @@ export const EditOrgModal = () => {
       });
       setIsLoading(false);
     })();
-  }, [organizationId, form]);
+  }, [organizationId, isModalOpen, form]);
 
   const {
     formState: { isSubmitting },
@@ -146,11 +136,6 @@ export const EditOrgModal = () => {
   }
 
   function handleCloseModal() {
-    setOrgDetails({
-      name: "",
-      logoUrl: "",
-      slug: "",
-    });
     closeModal();
   }
 

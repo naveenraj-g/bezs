@@ -78,9 +78,8 @@ export const EditAppMenuItemModal = () => {
   });
 
   useEffect(() => {
+    if (!appMenuItemId || !isModalOpen) return;
     (async () => {
-      if (!appMenuItemId) return;
-
       try {
         setIsLoading(true);
         const appMenuItemData = await getAppMenuItem({ appMenuItemId });
@@ -102,7 +101,7 @@ export const EditAppMenuItemModal = () => {
         setIsLoading(false);
       }
     })();
-  }, [appMenuItemId, form]);
+  }, [isModalOpen, appMenuItemId, form]);
 
   // console.log(userDetails);
 

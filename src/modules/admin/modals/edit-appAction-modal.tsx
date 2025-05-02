@@ -83,9 +83,9 @@ export const EditAppActionModal = () => {
   });
 
   useEffect(() => {
-    (async () => {
-      if (!appActionId) return;
+    if (!appActionId || !isModalOpen) return;
 
+    (async () => {
       try {
         setIsLoading(true);
         const appActionData = await getAppAction({ appActionId });
@@ -107,7 +107,7 @@ export const EditAppActionModal = () => {
         setIsLoading(false);
       }
     })();
-  }, [appActionId, form]);
+  }, [appActionId, isModalOpen, form]);
 
   const {
     formState: { isSubmitting },

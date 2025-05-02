@@ -38,7 +38,6 @@ import { Input } from "@/components/ui/input";
 import { CircleCheckBig, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { set } from "date-fns";
 
 const createUserFormSchema = z.object({
   name: z.string().min(3, { message: "name must be atleast 3 characters." }),
@@ -69,7 +68,7 @@ export const EditUserModal = () => {
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
-  const userId = useAdminModal((state) => state.userId);
+  const userId = useAdminModal((state) => state.userId) || "";
   const incrementTriggerRefetch = useAdminModal(
     (state) => state.incrementTrigger
   );
@@ -105,9 +104,9 @@ export const EditUserModal = () => {
   });
 
   useEffect(() => {
-    (async () => {
-      if (!userId) return;
+    if (!userId || !isModalOpen) return;
 
+    (async () => {
       try {
         setIsLoading(true);
         const { data } = await axios.post("/api/get-user", {
@@ -134,9 +133,7 @@ export const EditUserModal = () => {
         setIsLoading(false);
       }
     })();
-  }, [userId, form]);
-
-  // console.log(userDetails);
+  }, [isModalOpen, userId, form]);
 
   const {
     formState: { isSubmitting },

@@ -30,7 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Check,
   ChevronDown,
@@ -40,9 +40,11 @@ import {
   ChevronUp,
   Ellipsis,
   Loader2,
+  Lock,
   PencilLine,
   Plus,
   Search,
+  SquareMenu,
   Trash2,
   TriangleAlert,
   User,
@@ -51,6 +53,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import axios from "axios";
+import { cn } from "@/lib/utils";
 
 type rolesStateType = {
   id: string;
@@ -320,6 +323,8 @@ export const RolesListTable = () => {
                 </DropdownMenu>
               </TableHead>
               <TableHead>Description</TableHead>
+              <TableHead>App Menus</TableHead>
+              <TableHead>App Actions</TableHead>
               <TableHead>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
@@ -390,6 +395,33 @@ export const RolesListTable = () => {
                 </TableCell>
                 <TableCell className="max-w-[80px] truncate">
                   {role?.description}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    className="flex items-center cursor-pointer"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      openModal({ type: "manageRoleAppMenus", roleId: role.id })
+                    }
+                  >
+                    <SquareMenu />
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    className="flex items-center cursor-pointer"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      openModal({
+                        type: "manageRoleAppActions",
+                        roleId: role.id,
+                      })
+                    }
+                  >
+                    <Lock />
+                  </Button>
                 </TableCell>
                 <TableCell className="flex items-center justify-between gap-4">
                   {format(role?.createdAt, "do 'of' MMM, yyyy")}

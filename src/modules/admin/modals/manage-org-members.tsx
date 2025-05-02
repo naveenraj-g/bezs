@@ -68,9 +68,9 @@ export const ManageOrgMembersModal = () => {
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
   const organizationId = useAdminModal((state) => state.orgId) || "";
-  const triggerRefetch = useAdminModal((state) => state.triggerInModal);
+  const triggerRefetch = useAdminModal((state) => state.trigger);
   const incrementTriggerRefetch = useAdminModal(
-    (state) => state.incrementInModalTrigger
+    (state) => state.incrementTrigger
   );
 
   const [organization, setOrganization] = useState<

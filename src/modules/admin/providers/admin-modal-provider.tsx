@@ -21,6 +21,8 @@ import { CreateAppActionModal } from "../modals/create-appAction-modal";
 import { EditAppActionModal } from "../modals/edit-appAction-modal";
 import { DeleteAppActionModal } from "../modals/delete-appAction-modal";
 import { ManageOrgAppsModal } from "../modals/manage-org-apps";
+import { ManageRoleAppMenusModal } from "../modals/manage-role-appMenus-modal";
+import { ManageRoleAppActionsModal } from "../modals/manage-role-appActions-modal";
 
 export const AdminModalProvider = () => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -53,6 +55,8 @@ export const AdminModalProvider = () => {
       <CreateAppActionModal />
       <EditAppActionModal />
       <DeleteAppActionModal />
+      <ManageRoleAppMenusModal />
+      <ManageRoleAppActionsModal />
     </>
   );
 };

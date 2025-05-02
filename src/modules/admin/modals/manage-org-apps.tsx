@@ -7,7 +7,6 @@ import { Organization, App } from "@prisma/client";
 import {
   addAppToOrganization,
   getAllApps,
-  getOrganization,
   getOrganizationApps,
   removeAppFromOrganization,
 } from "../serveractions/organizations/map-org-to-apps";
@@ -30,14 +29,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAdminModal } from "../stores/use-admin-modal-store";
-import {
-  authClient,
-  useSession,
-} from "@/modules/auth/services/better-auth/auth-client";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { addMemberToOrg } from "../serveractions/admin-actions";
 import {
   Form,
   FormControl,
@@ -48,7 +42,9 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -73,13 +69,12 @@ export const ManageOrgAppsModal = () => {
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
   const organizationId = useAdminModal((state) => state.orgId) || "";
-  const triggerRefetch = useAdminModal((state) => state.triggerInModal);
+  const triggerRefetch = useAdminModal((state) => state.trigger);
   const incrementTriggerRefetch = useAdminModal(
-    (state) => state.incrementInModalTrigger
+    (state) => state.incrementTrigger
   );
 
   const [allApps, setAllApps] = useState<{ id: string; name: string }[]>([]);
-  // const [organization, setOrganization] = useState<Organization | null>();
   const [organizationApps, setOrganizationApps] =
     useState<OrgAppDataType | null>();
 
@@ -100,13 +95,12 @@ export const ManageOrgAppsModal = () => {
   } = form;
 
   useEffect(() => {
-    if (!organizationId) return;
+    if (!organizationId || !isModalOpen) return;
+
     (async () => {
       try {
         setIsLoading(true);
         const allAppsData = await getAllApps();
-        // const orgData = await getOrganization({ organizationId });
-        // setOrganization(orgData);
         setAllApps(allAppsData);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
@@ -118,10 +112,10 @@ export const ManageOrgAppsModal = () => {
         setIsLoading(false);
       }
     })();
-  }, [organizationId]);
+  }, [isModalOpen, organizationId]);
 
   useEffect(() => {
-    if (!organizationId) return;
+    if (!organizationId || !isModalOpen) return;
 
     (async () => {
       try {
@@ -139,7 +133,7 @@ export const ManageOrgAppsModal = () => {
         setIsLoading(false);
       }
     })();
-  }, [triggerRefetch, organizationId]);
+  }, [triggerRefetch, organizationId, isModalOpen]);
 
   const session = useSession();
 
@@ -154,7 +148,7 @@ export const ManageOrgAppsModal = () => {
       setIsLoading(true);
       await addAppToOrganization({ ...values, organizationId });
       toast("App added successfully.");
-      form.reset();
+      // form.reset();
       incrementTriggerRefetch();
     } catch (err) {
       toast("Error!", {
@@ -186,6 +180,12 @@ export const ManageOrgAppsModal = () => {
     }
   }
 
+  const orgAppIds = new Set(
+    organizationApps?.appOrganization.map((d) => d.app.id)
+  );
+
+  const filteredApps = allApps.filter((app) => !orgAppIds.has(app.id));
+
   return (
     <Dialog open={isModalOpen} onOpenChange={closeModal}>
       <DialogContent className="p-8 sm:max-w-[550px] w-[550px] overflow-hidden">
@@ -215,11 +215,16 @@ export const ManageOrgAppsModal = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {allApps?.map((app) => (
-                            <SelectItem value={app.id} key={app.id}>
-                              {app.name}
-                            </SelectItem>
-                          ))}
+                          <SelectGroup>
+                            {filteredApps.length == 0 && (
+                              <SelectLabel>No apps</SelectLabel>
+                            )}
+                            {filteredApps?.map((app) => (
+                              <SelectItem value={app.id} key={app.id}>
+                                {app.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -239,7 +244,9 @@ export const ManageOrgAppsModal = () => {
         </DialogDescription>
         <div className="space-y-4 overflow-x-auto">
           <div className="flex gap-4 items-center">
-            <h3 className="font-semibold">Org Apps ({0})</h3>
+            <h3 className="font-semibold">
+              Org Apps ({organizationApps?.appOrganization.length})
+            </h3>
             {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
             {error && <p className="text-rose-600">{error}</p>}
           </div>
@@ -275,6 +282,9 @@ export const ManageOrgAppsModal = () => {
               </TableBody>
             </Table>
           </div>
+          {organizationApps?.appOrganization.length === 0 && (
+            <p className="text-center">No apps in this organization</p>
+          )}
         </div>
         <DialogFooter className="space-x-2"></DialogFooter>
       </DialogContent>
