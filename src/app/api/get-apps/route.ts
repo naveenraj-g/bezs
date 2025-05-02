@@ -39,15 +39,15 @@ export async function POST(req: Request) {
         _count: {
           select: {
             appMenuItems: true,
-            appPermissions: true,
+            appActions: true,
           },
         },
       },
     });
 
-    const organizationsLength = await prisma.organization.count();
+    const appsLength = await prisma.app.count();
 
-    return NextResponse.json({ organizations, length: organizationsLength });
+    return NextResponse.json({ organizations, length: appsLength });
   } catch (err) {
     return NextResponse.json({ error: "User not found", err }, { status: 404 });
   }

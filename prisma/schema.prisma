@@ -102,15 +102,17 @@ model TwoFactor {
 }
 
 model Organization {
-  id          String       @id
-  name        String
-  slug        String?
-  logo        String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
+  id        String   @id
+  name      String
+  slug      String?
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  metadata  String?
+
+  members         Member[]
+  invitations     Invitation[]
+  appOrganization AppOrganization[]
 
   @@unique([slug])
   @@index([id])
@@ -157,29 +159,48 @@ model Role {
   @@index([id])
 }
 
-model App {
-  id          String @id @default(uuid())
-  name        String @unique
-  slug        String @unique
-  type        String
-  description String
+enum AppType {
+  platform
+  custom
+}
 
-  appMenuItems   AppMenuItem[]
-  appPermissions AppPermission[]
+model App {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String
+  slug        String  @unique
+  type        AppType
+  imageUrl    String?
+
+  appMenuItems    AppMenuItem[]
+  appActions      AppAction[]
+  appOrganization AppOrganization[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([id])
+}
+
+model AppOrganization {
+  appId          String
+  organizationId String
+  app            App          @relation(fields: [appId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([appId, organizationId])
+  @@index([appId, organizationId])
 }
 
 model AppMenuItem {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
-  slug        String
   description String
-  image       String
-  url         String
+  slug        String
+  icon        String?
 
   appId String
   app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
@@ -187,15 +208,22 @@ model AppMenuItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([appId, name])
+  @@unique([appId, slug])
   @@index([id])
 }
 
-model AppPermission {
-  id          String @id @default(uuid())
-  action      String
+enum AppActionType {
+  button
+  link
+}
+
+model AppAction {
+  id          String        @id @default(uuid())
   actionName  String
-  actionType  String
   description String
+  actionType  AppActionType
+  icon        String?
 
   appId String
   app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
@@ -203,5 +231,6 @@ model AppPermission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([appId, actionName])
   @@index([id])
 }

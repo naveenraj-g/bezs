@@ -117,7 +117,7 @@ export const auth = betterAuth({
       },
     }),
     admin({
-      defaultRole: "user",
+      defaultRole: "guest",
       adminRoles: ["admin"],
     }),
     username(),

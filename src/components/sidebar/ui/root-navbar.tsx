@@ -44,7 +44,7 @@ const RootNavBarPage = () => {
 
   return (
     <>
-      <nav className="flex items-center justify-between px-4 py-1 bg-white dark:bg-zinc-800/60 shadow-md">
+      <nav className="flex items-center justify-between px-4 py-1.5 bg-white dark:bg-zinc-800/60 shadow-md">
         <div>
           <h1>
             <Link href="/">Bezs</Link>

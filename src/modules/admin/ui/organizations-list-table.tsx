@@ -40,6 +40,7 @@ import {
   ChevronsUpDown,
   ChevronUp,
   Ellipsis,
+  LayoutGrid,
   ListFilter,
   Loader2,
   PencilLine,
@@ -61,7 +62,7 @@ type organizationsStateType = {
   slug: string;
   logo: string | null;
   metadata: string | null;
-  _count: { members: number };
+  _count: { members: number; appOrganization: number };
   createdAt: string;
 };
 type paginationStateType = {
@@ -162,6 +163,7 @@ export const OrganizationListTable = () => {
         setError(null);
 
         router.push(`?${newQs}`);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         setError("Failed to fetch organizations.");
       } finally {
@@ -389,6 +391,7 @@ export const OrganizationListTable = () => {
                 </DropdownMenu>
               </TableHead>
               <TableHead>Members</TableHead>
+              <TableHead>Apps</TableHead>
               <TableHead>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
@@ -468,6 +471,18 @@ export const OrganizationListTable = () => {
                     }
                   >
                     <User /> ({org?._count.members})
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    className="flex items-center cursor-pointer"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      openModal({ type: "manageOrgApps", orgId: org.id })
+                    }
+                  >
+                    <LayoutGrid /> ({org?._count.appOrganization})
                   </Button>
                 </TableCell>
                 <TableCell className="flex items-center justify-between gap-4">

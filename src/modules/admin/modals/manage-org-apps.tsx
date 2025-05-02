@@ -3,6 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Organization, App } from "@prisma/client";
+import {
+  addAppToOrganization,
+  getAllApps,
+  getOrganization,
+  getOrganizationApps,
+  removeAppFromOrganization,
+} from "../serveractions/organizations/map-org-to-apps";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,9 +36,6 @@ import {
 } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-
-import { OrganizationType } from "@/modules/auth/types/auth-types";
-import { MemberType } from "@/modules/auth/types/auth-types";
 import { Input } from "@/components/ui/input";
 import { addMemberToOrg } from "../serveractions/admin-actions";
 import {
@@ -40,30 +45,30 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
-type Organization = OrganizationType & {
-  members: Array<
-    MemberType & {
-      user: {
-        email: string;
-        id: string;
-        image: string | null;
-        name: string;
-      };
-    }
-  >;
-};
-
 const addUserformSchema = z.object({
-  userName: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+  appId: z.string().min(2, {
+    message: "Must select a app.",
   }),
 });
 
+type OrgAppDataType = Organization & {
+  appOrganization: {
+    app: App;
+  }[];
+};
+
 type AddUserformSchemaType = z.infer<typeof addUserformSchema>;
 
-export const ManageOrgMembersModal = () => {
+export const ManageOrgAppsModal = () => {
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
@@ -73,17 +78,20 @@ export const ManageOrgMembersModal = () => {
     (state) => state.incrementInModalTrigger
   );
 
-  const [organization, setOrganization] = useState<
-    Organization | null | undefined
-  >();
+  const [allApps, setAllApps] = useState<{ id: string; name: string }[]>([]);
+  // const [organization, setOrganization] = useState<Organization | null>();
+  const [organizationApps, setOrganizationApps] =
+    useState<OrgAppDataType | null>();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isModalOpen = isOpen && modalType === "manageOrgApps";
+
   const form = useForm<AddUserformSchemaType>({
     resolver: zodResolver(addUserformSchema),
     defaultValues: {
-      userName: "",
+      appId: "",
     },
   });
 
@@ -92,27 +100,44 @@ export const ManageOrgMembersModal = () => {
   } = form;
 
   useEffect(() => {
+    if (!organizationId) return;
     (async () => {
-      setIsLoading(true);
-      const orgData = await authClient.organization.getFullOrganization(
-        {
-          query: { organizationId: organizationId },
-        },
-        {
-          onSuccess() {
-            setError(null);
-          },
-          onError(ctx) {
-            toast("Error!", {
-              description: ctx.error.message,
-            });
-            setError(ctx.error.message);
-            setIsLoading(false);
-          },
-        }
-      );
-      setOrganization(orgData?.data);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const allAppsData = await getAllApps();
+        // const orgData = await getOrganization({ organizationId });
+        // setOrganization(orgData);
+        setAllApps(allAppsData);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        toast("Error!", {
+          description: "Failed to get Apps data.",
+        });
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (!organizationId) return;
+
+    (async () => {
+      try {
+        setIsLoading(true);
+        const orgAppsData = await getOrganizationApps({ organizationId });
+        setOrganizationApps(orgAppsData);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setError("Failed to fetch datas.");
+        toast("Error!", {
+          description: "Failed to get Apps data.",
+        });
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, [triggerRefetch, organizationId]);
 
@@ -120,50 +145,45 @@ export const ManageOrgMembersModal = () => {
 
   if (!session) return;
 
-  const isModalOpen = isOpen && modalType === "manageOrgMembers";
-
-  async function onSubmitAddUser(values: AddUserformSchemaType) {
-    const args = {
-      userName: values.userName,
-      organizationId: organizationId,
-      session: session,
-    };
+  async function onSubmitAddApp(values: AddUserformSchemaType) {
+    if (session?.data?.user.role !== "admin") {
+      return;
+    }
 
     try {
-      await addMemberToOrg({ role: "member", ...args });
-      toast("User added to org successfully");
+      setIsLoading(true);
+      await addAppToOrganization({ ...values, organizationId });
+      toast("App added successfully.");
       form.reset();
+      incrementTriggerRefetch();
     } catch (err) {
       toast("Error!", {
         description: (err as Error).message,
       });
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
-
-    incrementTriggerRefetch();
   }
 
-  async function handleRemoveUser(memberId: string, orgId: string) {
-    if (session.data?.user.role !== "admin") {
+  async function handleRemoveApp(appId: string) {
+    if (session?.data?.user.role !== "admin") {
       return;
     }
 
-    await authClient.organization.removeMember(
-      {
-        memberIdOrEmail: memberId,
-        organizationId: orgId,
-      },
-      {
-        onSuccess() {
-          toast("user removed");
-          incrementTriggerRefetch();
-        },
-        onError(ctx) {
-          toast("Error!", {
-            description: ctx.error.message,
-          });
-        },
-      }
-    );
+    try {
+      setIsLoading(true);
+      await removeAppFromOrganization({ appId, organizationId });
+      toast("App removed successfully.");
+      incrementTriggerRefetch();
+    } catch (err) {
+      toast("Error!", {
+        description: (err as Error).message,
+      });
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -171,30 +191,37 @@ export const ManageOrgMembersModal = () => {
       <DialogContent className="p-8 sm:max-w-[550px] w-[550px] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="mb-2 text-2xl text-center flex flex-col">
-            {organization?.name}
-            <span className="text-base">({organization?.slug})</span>
+            {organizationApps?.name}
+            <span className="text-base">({organizationApps?.slug})</span>
           </DialogTitle>
         </DialogHeader>
         <DialogDescription asChild>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmitAddUser)}
+              onSubmit={form.handleSubmit(onSubmitAddApp)}
               className="space-y-8 mb-8"
             >
               <div className="flex flex-col xs:flex-row gap-4 items-center">
                 <FormField
                   control={form.control}
-                  name="userName"
+                  name="appId"
                   render={({ field }) => (
                     <FormItem className="xs:flex-1 w-full">
                       {/* <FormLabel>Username</FormLabel> */}
-                      <FormControl>
-                        <Input
-                          placeholder="username"
-                          {...field}
-                          autoComplete="off"
-                        />
-                      </FormControl>
+                      <Select onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="No apps selected" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {allApps?.map((app) => (
+                            <SelectItem value={app.id} key={app.id}>
+                              {app.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -202,9 +229,9 @@ export const ManageOrgMembersModal = () => {
                 <Button
                   type="submit"
                   className="cursor-pointer xs:self-start w-full xs:w-fit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isLoading}
                 >
-                  Map User
+                  Map App
                 </Button>
               </div>
             </form>
@@ -212,9 +239,7 @@ export const ManageOrgMembersModal = () => {
         </DialogDescription>
         <div className="space-y-4 overflow-x-auto">
           <div className="flex gap-4 items-center">
-            <h3 className="font-semibold">
-              Org Members ({organization?.members.length})
-            </h3>
+            <h3 className="font-semibold">Org Apps ({0})</h3>
             {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
             {error && <p className="text-rose-600">{error}</p>}
           </div>
@@ -223,26 +248,24 @@ export const ManageOrgMembersModal = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-left">Name</TableHead>
-                  <TableHead className="text-left">Email</TableHead>
-                  <TableHead className="text-left">Role</TableHead>
+                  <TableHead className="text-left">Slug</TableHead>
+                  <TableHead className="text-left">Type</TableHead>
                   <TableHead className="text-left">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {organization?.members.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell>{member.user.name}</TableCell>
-                    <TableCell>{member.user.email}</TableCell>
-                    <TableCell>{member.role}</TableCell>
+                {organizationApps?.appOrganization.map((data) => (
+                  <TableRow key={data.app.id}>
+                    <TableCell>{data.app.name}</TableCell>
+                    <TableCell>{data.app.slug}</TableCell>
+                    <TableCell>{data.app.type}</TableCell>
                     <TableCell>
                       <Button
                         variant="destructive"
                         size="sm"
                         className="cursor-pointer"
-                        disabled={member.role === "owner"}
-                        onClick={() =>
-                          handleRemoveUser(member.id, organizationId)
-                        }
+                        disabled={isLoading}
+                        onClick={() => handleRemoveApp(data.app.id)}
                       >
                         Remove
                       </Button>

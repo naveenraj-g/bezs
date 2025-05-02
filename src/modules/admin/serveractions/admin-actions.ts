@@ -148,7 +148,7 @@ export async function addApp({
   name: string;
   slug: string;
   description: string;
-  type: string;
+  type: "platform" | "custom";
 }) {
   const session = await getServerSession();
 
@@ -201,7 +201,7 @@ export async function editApp({
   name: string;
   slug: string;
   description: string;
-  type: string;
+  type: "platform" | "custom";
 }) {
   const session = await getServerSession();
 
@@ -244,22 +244,230 @@ export async function deleteApp({ appId }: { appId: string }) {
   });
 }
 
-export async function getAppMenuItem({ appId }: { appId: string }) {
+export async function addAppMenuItem({
+  appId,
+  name,
+  slug,
+  icon,
+  description,
+}: {
+  appId: string;
+  name: string;
+  slug: string;
+  icon?: string;
+  description: string;
+}) {
   const session = await getServerSession();
 
   if (!session?.user?.role || session?.user.role !== "admin") {
     throw new Error("Unauthorized!");
   }
 
-  if (!appId) {
+  if (!appId || !name || !slug || !description) {
     throw new Error("Missing required datas.");
   }
 
-  const appMenuItem = await prisma.appMenuItem.findMany({
-    where: {
+  await prisma.appMenuItem.create({
+    data: {
       appId,
+      name,
+      slug,
+      icon,
+      description,
+    },
+  });
+}
+
+export async function getAppMenuItem({
+  appMenuItemId,
+}: {
+  appMenuItemId: string;
+}) {
+  const session = await getServerSession();
+
+  if (!session?.user?.role || session?.user.role !== "admin") {
+    throw new Error("Unauthorized!");
+  }
+
+  if (!appMenuItemId) {
+    throw new Error("Missing required datas.");
+  }
+
+  const appMenuItem = await prisma.appMenuItem.findUnique({
+    where: {
+      id: appMenuItemId,
     },
   });
 
   return appMenuItem;
+}
+
+export async function editAppMenuItem({
+  appMenuItemId,
+  name,
+  slug,
+  icon,
+  description,
+}: {
+  appMenuItemId: string;
+  name: string;
+  slug: string;
+  icon?: string;
+  description: string;
+}) {
+  const session = await getServerSession();
+
+  if (!session?.user?.role || session?.user.role !== "admin") {
+    throw new Error("Unauthorized!");
+  }
+
+  if (!appMenuItemId || !name || !slug || !description) {
+    throw new Error("Missing required datas.");
+  }
+
+  await prisma.appMenuItem.update({
+    where: {
+      id: appMenuItemId,
+    },
+    data: {
+      name,
+      slug,
+      icon,
+      description,
+    },
+  });
+}
+
+export async function deleteAppMenuItem({
+  appMenuItemId,
+}: {
+  appMenuItemId: string;
+}) {
+  const session = await getServerSession();
+
+  if (!session?.user?.role || session?.user.role !== "admin") {
+    throw new Error("Unauthorized!");
+  }
+
+  if (!appMenuItemId) {
+    throw new Error("Missing required datas.");
+  }
+
+  await prisma.appMenuItem.delete({
+    where: {
+      id: appMenuItemId,
+    },
+  });
+}
+
+export async function addAppAction({
+  appId,
+  actionName,
+  actionType,
+  description,
+  icon,
+}: {
+  appId: string;
+  actionName: string;
+  actionType: "button" | "link";
+  description: string;
+  icon?: string;
+}) {
+  const session = await getServerSession();
+
+  if (!session?.user?.role || session?.user.role !== "admin") {
+    throw new Error("Unauthorized!");
+  }
+
+  if (!appId || !actionName || !description || !actionType) {
+    throw new Error("Missing required datas.");
+  }
+
+  await prisma.appAction.create({
+    data: {
+      appId,
+      actionName,
+      actionType,
+      description,
+      icon,
+    },
+  });
+}
+
+export async function getAppAction({ appActionId }: { appActionId: string }) {
+  const session = await getServerSession();
+
+  if (!session?.user?.role || session?.user.role !== "admin") {
+    throw new Error("Unauthorized!");
+  }
+
+  if (!appActionId) {
+    throw new Error("Missing required datas.");
+  }
+
+  const appMenuItem = await prisma.appAction.findUnique({
+    where: {
+      id: appActionId,
+    },
+  });
+
+  return appMenuItem;
+}
+
+export async function editAppAction({
+  appActionId,
+  actionName,
+  actionType,
+  description,
+  icon,
+}: {
+  appActionId: string;
+  actionName: string;
+  actionType: "button" | "link";
+  description: string;
+  icon?: string;
+}) {
+  const session = await getServerSession();
+
+  if (!session?.user?.role || session?.user.role !== "admin") {
+    throw new Error("Unauthorized!");
+  }
+
+  if (!appActionId || !actionName || !description || !actionType) {
+    throw new Error("Missing required datas.");
+  }
+
+  await prisma.appAction.update({
+    where: {
+      id: appActionId,
+    },
+    data: {
+      actionName,
+      actionType,
+      description,
+      icon,
+    },
+  });
+}
+
+export async function deleteAppAction({
+  appActionId,
+}: {
+  appActionId: string;
+}) {
+  const session = await getServerSession();
+
+  if (!session?.user?.role || session?.user.role !== "admin") {
+    throw new Error("Unauthorized!");
+  }
+
+  if (!appActionId) {
+    throw new Error("Missing required datas.");
+  }
+
+  await prisma.appAction.delete({
+    where: {
+      id: appActionId,
+    },
+  });
 }

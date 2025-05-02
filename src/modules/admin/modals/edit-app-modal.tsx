@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { AppType } from "@prisma/client";
+
 import {
   Form,
   FormControl,
@@ -21,6 +23,13 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAdminModal } from "../stores/use-admin-modal-store";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
@@ -41,7 +50,7 @@ const editAppFormSchema = z.object({
     .string()
     .min(5, "Description must have atleast 5 characters")
     .max(150, "Description must have atmost 150 characters"),
-  type: z.string().min(1, "Slug is required."),
+  type: z.nativeEnum(AppType),
 });
 
 type EditAppFormSchemaType = z.infer<typeof editAppFormSchema>;
@@ -60,13 +69,15 @@ export const EditAppModal = () => {
 
   const isModalOpen = isOpen && modalType === "editApp";
 
+  const types = Object.values(AppType);
+
   const form = useForm<EditAppFormSchemaType>({
     resolver: zodResolver(editAppFormSchema),
     defaultValues: {
       name: "",
       slug: "",
       description: "",
-      type: "",
+      type: "platform",
     },
   });
 
@@ -199,13 +210,23 @@ export const EditAppModal = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="..."
-                          {...field}
-                          disabled={isLoading}
-                        />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {types.map((type, i) => (
+                            <SelectItem value={type} key={i}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

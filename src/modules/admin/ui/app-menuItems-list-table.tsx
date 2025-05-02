@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useAdminModal } from "../stores/use-admin-modal-store";
 import { format } from "date-fns";
 import qs from "query-string";
-import { App } from "@prisma/client";
+import { AppMenuItem } from "@prisma/client";
 
 import {
   Table,
@@ -31,7 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Check,
   ChevronDown,
@@ -41,27 +41,18 @@ import {
   ChevronUp,
   Ellipsis,
   Loader2,
-  Lock,
   PencilLine,
   Plus,
   Search,
-  SquareMenu,
   Trash2,
   TriangleAlert,
   User,
   X,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import axios from "axios";
-import { cn } from "@/lib/utils";
 
-type appsStateType = App & {
-  _count: {
-    appMenuItems: number;
-    appActions: number;
-  };
-};
 type paginationStateType = {
   pageSize: number;
   pageIndex: number;
@@ -106,7 +97,11 @@ const getIsSortedTypeField = (
   );
 };
 
-export const AppsListTable = () => {
+export const AppMenuItemsListTable = ({
+  appId,
+}: {
+  appId: string | undefined;
+}) => {
   const openModal = useAdminModal((state) => state.onOpen);
   const triggerRefetch = useAdminModal((state) => state.trigger);
 
@@ -120,7 +115,7 @@ export const AppsListTable = () => {
   const searchValue = searchParams.get("searchValue") || undefined;
   const filterValue = searchParams.get("filterValue") || undefined;
 
-  const [apps, setApps] = useState<appsStateType[]>([]);
+  const [appMenuItems, setAppMenuItems] = useState<AppMenuItem[]>([]);
   const [pagination, setPagination] = useState<paginationStateType>({
     pageSize: 5,
     pageIndex: 1,
@@ -134,7 +129,8 @@ export const AppsListTable = () => {
       try {
         setIsLoading(true);
 
-        const res = await axios.post("/api/get-apps", {
+        const res = await axios.post("/api/get-app-menuItems", {
+          appId,
           limit: pagination.pageSize,
           offset: (pagination.pageIndex - 1) * pagination.pageSize,
           sortBy,
@@ -144,9 +140,9 @@ export const AppsListTable = () => {
           searchValue: searchValue,
         });
 
-        const allOrg = res?.data.organizations;
+        const allMenuItems = res?.data.appMenuItems;
 
-        setApps(allOrg || []);
+        setAppMenuItems(allMenuItems || []);
 
         const currentParams = qs.parse(searchParams.toString());
         const newQs = qs.stringify({
@@ -166,6 +162,7 @@ export const AppsListTable = () => {
       }
     })();
   }, [
+    appId,
     pagination,
     searchParams,
     router,
@@ -236,7 +233,9 @@ export const AppsListTable = () => {
     <div className="space-y-4 w-full">
       <div className="flex items-center gap-6 justify-between flex-wrap">
         <div className="flex gap-4 items-center">
-          <h1 className="text-lg font-semibold">All Apps ({totalOrgs})</h1>
+          <h1 className="text-lg font-semibold">
+            All Menu Items ({totalOrgs})
+          </h1>
           {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
           {error && <p className="text-rose-600">{error}</p>}
         </div>
@@ -252,9 +251,9 @@ export const AppsListTable = () => {
           <Button
             size="sm"
             className="cursor-pointer"
-            onClick={() => openModal({ type: "addApp" })}
+            onClick={() => openModal({ type: "addAppMenuItem", appId })}
           >
-            <Plus /> Add App
+            <Plus /> Add Menu Item
           </Button>
         </div>
       </div>
@@ -384,9 +383,6 @@ export const AppsListTable = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Menu Items</TableHead>
-              <TableHead>Actions</TableHead>
               <TableHead>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
@@ -450,40 +446,17 @@ export const AppsListTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {apps.map((app) => (
-              <TableRow key={app?.id}>
+            {appMenuItems.map((menuItem) => (
+              <TableRow key={menuItem?.id}>
                 <TableCell>
-                  <p className="max-w-[150px] truncate">{app?.name}</p>
+                  <p className="max-w-[150px] truncate">{menuItem?.name}</p>
                 </TableCell>
                 <TableCell className="max-w-[150px] truncate">
-                  {app?.description}
+                  {menuItem?.description}
                 </TableCell>
-                <TableCell>{app?.slug}</TableCell>
-                <TableCell>{app?.type}</TableCell>
-                <TableCell>
-                  <Link
-                    href={`/bezs/admin/manage-apps/manage-menus?appId=${app.id}`}
-                    className={cn(
-                      buttonVariants({ size: "sm", variant: "outline" }),
-                      "flex items-center cursor-pointer w-fit"
-                    )}
-                  >
-                    <SquareMenu /> ({app?._count.appMenuItems})
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <Link
-                    href={`/bezs/admin/manage-apps/manage-actions?appId=${app.id}`}
-                    className={cn(
-                      buttonVariants({ size: "sm", variant: "outline" }),
-                      "flex items-center cursor-pointer w-fit"
-                    )}
-                  >
-                    <Lock /> ({app?._count.appActions})
-                  </Link>
-                </TableCell>
+                <TableCell>{menuItem?.slug}</TableCell>
                 <TableCell className="flex items-center justify-between gap-4">
-                  {format(app?.createdAt, "do 'of' MMM, yyyy")}
+                  {format(menuItem?.createdAt, "do 'of' MMM, yyyy")}
                   <DropdownMenu>
                     <DropdownMenuTrigger className="cursor-pointer">
                       <Ellipsis className="font-medium" />
@@ -496,7 +469,10 @@ export const AppsListTable = () => {
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() =>
-                          openModal({ type: "editApp", appId: app.id })
+                          openModal({
+                            type: "editAppMenuItem",
+                            appMenuItemId: menuItem.id,
+                          })
                         }
                       >
                         <PencilLine />
@@ -506,7 +482,10 @@ export const AppsListTable = () => {
                       <DropdownMenuItem
                         className="space-x-2 cursor-pointer"
                         onClick={() =>
-                          openModal({ type: "deleteApp", appId: app.id })
+                          openModal({
+                            type: "deleteAppMenuItem",
+                            appMenuItemId: menuItem.id,
+                          })
                         }
                       >
                         <div className="flex items-center gap-2">
@@ -523,7 +502,7 @@ export const AppsListTable = () => {
           </TableBody>
         </Table>
       </div>
-      {apps?.length === 0 && (
+      {appMenuItems?.length === 0 && (
         <p className="text-center mb-12 mt-6 flex justify-center items-center gap-2">
           <TriangleAlert className="text-rose-600 w-5 h-5" />
           No Apps found or Create a new app.
@@ -559,7 +538,9 @@ export const AppsListTable = () => {
             variant="ghost"
             className="cursor-pointer border"
             disabled={
-              pagination.pageIndex === 1 || isLoading || apps.length === 0
+              pagination.pageIndex === 1 ||
+              isLoading ||
+              appMenuItems.length === 0
             }
             onClick={handlePrevPage}
           >
@@ -572,7 +553,7 @@ export const AppsListTable = () => {
             disabled={
               pagination.pageIndex === +totalPages ||
               isLoading ||
-              apps.length === 0
+              appMenuItems.length === 0
             }
             onClick={handleNextPage}
           >

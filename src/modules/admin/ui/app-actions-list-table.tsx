@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useAdminModal } from "../stores/use-admin-modal-store";
 import { format } from "date-fns";
 import qs from "query-string";
-import { App } from "@prisma/client";
+import { AppAction } from "@prisma/client";
 
 import {
   Table,
@@ -31,7 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Check,
   ChevronDown,
@@ -41,27 +41,18 @@ import {
   ChevronUp,
   Ellipsis,
   Loader2,
-  Lock,
   PencilLine,
   Plus,
   Search,
-  SquareMenu,
   Trash2,
   TriangleAlert,
   User,
   X,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import axios from "axios";
-import { cn } from "@/lib/utils";
 
-type appsStateType = App & {
-  _count: {
-    appMenuItems: number;
-    appActions: number;
-  };
-};
 type paginationStateType = {
   pageSize: number;
   pageIndex: number;
@@ -106,21 +97,25 @@ const getIsSortedTypeField = (
   );
 };
 
-export const AppsListTable = () => {
+export const AppActionsListTable = ({
+  appId,
+}: {
+  appId: string | undefined;
+}) => {
   const openModal = useAdminModal((state) => state.onOpen);
   const triggerRefetch = useAdminModal((state) => state.trigger);
 
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const totalOrgs = searchParams.get("totalOrgs") || 0;
+  const totalActions = searchParams.get("totalActions") || 0;
   const totalPages = searchParams.get("totalPages") || 0;
   const sortBy = searchParams.get("sortBy") || undefined;
   const sortDirection = searchParams.get("sortDirection") || undefined;
   const searchValue = searchParams.get("searchValue") || undefined;
   const filterValue = searchParams.get("filterValue") || undefined;
 
-  const [apps, setApps] = useState<appsStateType[]>([]);
+  const [appActions, setAppActions] = useState<AppAction[]>([]);
   const [pagination, setPagination] = useState<paginationStateType>({
     pageSize: 5,
     pageIndex: 1,
@@ -134,25 +129,26 @@ export const AppsListTable = () => {
       try {
         setIsLoading(true);
 
-        const res = await axios.post("/api/get-apps", {
+        const res = await axios.post("/api/get-app-actions", {
+          appId,
           limit: pagination.pageSize,
           offset: (pagination.pageIndex - 1) * pagination.pageSize,
           sortBy,
           sortDirection,
-          searchField: "name",
+          searchField: "actionName",
           searchOperator: "contains",
           searchValue: searchValue,
         });
 
-        const allOrg = res?.data.organizations;
+        const allActions = res?.data.appActions;
 
-        setApps(allOrg || []);
+        setAppActions(allActions || []);
 
         const currentParams = qs.parse(searchParams.toString());
         const newQs = qs.stringify({
           ...currentParams,
           totalPages: Math.ceil(res?.data.length / pagination.pageSize),
-          totalOrgs: res?.data.length,
+          totalActions: res?.data.length,
         });
 
         setError(null);
@@ -166,6 +162,7 @@ export const AppsListTable = () => {
       }
     })();
   }, [
+    appId,
     pagination,
     searchParams,
     router,
@@ -224,19 +221,21 @@ export const AppsListTable = () => {
     updateQueryParam("searchValue", e.target.value, searchParams, router);
   }
 
-  function handleFilterValue(value: string) {
-    updateQueryParam("filterValue", value, searchParams, router);
-  }
+  // function handleFilterValue(value: string) {
+  //   updateQueryParam("filterValue", value, searchParams, router);
+  // }
 
-  function handleFilterValueReset() {
-    updateQueryParam("filterValue", "", searchParams, router);
-  }
+  // function handleFilterValueReset() {
+  //   updateQueryParam("filterValue", "", searchParams, router);
+  // }
 
   return (
     <div className="space-y-4 w-full">
       <div className="flex items-center gap-6 justify-between flex-wrap">
         <div className="flex gap-4 items-center">
-          <h1 className="text-lg font-semibold">All Apps ({totalOrgs})</h1>
+          <h1 className="text-lg font-semibold">
+            All Actions ({totalActions})
+          </h1>
           {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
           {error && <p className="text-rose-600">{error}</p>}
         </div>
@@ -244,7 +243,7 @@ export const AppsListTable = () => {
           <div className="relative">
             <Input
               className="max-w-[240px] dark:!bg-zinc-800 pl-7 h-8"
-              placeholder="Search apps..."
+              placeholder="Search actions..."
               onBlur={handleSearchUsers}
             />
             <Search className="w-4 h-4 text-zinc-400 absolute top-[28%] left-1.5" />
@@ -252,9 +251,9 @@ export const AppsListTable = () => {
           <Button
             size="sm"
             className="cursor-pointer"
-            onClick={() => openModal({ type: "addApp" })}
+            onClick={() => openModal({ type: "addAppAction", appId })}
           >
-            <Plus /> Add App
+            <Plus /> Add Action
           </Button>
         </div>
       </div>
@@ -266,14 +265,14 @@ export const AppsListTable = () => {
               <TableHead>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    Name{" "}
-                    {sortBy !== "name" && (
+                    Action Name{" "}
+                    {sortBy !== "actionName" && (
                       <ChevronsUpDown className="inline-block h-4 w-4 text-zinc-400" />
                     )}
                     {getIsSortedTypeField(
                       sortBy,
                       sortDirection,
-                      "name",
+                      "actionName",
                       "asc"
                     ) && (
                       <ChevronUp className="inline-block h-4 w-4 text-zinc-400" />
@@ -281,7 +280,7 @@ export const AppsListTable = () => {
                     {getIsSortedTypeField(
                       sortBy,
                       sortDirection,
-                      "name",
+                      "actionName",
                       "desc"
                     ) && (
                       <ChevronDown className="inline-block h-4 w-4 text-zinc-400" />
@@ -290,29 +289,29 @@ export const AppsListTable = () => {
                   <DropdownMenuContent align="start" sideOffset={10}>
                     <DropdownMenuItem
                       disabled={isLoading}
-                      onClick={() => handleSortColumns("name", "asc")}
+                      onClick={() => handleSortColumns("actionName", "asc")}
                     >
                       <ChevronUp /> Asc
                       {getIsSortedTypeField(
                         sortBy,
                         sortDirection,
-                        "name",
+                        "actionName",
                         "asc"
                       ) && <Check className="ml-auto" />}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       disabled={isLoading}
-                      onClick={() => handleSortColumns("name", "desc")}
+                      onClick={() => handleSortColumns("actionName", "desc")}
                     >
                       <ChevronDown /> Desc
                       {getIsSortedTypeField(
                         sortBy,
                         sortDirection,
-                        "name",
+                        "actionName",
                         "desc"
                       ) && <Check className="ml-auto" />}
                     </DropdownMenuItem>
-                    {sortBy === "name" && (
+                    {sortBy === "actionName" && (
                       <DropdownMenuItem
                         onClick={handleSortColumnsReset}
                         disabled={isLoading}
@@ -324,69 +323,7 @@ export const AppsListTable = () => {
                 </DropdownMenu>
               </TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    Slug{" "}
-                    {sortBy !== "slug" && (
-                      <ChevronsUpDown className="inline-block h-4 w-4 text-zinc-400" />
-                    )}
-                    {getIsSortedTypeField(
-                      sortBy,
-                      sortDirection,
-                      "slug",
-                      "asc"
-                    ) && (
-                      <ChevronUp className="inline-block h-4 w-4 text-zinc-400" />
-                    )}
-                    {getIsSortedTypeField(
-                      sortBy,
-                      sortDirection,
-                      "slug",
-                      "desc"
-                    ) && (
-                      <ChevronDown className="inline-block h-4 w-4 text-zinc-400" />
-                    )}
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" sideOffset={10}>
-                    <DropdownMenuItem
-                      disabled={isLoading}
-                      onClick={() => handleSortColumns("slug", "asc")}
-                    >
-                      <ChevronUp /> Asc
-                      {getIsSortedTypeField(
-                        sortBy,
-                        sortDirection,
-                        "slug",
-                        "asc"
-                      ) && <Check className="ml-auto" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      disabled={isLoading}
-                      onClick={() => handleSortColumns("slug", "desc")}
-                    >
-                      <ChevronDown /> Desc
-                      {getIsSortedTypeField(
-                        sortBy,
-                        sortDirection,
-                        "slug",
-                        "desc"
-                      ) && <Check className="ml-auto" />}
-                    </DropdownMenuItem>
-                    {sortBy === "slug" && (
-                      <DropdownMenuItem
-                        onClick={handleSortColumnsReset}
-                        disabled={isLoading}
-                      >
-                        <X /> Reset
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Menu Items</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>Action Type</TableHead>
               <TableHead>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
@@ -450,40 +387,15 @@ export const AppsListTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {apps.map((app) => (
-              <TableRow key={app?.id}>
-                <TableCell>
-                  <p className="max-w-[150px] truncate">{app?.name}</p>
-                </TableCell>
+            {appActions?.map((action) => (
+              <TableRow key={action?.id}>
+                <TableCell>{action?.actionName}</TableCell>
                 <TableCell className="max-w-[150px] truncate">
-                  {app?.description}
+                  {action?.description}
                 </TableCell>
-                <TableCell>{app?.slug}</TableCell>
-                <TableCell>{app?.type}</TableCell>
-                <TableCell>
-                  <Link
-                    href={`/bezs/admin/manage-apps/manage-menus?appId=${app.id}`}
-                    className={cn(
-                      buttonVariants({ size: "sm", variant: "outline" }),
-                      "flex items-center cursor-pointer w-fit"
-                    )}
-                  >
-                    <SquareMenu /> ({app?._count.appMenuItems})
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <Link
-                    href={`/bezs/admin/manage-apps/manage-actions?appId=${app.id}`}
-                    className={cn(
-                      buttonVariants({ size: "sm", variant: "outline" }),
-                      "flex items-center cursor-pointer w-fit"
-                    )}
-                  >
-                    <Lock /> ({app?._count.appActions})
-                  </Link>
-                </TableCell>
+                <TableCell>{action?.actionType}</TableCell>
                 <TableCell className="flex items-center justify-between gap-4">
-                  {format(app?.createdAt, "do 'of' MMM, yyyy")}
+                  {format(action?.createdAt, "do 'of' MMM, yyyy")}
                   <DropdownMenu>
                     <DropdownMenuTrigger className="cursor-pointer">
                       <Ellipsis className="font-medium" />
@@ -496,7 +408,10 @@ export const AppsListTable = () => {
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() =>
-                          openModal({ type: "editApp", appId: app.id })
+                          openModal({
+                            type: "editAppAction",
+                            appActionId: action.id,
+                          })
                         }
                       >
                         <PencilLine />
@@ -506,7 +421,10 @@ export const AppsListTable = () => {
                       <DropdownMenuItem
                         className="space-x-2 cursor-pointer"
                         onClick={() =>
-                          openModal({ type: "deleteApp", appId: app.id })
+                          openModal({
+                            type: "deleteAppAction",
+                            appActionId: action.id,
+                          })
                         }
                       >
                         <div className="flex items-center gap-2">
@@ -523,7 +441,7 @@ export const AppsListTable = () => {
           </TableBody>
         </Table>
       </div>
-      {apps?.length === 0 && (
+      {appActions?.length === 0 && (
         <p className="text-center mb-12 mt-6 flex justify-center items-center gap-2">
           <TriangleAlert className="text-rose-600 w-5 h-5" />
           No Apps found or Create a new app.
@@ -559,7 +477,7 @@ export const AppsListTable = () => {
             variant="ghost"
             className="cursor-pointer border"
             disabled={
-              pagination.pageIndex === 1 || isLoading || apps.length === 0
+              pagination.pageIndex === 1 || isLoading || appActions.length === 0
             }
             onClick={handlePrevPage}
           >
@@ -572,7 +490,7 @@ export const AppsListTable = () => {
             disabled={
               pagination.pageIndex === +totalPages ||
               isLoading ||
-              apps.length === 0
+              appActions.length === 0
             }
             onClick={handleNextPage}
           >

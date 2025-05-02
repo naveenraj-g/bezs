@@ -24,6 +24,13 @@ const BreadCrumb = ({ className = "" }: { className?: string }) => {
             .split("-")
             .join(" ")
             .toLowerCase();
+          const formattedPathSegmentLink = pathSegments
+            .slice(
+              0,
+              pathSegments.findIndex((path) => path === pathSegment) + 1
+            )
+            .join("/");
+
           return index + 1 === pathSegmentsLength ? (
             <BreadcrumbItem key={pathSegment}>
               <BreadcrumbPage className="text-base text-primary font-medium">
@@ -38,11 +45,12 @@ const BreadCrumb = ({ className = "" }: { className?: string }) => {
             <BreadcrumbList key={pathSegment}>
               <BreadcrumbItem key={pathSegment}>
                 <Link
-                  href={
-                    formattedPathSegment === "bezs"
-                      ? "/bezs"
-                      : `/bezs/${pathSegment}`
-                  }
+                  // href={
+                  //   formattedPathSegment === "bezs"
+                  //     ? "/bezs"
+                  //     : `/bezs/${pathSegment}`
+                  // }
+                  href={`/${formattedPathSegmentLink}`}
                   className="text-base hover:text-foreground"
                 >
                   {pathSegment === "bezs"

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const {
+    appId,
     limit,
     offset,
     sortBy,
@@ -23,31 +24,28 @@ export async function POST(req: Request) {
   }
 
   try {
-    const organizations = await prisma.organization.findMany({
+    const appMenuItems = await prisma.appMenuItem.findMany({
       skip: offset,
       take: limit,
       orderBy: {
         [sortBy]: sortDirection,
       },
       where: {
+        appId: appId,
         [searchField]: {
           [searchOperator]: searchValue,
           mode: "insensitive",
         },
       },
-      include: {
-        _count: {
-          select: {
-            members: true,
-            appOrganization: true,
-          },
-        },
+    });
+
+    const appMenuItemsCount = await prisma.appMenuItem.count({
+      where: {
+        appId,
       },
     });
 
-    const organizationsLength = await prisma.organization.count();
-
-    return NextResponse.json({ organizations, length: organizationsLength });
+    return NextResponse.json({ appMenuItems, length: appMenuItemsCount });
   } catch (err) {
     return NextResponse.json({ error: "User not found", err }, { status: 404 });
   }

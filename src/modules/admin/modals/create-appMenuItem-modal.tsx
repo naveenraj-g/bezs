@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { AppType } from "@prisma/client";
-
 import {
   Form,
   FormControl,
@@ -27,16 +25,10 @@ import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import { addApp } from "../serveractions/admin-actions";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useEffect } from "react";
+import { addAppMenuItem } from "../serveractions/admin-actions";
 
-const createAppFormSchema = z.object({
+const createAppMenuItemSchema = z.object({
   name: z.string().min(3, { message: "name must be atleast 3 characters." }),
   slug: z
     .string()
@@ -46,33 +38,36 @@ const createAppFormSchema = z.object({
     }),
   description: z
     .string()
-    .min(5, "Description must have atleast 5 characters")
-    .max(150, "Description must have atmost 150 characters"),
-  type: z.nativeEnum(AppType),
+    .min(10, { message: "description must be alteast 10 characters long." })
+    .max(150, { message: "description must be alteast 150 characters long." }),
+  icon: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .transform((val) => val || undefined),
 });
 
-type CreateAppFormSchemaType = z.infer<typeof createAppFormSchema>;
+type CreateAppMenuItemFormSchemaType = z.infer<typeof createAppMenuItemSchema>;
 
-export const CreateAppModal = () => {
+export const CreateAppMenuItemModal = () => {
   const session = useSession();
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
   const isOpen = useAdminModal((state) => state.isOpen);
+  const appId = useAdminModal((state) => state.appId) || "";
   const incrementTriggerRefetch = useAdminModal(
     (state) => state.incrementTrigger
   );
 
-  const isModalOpen = isOpen && modalType === "addApp";
+  const isModalOpen = isOpen && modalType === "addAppMenuItem";
 
-  const types = Object.values(AppType);
-
-  const form = useForm<CreateAppFormSchemaType>({
-    resolver: zodResolver(createAppFormSchema),
+  const form = useForm<CreateAppMenuItemFormSchemaType>({
+    resolver: zodResolver(createAppMenuItemSchema),
     defaultValues: {
       name: "",
       slug: "",
+      icon: "",
       description: "",
-      type: "platform",
     },
   });
 
@@ -80,16 +75,25 @@ export const CreateAppModal = () => {
     formState: { isSubmitting },
   } = form;
 
-  async function handleCreateUser(values: CreateAppFormSchemaType) {
+  useEffect(() => {
+    form.reset({
+      name: "",
+      slug: "",
+      description: "",
+      icon: "",
+    });
+  }, [form]);
+
+  async function handleCreateMenuItem(values: CreateAppMenuItemFormSchemaType) {
     if (session.data?.user.role !== "admin") {
       return;
     }
 
-    // const { name, slug, description, type } = values;
+    if (!appId) return;
 
     try {
-      await addApp({ ...values });
-      toast("App created successfully.");
+      await addAppMenuItem({ ...values, appId });
+      toast("Menu Item created successfully.");
       form.reset();
     } catch (err) {
       toast("Error!", {
@@ -106,12 +110,12 @@ export const CreateAppModal = () => {
       <DialogContent className="p-8 ">
         <DialogHeader>
           <DialogTitle className="mb-6 text-2xl text-center">
-            Create App
+            Create App MenuItem
           </DialogTitle>
           <div>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(handleCreateUser)}
+                onSubmit={form.handleSubmit(handleCreateMenuItem)}
                 className="space-y-8"
               >
                 <FormField
@@ -122,20 +126,6 @@ export const CreateAppModal = () => {
                       <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input placeholder="name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input placeholder="..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -158,27 +148,27 @@ export const CreateAppModal = () => {
 
                 <FormField
                   control={form.control}
-                  name="type"
+                  name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {types.map((type, i) => (
-                            <SelectItem value={type} key={i}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Slug (Lowercase)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="my-org" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="icon"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Menu Icon</FormLabel>
+                      <FormControl>
+                        <Input placeholder="icon name" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -192,10 +182,10 @@ export const CreateAppModal = () => {
                   >
                     {isSubmitting ? (
                       <>
-                        Create <Loader2 className="animate-spin" />
+                        Submit <Loader2 className="animate-spin" />
                       </>
                     ) : (
-                      "Create"
+                      "Submit"
                     )}
                   </Button>
                   <DialogClose asChild>

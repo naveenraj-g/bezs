@@ -264,11 +264,11 @@ const UsersListTable = () => {
                   {filterValue === "admin" && <Check className="ml-auto" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => handleFilterValue("user")}
+                  onClick={() => handleFilterValue("guest")}
                   disabled={isLoading}
                 >
-                  User
-                  {filterValue === "user" && <Check className="ml-auto" />}
+                  Guest
+                  {filterValue === "guest" && <Check className="ml-auto" />}
                 </DropdownMenuItem>
                 {filterValue && (
                   <>
