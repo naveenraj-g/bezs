@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Building, LayoutGrid, User, UserCog } from "lucide-react";
+import { Building, LayoutGrid, ShieldUser, User, UserCog } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const data = [
@@ -32,6 +32,11 @@ const data = [
     title: "Apps",
     url: "/bezs/admin/manage-apps",
     icon: LayoutGrid,
+  },
+  {
+    title: "RBAC",
+    url: "/bezs/admin/rbac",
+    icon: ShieldUser,
   },
 ];
 

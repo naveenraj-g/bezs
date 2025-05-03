@@ -28,6 +28,7 @@ model User {
 
   members     Member[]
   invitations Invitation[]
+  rbac        RBAC[]
 
   username        String?
   displayUsername String?
@@ -113,6 +114,7 @@ model Organization {
   members         Member[]
   invitations     Invitation[]
   appOrganization AppOrganization[]
+  rbac            RBAC[]
 
   @@unique([slug])
   @@index([id])
@@ -155,6 +157,7 @@ model Role {
 
   menuPermission   MenuPermission[]
   actionPermission ActionPermission[]
+  rbac             RBAC[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -254,6 +257,9 @@ model MenuPermission {
   app           App         @relation(fields: [appId], references: [id], onDelete: Cascade)
   appMenuItem   AppMenuItem @relation(fields: [appMenuItemId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([roleId, appId, appMenuItemId])
   @@index([roleId])
   @@index([appId])
@@ -270,8 +276,28 @@ model ActionPermission {
   app         App       @relation(fields: [appId], references: [id], onDelete: Cascade)
   appAction   AppAction @relation(fields: [appActionId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([roleId, appId, appActionId])
   @@index([roleId])
   @@index([appId])
   @@index([appActionId])
+}
+
+model RBAC {
+  id String @id @default(uuid())
+
+  organizationId String
+  userId         String
+  roleId         String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role         Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, userId, roleId])
 }
