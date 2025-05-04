@@ -22,23 +22,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "@/theme/theme-switcher";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { capitalizeString } from "@/utils/helper";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Locale, useLocale, useTranslations } from "next-intl";
-import { startTransition, useTransition } from "react";
+import { startTransition } from "react";
 import { useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import AppsList from "@/modules/bezs/ui/apps-list";
@@ -46,6 +36,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AppNavbar = ({ session }: { session: Session }) => {
   const t = useTranslations("bezs");
+  // console.log(session);
 
   const router = useRouter();
   const pathname = usePathname();

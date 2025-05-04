@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { admin, organization, twoFactor, username } from "better-auth/plugins";
+import {
+  admin,
+  customSession,
+  organization,
+  twoFactor,
+  username,
+} from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import axios from "axios";
@@ -134,6 +140,49 @@ export const auth = betterAuth({
 
         return adminUser?.role === "admin";
       },
+    }),
+    customSession(async ({ user, session }) => {
+      const userId = session.userId;
+
+      const userRBAC = await prisma.rBAC.findMany({
+        where: {
+          userId,
+        },
+        omit: {
+          createdAt: true,
+          updatedAt: true,
+        },
+        include: {
+          organization: {
+            omit: {
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+          role: {
+            include: {
+              menuPermission: {
+                include: {
+                  app: true,
+                  appMenuItem: true,
+                },
+              },
+              actionPermission: {
+                include: {
+                  app: true,
+                  appAction: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return {
+        userRBAC,
+        user,
+        session,
+      };
     }),
     nextCookies(),
   ],

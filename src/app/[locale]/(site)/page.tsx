@@ -3,6 +3,7 @@ import RootNavBarPage from "@/components/sidebar/ui/root-navbar";
 
 const HomePage = async () => {
   // const session = await getServerSession();
+
   return (
     <>
       <RootNavBarPage />

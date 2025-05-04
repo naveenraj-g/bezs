@@ -239,7 +239,7 @@ export const RBACListTable = () => {
   //   updateQueryParam("filterValue", "", searchParams, router);
   // }
 
-  function unMapUser({
+  async function unMapUser({
     orgId,
     roleId,
     userId,
@@ -250,7 +250,7 @@ export const RBACListTable = () => {
   }) {
     try {
       setIsLoading(true);
-      unmapRBACUserOrgRole({
+      await unmapRBACUserOrgRole({
         orgId,
         roleId,
         userId,
