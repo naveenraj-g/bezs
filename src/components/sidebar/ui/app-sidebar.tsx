@@ -20,12 +20,11 @@ import { cn } from "@/lib/utils";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 
 import { Check, House, LogOut, Settings2 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { Locale, useLocale } from "next-intl";
-import { useTransition } from "react";
+import { useLocale } from "next-intl";
+import Link from "next/link";
 
 const items = [
   {
@@ -38,25 +37,7 @@ const items = [
 const AppSidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
   const currentLocale = useLocale();
-
-  const [isPending, startTransition] = useTransition();
-
-  function handleLocaleChange(lang: string) {
-    startTransition(() => {
-      router.replace(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        { pathname, params },
-        { locale: lang as Locale }
-      );
-    });
-    // startTransition(() => {
-    //   const newPath = pathname.replace(`/${currentLocale}`, `/${lang}`);
-    //   router.push(newPath);
-    // });
-  }
 
   async function handleLogout() {
     console.log("logout button clicked.");
@@ -137,7 +118,7 @@ const AppSidebar = () => {
                 >
                   <DropdownMenuItem
                     className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
-                    onClick={() => handleLocaleChange("en")}
+                    onClick={() => {}}
                   >
                     EN
                     {currentLocale === "en" && (
@@ -147,7 +128,7 @@ const AppSidebar = () => {
 
                   <DropdownMenuItem
                     className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
-                    onClick={() => handleLocaleChange("hi")}
+                    onClick={() => {}}
                   >
                     HI
                     {currentLocale === "hi" && (

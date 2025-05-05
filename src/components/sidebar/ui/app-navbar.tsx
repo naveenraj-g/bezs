@@ -1,7 +1,6 @@
 "use client";
 
 import { Session } from "@/modules/auth/types/auth-types";
-import { format } from "date-fns";
 import {
   Bell,
   Check,
@@ -26,23 +25,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "@/theme/theme-switcher";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { Locale, useLocale, useTranslations } from "next-intl";
-import { startTransition } from "react";
-import { useParams } from "next/navigation";
+// import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import AppsList from "@/modules/bezs/ui/apps-list";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { LangSwitcherBtn } from "@/shared/langSwitch/lang-switcher-btn";
+import Link from "next/link";
 
 const AppNavbar = ({ session }: { session: Session }) => {
-  const t = useTranslations("bezs");
+  // const t = useTranslations("bezs");
   // console.log(session);
 
   const router = useRouter();
-  const pathname = usePathname();
-  const params = useParams();
-  const currentLocale = useLocale();
-  // const [isPending, startTransition] = useTransition();
 
   const {
     user: { name, email, image },
@@ -62,19 +57,6 @@ const AppNavbar = ({ session }: { session: Session }) => {
           });
         },
       },
-    });
-  }
-
-  function handleLocaleChange(lang: "en" | "hi") {
-    startTransition(() => {
-      router.replace(
-        // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // // @ts-ignore
-        // { pathname, params },
-        // { locale: lang as Locale }
-        pathname,
-        { locale: lang }
-      );
     });
   }
 
@@ -105,37 +87,7 @@ const AppNavbar = ({ session }: { session: Session }) => {
       </div>
       <div className="flex items-center gap-6">
         <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="cursor-pointer flex items-center justify-between w-full">
-              <p>{currentLocale.toUpperCase()}</p>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="center"
-              side="bottom"
-              sideOffset={18}
-              className="space-y-1"
-            >
-              <DropdownMenuItem
-                className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
-                onClick={() => handleLocaleChange("en")}
-              >
-                EN
-                {currentLocale === "en" && (
-                  <Check className="!h-[1.2rem] !w-[1.2rem]" />
-                )}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
-                onClick={() => handleLocaleChange("hi")}
-              >
-                HI
-                {currentLocale === "hi" && (
-                  <Check className="!h-[1.2rem] !w-[1.2rem]" />
-                )}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <LangSwitcherBtn />
         </div>
         <Bell className="h-5 w-5 text-zinc-500 dark:text-zinc-300 cursor-pointer" />
         <DropdownMenu>
@@ -187,7 +139,7 @@ const AppNavbar = ({ session }: { session: Session }) => {
                   >
                     <div
                       className="flex items-center justify-between px-1.5 py-1 cursor-pointer hover:bg-secondary"
-                      onClick={() => handleLocaleChange("en")}
+                      onClick={() => {}}
                     >
                       EN
                       <Check className="!h-[1.2rem] !w-[1.2rem]" />
@@ -195,7 +147,7 @@ const AppNavbar = ({ session }: { session: Session }) => {
 
                     <div
                       className="px-1 py-0.5 cursor-pointer hover:bg-secondary"
-                      onClick={() => handleLocaleChange("hi")}
+                      onClick={() => {}}
                     >
                       HI
                     </div>

@@ -49,8 +49,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
 type paginationStateType = {

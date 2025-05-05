@@ -7,8 +7,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link, usePathname } from "@/i18n/navigation";
 import { capitalizeString } from "@/utils/helper";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const BreadCrumb = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();

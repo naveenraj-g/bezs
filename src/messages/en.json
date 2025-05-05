@@ -37,6 +37,9 @@
       "buttonLable": "Reset"
     },
     "two-fa-form": {
+      "formSchema": {
+        "otp": "Your one-time password must be 6 characters."
+      },
       "title": "2FA Authentication",
       "subTitle": "Enter your OTP to verify yourself",
       "otpInputLable": "One-Time Password",
@@ -60,5 +63,8 @@
   },
   "bezs": {
     "welcome": "Welcome back"
+  },
+  "bezs/dashboard": {
+    "test": "Home Dashboard"
   }
 }

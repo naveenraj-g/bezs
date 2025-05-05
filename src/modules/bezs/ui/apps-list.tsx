@@ -1,12 +1,12 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
 import { appLists } from "../mockdatas/app-list-data";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { ChangeEvent, useState } from "react";
+import Link from "next/link";
 
 function createLinkFromName(name: string): string {
   const splittedName = name.toLowerCase().split(" ");

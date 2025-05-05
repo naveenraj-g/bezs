@@ -51,10 +51,10 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 type appsStateType = App & {
   _count: {
@@ -224,13 +224,13 @@ export const AppsListTable = () => {
     updateQueryParam("searchValue", e.target.value, searchParams, router);
   }
 
-  function handleFilterValue(value: string) {
-    updateQueryParam("filterValue", value, searchParams, router);
-  }
+  // function handleFilterValue(value: string) {
+  //   updateQueryParam("filterValue", value, searchParams, router);
+  // }
 
-  function handleFilterValueReset() {
-    updateQueryParam("filterValue", "", searchParams, router);
-  }
+  // function handleFilterValueReset() {
+  //   updateQueryParam("filterValue", "", searchParams, router);
+  // }
 
   return (
     <div className="space-y-4 w-full">

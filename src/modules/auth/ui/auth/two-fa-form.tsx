@@ -28,18 +28,18 @@ import {
 } from "@/components/ui/input-otp";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-
-const FormSchema = z.object({
-  otp: z.string().min(6, {
-    message: "Your one-time password must be 6 characters.",
-  }),
-});
+import { useRouter } from "next/navigation";
 
 const TwoFaForm = () => {
   const t = useTranslations("auth.two-fa-form");
   const router = useRouter();
+
+  const FormSchema = z.object({
+    otp: z.string().min(6, {
+      message: t("formSchema.otp"),
+    }),
+  });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -62,7 +62,7 @@ const TwoFaForm = () => {
         },
         onError(ctx) {
           toast("An error occurred!", {
-            description: <span className="">{ctx.error.message}</span>,
+            description: ctx.error.message,
           });
         },
       }
@@ -107,6 +107,7 @@ const TwoFaForm = () => {
                       variant="link"
                       className="cursor-pointer pl-0 underline hover:text-blue-600"
                       onClick={async () => {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         const { data, error } =
                           await authClient.twoFactor.sendOtp();
 

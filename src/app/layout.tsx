@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/theme/theme-provider";
 import { NextIntlClientProvider } from "next-intl";
 import NextTopLoader from "nextjs-toploader";
-import { getMessages } from "next-intl/server";
+import { getLocale, getMessages } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,12 +24,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-  params,
+  // params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { locale: string };
+  // params: { locale: string };
 }>) {
-  const { locale } = await params;
+  const locale = await getLocale();
   const message = await getMessages();
 
   return (

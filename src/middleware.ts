@@ -1,13 +1,8 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { Session } from "./modules/auth/types/auth-types";
-
-import createMiddleware from "next-intl/middleware";
-import { routing } from "./i18n/routing";
-
-// export default createMiddleware(routing);
-
-const I18nMiddleware = createMiddleware(routing);
+import { auth } from "./modules/auth/services/better-auth/auth";
+import { headers } from "next/headers";
 
 async function getMiddlewareSession(req: NextRequest) {
   const { data: session } = await axios.get<Session>("/api/auth/get-session", {
@@ -20,10 +15,9 @@ async function getMiddlewareSession(req: NextRequest) {
   return session;
 }
 
-const getPathWithoutLocale = (pathname: string): string => {
-  const parts = pathname.split("/");
-  return parts.length > 2 ? `/${parts.slice(2).join("/")}` : "/";
-};
+function matchRoute(pathname: string, route: string): boolean {
+  return pathname === route || pathname.startsWith(`${route}`);
+}
 
 const publicRoutes = [
   "/sign",
@@ -37,42 +31,35 @@ export async function middleware(req: NextRequest) {
   const session = await getMiddlewareSession(req);
   const url = req.url;
   const pathname = req.nextUrl.pathname;
-  console.log("Middleware");
 
-  const [, locale] = req.nextUrl.pathname.split("/");
-  const refinedPathname = getPathWithoutLocale(pathname);
+  if (!session) {
+    return NextResponse.redirect(new URL("/signin", url));
+  }
 
-  const res = I18nMiddleware(req);
-
-  if (refinedPathname.includes("admin") && session?.user?.role !== "admin") {
+  if (pathname.startsWith("/bezs/admin") && session?.user?.role !== "admin") {
     return NextResponse.redirect(new URL("/", url));
   }
 
-  if (publicRoutes.some((route) => refinedPathname.startsWith(route))) {
-    // const locale = req.cookies.get("NEXT_LOCALE")?.value || "en";
+  if (publicRoutes.some((route) => matchRoute(pathname, route))) {
     return session
       ? NextResponse.redirect(new URL("/bezs", url))
       : NextResponse.next();
   }
 
-  if (protectedRoutes.some((route) => refinedPathname.startsWith(route))) {
+  if (protectedRoutes.some((route) => matchRoute(pathname, route))) {
     return session
       ? NextResponse.next()
       : NextResponse.redirect(new URL("/signin", url));
   }
 
-  // return NextResponse.next();
-  return res;
+  return NextResponse.next();
 }
 
-// export const config = {
-//   matcher: [
-//     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-//     "/(api|trpc)(.*)",
-//   ],
-// };
-
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
-  // matcher: ["/", "/(en|hi)/:path*"],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
+  ],
 };

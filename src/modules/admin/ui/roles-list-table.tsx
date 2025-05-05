@@ -30,7 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Check,
   ChevronDown,
@@ -50,10 +50,8 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { cn } from "@/lib/utils";
 
 type rolesStateType = {
   id: string;

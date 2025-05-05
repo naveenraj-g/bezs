@@ -3,6 +3,18 @@
 import { AppMenuItem, MenuPermission } from "@prisma/client";
 import { getAllApps } from "../serveractions/organizations/map-org-to-apps";
 
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -41,6 +53,12 @@ import {
   unmapAppMenuPermission,
 } from "../serveractions/roles/server-actions";
 
+const formSchema = z.object({
+  appId: z.string().min(1, "App ID is required"),
+});
+
+type FormDataType = z.infer<typeof formSchema>;
+
 export const ManageRoleAppMenusModal = () => {
   const closeModal = useAdminModal((state) => state.onClose);
   const modalType = useAdminModal((state) => state.type);
@@ -58,7 +76,6 @@ export const ManageRoleAppMenusModal = () => {
   } | null>();
   const [allApps, setAllApps] = useState<{ id: string; name: string }[]>([]);
   const [appMenuItems, setAppMenuItems] = useState<AppMenuItem[]>([]);
-  const [selectedAppId, setSelectedAppId] = useState<string>("");
   const [roleAppMenuItems, setRoleAppMenuItems] = useState<
     MenuPermission[] | null
   >([]);
@@ -67,6 +84,15 @@ export const ManageRoleAppMenusModal = () => {
   const [error, setError] = useState<string | null>(null);
 
   const isModalOpen = isOpen && modalType === "manageRoleAppMenus";
+
+  const form = useForm<FormDataType>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      appId: "",
+    },
+  });
+
+  const selectedAppId = form.watch("appId");
 
   useEffect(() => {
     if (!roleId || !isModalOpen) return;
@@ -120,10 +146,6 @@ export const ManageRoleAppMenusModal = () => {
 
   if (!session) return;
 
-  function handleAppSelectChange(value: string) {
-    setSelectedAppId(value);
-  }
-
   async function handleMapAppMenuItem(
     isAlreadyMapped: boolean,
     appMenuItemId: string
@@ -161,7 +183,6 @@ export const ManageRoleAppMenusModal = () => {
   }
 
   function handleCloseModal() {
-    setSelectedAppId("");
     setAppMenuItems([]);
     setRoleAppMenuItems([]);
     setAllApps([]);
@@ -169,6 +190,7 @@ export const ManageRoleAppMenusModal = () => {
     setError(null);
     setIsLoading(false);
     closeModal();
+    form.reset();
   }
 
   return (
@@ -182,25 +204,40 @@ export const ManageRoleAppMenusModal = () => {
           </DialogTitle>
         </DialogHeader>
         <DialogDescription asChild>
-          <div>
-            <Select onValueChange={handleAppSelectChange}>
-              <SelectTrigger
-                className="w-full text-zinc-900"
-                disabled={isLoading}
-              >
-                <SelectValue placeholder="No apps selected" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {allApps?.map((app) => (
-                    <SelectItem value={app.id} key={app.id}>
-                      {app.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
+          <Form {...form}>
+            <form className="flex flex-col gap-6">
+              <FormField
+                control={form.control}
+                name="appId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Organization</FormLabel>
+                    <Select
+                      onValueChange={(val) => field.onChange(val)}
+                      value={field.value}
+                      disabled={isLoading}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Organization" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectGroup>
+                          {allApps.map((app) => (
+                            <SelectItem key={app.id} value={app.id}>
+                              {app.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
         </DialogDescription>
         <div className="space-y-4 overflow-x-auto">
           <div className="flex gap-4 items-center">

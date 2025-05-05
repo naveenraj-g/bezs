@@ -27,11 +27,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Check,
   ChevronDown,
@@ -41,7 +40,6 @@ import {
   ChevronUp,
   Ellipsis,
   LayoutGrid,
-  ListFilter,
   Loader2,
   PencilLine,
   Plus,
@@ -51,9 +49,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
-import { authClient } from "@/modules/auth/services/better-auth/auth-client";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
 type organizationsStateType = {
@@ -229,13 +225,13 @@ export const OrganizationListTable = () => {
     updateQueryParam("searchValue", e.target.value, searchParams, router);
   }
 
-  function handleFilterValue(value: string) {
-    updateQueryParam("filterValue", value, searchParams, router);
-  }
+  // function handleFilterValue(value: string) {
+  //   updateQueryParam("filterValue", value, searchParams, router);
+  // }
 
-  function handleFilterValueReset() {
-    updateQueryParam("filterValue", "", searchParams, router);
-  }
+  // function handleFilterValueReset() {
+  //   updateQueryParam("filterValue", "", searchParams, router);
+  // }
 
   return (
     <div className="space-y-4 w-full">

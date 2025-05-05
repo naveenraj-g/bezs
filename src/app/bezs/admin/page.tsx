@@ -1,5 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 
 const AdminPage = async () => {
   return (

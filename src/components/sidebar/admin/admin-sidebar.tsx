@@ -8,9 +8,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Link, usePathname } from "@/i18n/navigation";
 import { Building, LayoutGrid, ShieldUser, User, UserCog } from "lucide-react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const data = [
   {
