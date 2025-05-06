@@ -35,6 +35,7 @@ import AppsList from "@/modules/bezs/ui/apps-list";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AppNavbar = ({ session }: { session: Session }) => {
+  console.log(session);
   const t = useTranslations("bezs");
   // console.log(session);
 
