@@ -1,8 +1,6 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { Session } from "./modules/auth/types/auth-types";
-import { auth } from "./modules/auth/services/better-auth/auth";
-import { headers } from "next/headers";
 
 async function getMiddlewareSession(req: NextRequest) {
   const { data: session } = await axios.get<Session>("/api/auth/get-session", {

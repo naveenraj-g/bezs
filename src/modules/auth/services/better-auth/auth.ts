@@ -158,6 +158,13 @@ export const auth = betterAuth({
               createdAt: true,
               updatedAt: true,
             },
+            include: {
+              appOrganization: {
+                include: {
+                  app: true,
+                },
+              },
+            },
           },
           role: {
             include: {

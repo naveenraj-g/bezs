@@ -349,7 +349,6 @@ export const RBACListTable = () => {
               </TableHead>
               <TableHead>User</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Action</TableHead>
               <TableHead>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
@@ -410,6 +409,7 @@ export const RBACListTable = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
