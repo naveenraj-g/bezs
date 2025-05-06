@@ -2,22 +2,38 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { Session } from "./modules/auth/types/auth-types";
 
-async function getMiddlewareSession(req: NextRequest) {
-  const { data: session } = await axios.get<Session>("/api/auth/get-session", {
-    baseURL: req.nextUrl.origin,
-    headers: {
-      cookie: req.headers.get("cookie") || "",
-    },
-  });
+async function getMiddlewareSession(req: NextRequest): Promise<Session | null> {
+  try {
+    const response = await fetch(`${req.nextUrl.origin}/api/auth/get-session`, {
+      method: "GET",
+      headers: {
+        Cookie: req.headers.get("cookie") || "",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+      },
+      cache: "no-store",
+      credentials: "same-origin",
+    });
 
-  return session;
+    if (!response.ok) {
+      if (response.status === 500) {
+        console.error("Session API error:", await response.text());
+      }
+      return null;
+    }
+
+    const session: Session = await response.json();
+    return session;
+  } catch (error) {
+    console.error("Error fetching session:", error);
+    return null;
+  }
 }
 
 function matchRoute(pathname: string, route: string): boolean {
   return pathname === route || pathname.startsWith(`${route}`);
 }
 
-const publicRoutes = [
+const authRoutes = [
   "/sign",
   "/email-verification",
   "/reset-password",
@@ -26,10 +42,24 @@ const publicRoutes = [
 const protectedRoutes = ["/bezs"];
 
 export async function middleware(req: NextRequest) {
-  const session = await getMiddlewareSession(req);
-  const url = req.url;
   const pathname = req.nextUrl.pathname;
+  const url = req.url;
 
+  // Skip only for session API
+  if (pathname === "/api/auth/get-session") {
+    return NextResponse.next();
+  }
+
+  const session = await getMiddlewareSession(req);
+
+  // Check if trying to access public routes while logged in
+  if (authRoutes.some((route) => matchRoute(pathname, route))) {
+    return session
+      ? NextResponse.redirect(new URL("/bezs", url))
+      : NextResponse.next();
+  }
+
+  // Handle protected routes
   if (!session) {
     return NextResponse.redirect(new URL("/signin", url));
   }
@@ -38,16 +68,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/", url));
   }
 
-  if (publicRoutes.some((route) => matchRoute(pathname, route))) {
-    return session
-      ? NextResponse.redirect(new URL("/bezs", url))
-      : NextResponse.next();
-  }
-
   if (protectedRoutes.some((route) => matchRoute(pathname, route))) {
-    return session
-      ? NextResponse.next()
-      : NextResponse.redirect(new URL("/signin", url));
+    return NextResponse.next();
   }
 
   return NextResponse.next();
@@ -55,9 +77,8 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
+    // Only match non-api routes except signin
+    "/((?!api|_next|.*\\..*).*)",
+    "/bezs/:path*",
   ],
 };
