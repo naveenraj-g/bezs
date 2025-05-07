@@ -40,7 +40,6 @@ const AppSidebar = () => {
   const currentLocale = useLocale();
 
   async function handleLogout() {
-    console.log("logout button clicked.");
     await authClient.signOut({
       fetchOptions: {
         onSuccess() {

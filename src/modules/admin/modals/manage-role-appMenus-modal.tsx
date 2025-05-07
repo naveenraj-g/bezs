@@ -211,7 +211,7 @@ export const ManageRoleAppMenusModal = () => {
                 name="appId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Organization</FormLabel>
+                    <FormLabel>Apps</FormLabel>
                     <Select
                       onValueChange={(val) => field.onChange(val)}
                       value={field.value}
@@ -219,7 +219,7 @@ export const ManageRoleAppMenusModal = () => {
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Organization" />
+                          <SelectValue placeholder="Select app" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

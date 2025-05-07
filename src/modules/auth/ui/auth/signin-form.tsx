@@ -75,8 +75,6 @@ export function SignInForm() {
 
     const isEmailLogin = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usernameOrEmail);
 
-    console.log(isEmailLogin);
-
     if (isEmailLogin) {
       await authClient.signIn.email(
         {

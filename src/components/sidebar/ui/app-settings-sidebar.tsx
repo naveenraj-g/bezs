@@ -9,9 +9,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { UserRound, LockKeyhole } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const Accountsettings = [

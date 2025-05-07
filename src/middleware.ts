@@ -1,6 +1,6 @@
-import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { Session } from "./modules/auth/types/auth-types";
+import { formattedRBACSessionData } from "./lib/format-session-data";
 
 async function getMiddlewareSession(req: NextRequest): Promise<Session | null> {
   try {
@@ -39,37 +39,51 @@ const authRoutes = [
   "/reset-password",
   "/2fa-verification",
 ];
-const protectedRoutes = ["/bezs"];
+const routesRoleNotRequiredMatch = ["/", "/bezs"];
+const routesRoleNotRequiredStartWith = ["/bezs/dashboard"];
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const url = req.url;
 
   // Skip only for session API
-  if (pathname === "/api/auth/get-session") {
+  if (pathname === "/api/auth/get-session" || pathname === "/") {
     return NextResponse.next();
   }
 
   const session = await getMiddlewareSession(req);
 
-  // Check if trying to access public routes while logged in
+  // Auth routes (accessible only if not logged in)
   if (authRoutes.some((route) => matchRoute(pathname, route))) {
     return session
       ? NextResponse.redirect(new URL("/bezs", url))
       : NextResponse.next();
   }
 
-  // Handle protected routes
+  // Protected Routes (Require login)
   if (!session) {
     return NextResponse.redirect(new URL("/signin", url));
   }
 
+  // Admin-only route protection
   if (pathname.startsWith("/bezs/admin") && session?.user?.role !== "admin") {
     return NextResponse.redirect(new URL("/", url));
   }
 
-  if (protectedRoutes.some((route) => matchRoute(pathname, route))) {
+  // Role-Not-Required Routes (bypass role checks)
+  if (
+    routesRoleNotRequiredMatch.some((route) => pathname === route) ||
+    routesRoleNotRequiredStartWith.some((route) => matchRoute(pathname, route))
+  ) {
     return NextResponse.next();
+  }
+
+  const userRole = session?.user?.role || "";
+  const rbacData = formattedRBACSessionData(session);
+  const roleBasedAllowedRoutes: string[] = rbacData[userRole] || [];
+
+  if (!roleBasedAllowedRoutes.some((route) => matchRoute(pathname, route))) {
+    return NextResponse.redirect(new URL("/", url));
   }
 
   return NextResponse.next();

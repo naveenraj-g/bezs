@@ -107,8 +107,6 @@ export const EditAppModal = () => {
     })();
   }, [isModalOpen, appId, form]);
 
-  // console.log(userDetails);
-
   const {
     formState: { isSubmitting },
   } = form;

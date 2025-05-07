@@ -1,17 +1,19 @@
-"use client";
-
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useSession } from "@/modules/auth/services/better-auth/auth-client";
+import { getServerSession } from "@/modules/auth/services/better-auth/action";
+// import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { LangSwitcherBtn } from "@/shared/langSwitch/lang-switcher-btn";
 import { ThemeSwitcher } from "@/theme/theme-switcher";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+// import { useTranslations } from "next-intl";
 import Link from "next/link";
 
-const RootNavBarPage = () => {
-  const { data } = useSession();
-  const t = useTranslations("HomePage.navbar");
-  console.log(data);
+const RootNavBarPage = async () => {
+  // const { data } = useSession();
+  const session = await getServerSession();
+  // const t = useTranslations("HomePage.navbar");
+  const t = await getTranslations("HomePage.navbar");
+
   return (
     <>
       <nav className="flex items-center justify-between px-4 py-1.5 bg-white dark:bg-zinc-800/60 shadow-md">
@@ -28,7 +30,7 @@ const RootNavBarPage = () => {
             <ThemeSwitcher />
           </li>
           <li className="flex items-center gap-2">
-            {!data ? (
+            {!session ? (
               <>
                 <Link
                   href="signin"

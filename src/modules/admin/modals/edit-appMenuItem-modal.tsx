@@ -103,8 +103,6 @@ export const EditAppMenuItemModal = () => {
     })();
   }, [isModalOpen, appMenuItemId, form]);
 
-  // console.log(userDetails);
-
   const {
     formState: { isSubmitting },
   } = form;

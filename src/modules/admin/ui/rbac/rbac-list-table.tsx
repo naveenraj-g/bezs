@@ -140,8 +140,6 @@ export const RBACListTable = () => {
           searchValue: searchValue,
         });
 
-        console.log(res.data.rbacData);
-
         const allRoles = res?.data.rbacData;
         setRbacDatas(allRoles || []);
 
