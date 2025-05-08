@@ -89,12 +89,3 @@ export const useAdminModal = create<AdminStore>((set) => ({
   incrementInModalTrigger: () =>
     set((state) => ({ triggerInModal: state.triggerInModal + 1 })),
 }));
-
-// type - Platform | custom
-// actiontype - buttom | link  || icon field
-
-// Roles - menu permission | action permission
-
-// admin menu item - (desc tooltip - Role access control name - RBAC)
-// role - app (menu items and action)
-// role - org - app

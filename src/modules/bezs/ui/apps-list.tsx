@@ -4,9 +4,11 @@ import { appLists } from "../mockdatas/app-list-data";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { ChangeEvent, useState } from "react";
+import { Loader2, Search } from "lucide-react";
+import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { getRoleOrgWiseApps } from "@/shared/modules-utils/utils";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 
 function createLinkFromName(name: string): string {
   const splittedName = name.toLowerCase().split(" ");
@@ -15,11 +17,16 @@ function createLinkFromName(name: string): string {
 
 type appStateType = {
   name: string;
-  imgUrl: string;
+  imgUrl: string | null;
+  slug: string;
 }[];
 
 const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
-  const [apps, setApps] = useState<appStateType>(appLists);
+  const { data, isPending } = useSession();
+
+  const [appLists, setAppLists] = useState<appStateType>([]);
+  const [apps, setApps] = useState<appStateType>([]);
+  const [error, setError] = useState<string | null>(null);
 
   function handleAppSearch(e: ChangeEvent<HTMLInputElement>) {
     setApps(() => {
@@ -28,6 +35,19 @@ const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
       );
     });
   }
+
+  useEffect(() => {
+    if (!isPending) {
+      const rbacAppsLists = getRoleOrgWiseApps(data?.userRBAC) || [];
+      setAppLists(rbacAppsLists || []);
+      setApps(rbacAppsLists || []);
+      if (rbacAppsLists.length === 0 || !rbacAppsLists) {
+        setError("Failed to get apps data");
+      } else {
+        setError(null);
+      }
+    }
+  }, [isPending, data]);
 
   return (
     <>
@@ -47,31 +67,38 @@ const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
           isNavItem && "gap-x-4 gap-y-4 py-2"
         )}
       >
-        {apps.map((appList, i) => (
-          <Link
-            key={i}
-            href={createLinkFromName(appList.name)}
-            className={cn(
-              "flex flex-col gap-3 items-center w-[130px] h-[130px]",
-              isNavItem && "w-[105px] h-[100px]"
-            )}
-          >
-            <div
+        {isPending && !error && (
+          <>
+            Loading... <Loader2 className="animate-spin" />
+          </>
+        )}
+        {!isPending && error && <p>{error}</p>}
+        {apps.length > 0 &&
+          apps.map((appList, i) => (
+            <Link
+              key={i}
+              href={appList.slug}
               className={cn(
-                "p-4 shadow-[0_0_10px_rgba(0,0,0,0.15)] rounded  dark:shadow-[0_0_10px_rgba(108,108,108,108.01)]",
-                isNavItem && "p-2"
+                "flex flex-col gap-3 items-center w-[130px] h-[130px]",
+                isNavItem && "w-[105px] h-[100px]"
               )}
             >
-              <Image
-                src={appList.imgUrl}
-                alt={appList.name}
-                width={isNavItem ? 30 : 50}
-                height={isNavItem ? 30 : 50}
-              />
-            </div>
-            <p className="text-sm">{appList.name}</p>
-          </Link>
-        ))}
+              <div
+                className={cn(
+                  "p-4 shadow-[0_0_10px_rgba(0,0,0,0.15)] rounded  dark:shadow-[0_0_10px_rgba(108,108,108,108.01)]",
+                  isNavItem && "p-2"
+                )}
+              >
+                <Image
+                  src={appList.imgUrl}
+                  alt={appList.name}
+                  width={isNavItem ? 30 : 50}
+                  height={isNavItem ? 30 : 50}
+                />
+              </div>
+              <p className="text-sm">{appList.name}</p>
+            </Link>
+          ))}
       </div>
     </>
   );

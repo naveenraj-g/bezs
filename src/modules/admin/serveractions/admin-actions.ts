@@ -471,3 +471,22 @@ export async function deleteAppAction({
     },
   });
 }
+
+// get admin menu items (it is for role admin, because admin has all rights and access everything)
+export async function getAdminMenuItems({ slug }: { slug: string }) {
+  console.log({ slug });
+  const menuItems = await prisma.appMenuItem.findMany({
+    where: {
+      app: {
+        slug,
+      },
+    },
+    select: {
+      name: true,
+      slug: true,
+      icon: true,
+    },
+  });
+
+  return menuItems;
+}

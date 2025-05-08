@@ -3,7 +3,7 @@ import BreadCrumb from "@/components/sidebar/ui/breadcrumb";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminModalProvider } from "@/modules/admin/providers/admin-modal-provider";
 
-const AdminLayout = ({ children }: { children: React.ReactNode }) => {
+const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="h-[calc(100vh-52px)] relative">
       <SidebarProvider

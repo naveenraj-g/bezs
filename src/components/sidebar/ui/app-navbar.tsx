@@ -39,62 +39,6 @@ const AppNavbar = ({ session }: { session: Session }) => {
 
   const router = useRouter();
 
-  // const filteredData = session.userRBAC.map((data) => {
-  //   const orgApps =
-  //     data?.organization?.appOrganization.map((app) => app?.appId) || [];
-  //   const orgAppsPath = [];
-  //   const appsMenuItemsPath =
-  //     data?.role?.menuPermission.map((menuItem) => {
-  //       const isOrgApp =
-  //         orgApps.includes(menuItem.app.id) &&
-  //         !orgAppsPath.includes(menuItem.app.slug);
-
-  //       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  //       isOrgApp && orgAppsPath.push(menuItem.app.slug);
-
-  //       return (
-  //         orgApps.length > 0 &&
-  //         orgApps.includes(menuItem?.appId) &&
-  //         menuItem?.appMenuItem?.slug
-  //       );
-  //     }) || [];
-
-  //   return {
-  //     [data?.role?.name]: [...orgAppsPath, ...appsMenuItemsPath],
-  //   };
-  // });
-
-  const filteredData = session.userRBAC.reduce((acc, data) => {
-    const roleName = data?.role?.name;
-    if (!roleName) return acc;
-
-    const orgApps =
-      data?.organization?.appOrganization.map((app) => app?.appId) || [];
-
-    const uniqueSlugs = new Set<string>();
-
-    data?.role?.menuPermission.forEach((menuItem) => {
-      const isOrgApp = orgApps.includes(menuItem.app.id);
-
-      if (isOrgApp) {
-        uniqueSlugs.add(menuItem.app.slug);
-      }
-
-      if (
-        orgApps.length > 0 &&
-        orgApps.includes(menuItem?.appId) &&
-        menuItem?.appMenuItem?.slug
-      ) {
-        uniqueSlugs.add(menuItem?.appMenuItem?.slug);
-      }
-    });
-
-    acc[roleName] = Array.from(uniqueSlugs);
-    return acc;
-  }, {});
-
-  console.log(filteredData["admin"]);
-
   const {
     user: { name, email, image },
   } = session;

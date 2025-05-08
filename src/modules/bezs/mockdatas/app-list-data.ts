@@ -1,9 +1,13 @@
 type appListTypes = {
   name: string;
-  imgUrl: string;
+  imgUrl: string | null;
 }[];
 
 export const appLists: appListTypes = [
+  {
+    name: "admin",
+    imgUrl: "/bezs",
+  },
   {
     name: "Accounting",
     imgUrl: "/app-logos/accounting.svg",

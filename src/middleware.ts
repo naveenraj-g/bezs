@@ -40,7 +40,11 @@ const authRoutes = [
   "/2fa-verification",
 ];
 const routesRoleNotRequiredMatch = ["/", "/bezs"];
-const routesRoleNotRequiredStartWith = ["/bezs/dashboard"];
+const routesRoleNotRequiredStartWith = [
+  "/bezs/dashboard",
+  "/bezs/apps",
+  "/bezs/calendar",
+];
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
@@ -70,6 +74,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/", url));
   }
 
+  if (pathname.startsWith("/bezs/admin") && session?.user?.role === "admin") {
+    return NextResponse.next();
+  }
+
   // Role-Not-Required Routes (bypass role checks)
   if (
     routesRoleNotRequiredMatch.some((route) => pathname === route) ||
@@ -81,8 +89,9 @@ export async function middleware(req: NextRequest) {
   const userRole = session?.user?.role || "";
   const rbacData = formattedRBACSessionData(session);
   const roleBasedAllowedRoutes: string[] = rbacData[userRole] || [];
+  console.log({ rbacData, roleBasedAllowedRoutes });
 
-  if (!roleBasedAllowedRoutes.some((route) => matchRoute(pathname, route))) {
+  if (!roleBasedAllowedRoutes.some((route) => pathname === route)) {
     return NextResponse.redirect(new URL("/", url));
   }
 
