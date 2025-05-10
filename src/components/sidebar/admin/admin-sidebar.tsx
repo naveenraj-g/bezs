@@ -44,7 +44,7 @@ export const AdminSideBar = () => {
     if (!isPending) {
       const rolewiseAppMenus = getRolewiseAppMenuItems(data?.userRBAC, appSlug);
       setMenuItems(rolewiseAppMenus || []);
-      if (rolewiseAppMenus.length === 0 || !rolewiseAppMenus) {
+      if (rolewiseAppMenus?.length === 0 || !rolewiseAppMenus) {
         setError("Failed to get menu data");
       } else {
         setError(null);

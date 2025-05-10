@@ -10,11 +10,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { UserRound, LockKeyhole } from "lucide-react";
+import { UserRound, LockKeyhole, UserCog } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const Accountsettings = [
+const generalsettings = [
   {
     name: "Account",
     url: "/bezs/dashboard/settings/account",
@@ -24,6 +24,14 @@ const Accountsettings = [
     name: "Security",
     url: "/bezs/dashboard/settings/security",
     icon: LockKeyhole,
+  },
+];
+
+const userManagement = [
+  {
+    name: "Roles",
+    url: "/bezs/dashboard/settings/roles",
+    icon: UserCog,
   },
 ];
 
@@ -39,7 +47,32 @@ const AppSettingsSidebar = () => {
           <SidebarGroupLabel>GENERAL SETTINGS</SidebarGroupLabel>
           <SidebarGroupContent className="mt-1">
             <SidebarMenu>
-              {Accountsettings.map((setting) => (
+              {generalsettings.map((setting) => (
+                <SidebarMenuItem
+                  key={setting.name}
+                  className={cn(
+                    path.includes(setting.name.toLowerCase()) &&
+                      "bg-sidebar-accent rounded"
+                  )}
+                >
+                  <SidebarMenuButton asChild>
+                    <Link href={setting.url}>
+                      {" "}
+                      <setting.icon />
+                      <span>{setting.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>User Management</SidebarGroupLabel>
+          <SidebarGroupContent className="mt-1">
+            <SidebarMenu>
+              {userManagement.map((setting) => (
                 <SidebarMenuItem
                   key={setting.name}
                   className={cn(
