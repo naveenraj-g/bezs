@@ -41,6 +41,7 @@ const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
       const rbacAppsLists = getRoleOrgWiseApps(data?.userRBAC) || [];
       setAppLists(rbacAppsLists || []);
       setApps(rbacAppsLists || []);
+      console.log(rbacAppsLists);
       if (rbacAppsLists.length === 0 || !rbacAppsLists) {
         setError("Failed to get apps data");
       } else {
@@ -90,7 +91,7 @@ const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
                 )}
               >
                 <Image
-                  src={appList.imgUrl}
+                  src={`/app-icons/${appList.name.toLowerCase().split(" ").join("-")}.svg`}
                   alt={appList.name}
                   width={isNavItem ? 30 : 50}
                   height={isNavItem ? 30 : 50}

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function getRolewiseAppMenuItems(rbacSessionData: any, appName: string) {
-  if (!appName) return null;
+  if (!appName || !rbacSessionData) return null;
 
   const orgApps = new Set(
     rbacSessionData.flatMap(
