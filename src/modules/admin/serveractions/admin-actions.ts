@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { auth } from "@/modules/auth/services/better-auth/auth";
 
 async function getData(userName: string) {
-  const user = await prisma.user.findUnique({
+  const user = await prismaMain.user.findUnique({
     where: {
       username: userName,
     },
@@ -57,7 +57,7 @@ export async function getRole({ roleId }: { roleId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  const role = await prisma.role.findFirst({
+  const role = await prismaMain.role.findFirst({
     where: {
       id: roleId,
     },
@@ -83,7 +83,7 @@ export async function addRole({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.role.create({
+  await prismaMain.role.create({
     data: {
       name,
       description,
@@ -110,7 +110,7 @@ export async function editRole({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.role.update({
+  await prismaMain.role.update({
     where: {
       id: roleId,
     },
@@ -132,7 +132,7 @@ export async function deleteRole({ roleId }: { roleId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  await prisma.role.delete({
+  await prismaMain.role.delete({
     where: {
       id: roleId,
     },
@@ -160,7 +160,7 @@ export async function addApp({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.app.create({
+  await prismaMain.app.create({
     data: {
       name,
       slug,
@@ -181,7 +181,7 @@ export async function getApp({ appId }: { appId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  const app = await prisma.app.findFirst({
+  const app = await prismaMain.app.findFirst({
     where: {
       id: appId,
     },
@@ -213,7 +213,7 @@ export async function editApp({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.app.update({
+  await prismaMain.app.update({
     where: {
       id: appId,
     },
@@ -237,7 +237,7 @@ export async function deleteApp({ appId }: { appId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  await prisma.app.delete({
+  await prismaMain.app.delete({
     where: {
       id: appId,
     },
@@ -267,7 +267,7 @@ export async function addAppMenuItem({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appMenuItem.create({
+  await prismaMain.appMenuItem.create({
     data: {
       appId,
       name,
@@ -293,7 +293,7 @@ export async function getAppMenuItem({
     throw new Error("Missing required datas.");
   }
 
-  const appMenuItem = await prisma.appMenuItem.findUnique({
+  const appMenuItem = await prismaMain.appMenuItem.findUnique({
     where: {
       id: appMenuItemId,
     },
@@ -325,7 +325,7 @@ export async function editAppMenuItem({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appMenuItem.update({
+  await prismaMain.appMenuItem.update({
     where: {
       id: appMenuItemId,
     },
@@ -353,7 +353,7 @@ export async function deleteAppMenuItem({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appMenuItem.delete({
+  await prismaMain.appMenuItem.delete({
     where: {
       id: appMenuItemId,
     },
@@ -383,7 +383,7 @@ export async function addAppAction({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appAction.create({
+  await prismaMain.appAction.create({
     data: {
       appId,
       actionName,
@@ -405,7 +405,7 @@ export async function getAppAction({ appActionId }: { appActionId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  const appMenuItem = await prisma.appAction.findUnique({
+  const appMenuItem = await prismaMain.appAction.findUnique({
     where: {
       id: appActionId,
     },
@@ -437,7 +437,7 @@ export async function editAppAction({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appAction.update({
+  await prismaMain.appAction.update({
     where: {
       id: appActionId,
     },
@@ -465,7 +465,7 @@ export async function deleteAppAction({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appAction.delete({
+  await prismaMain.appAction.delete({
     where: {
       id: appActionId,
     },
@@ -475,7 +475,7 @@ export async function deleteAppAction({
 // get admin menu items (it is for role admin, because admin has all rights and access everything)
 export async function getAdminMenuItems({ slug }: { slug: string }) {
   console.log({ slug });
-  const menuItems = await prisma.appMenuItem.findMany({
+  const menuItems = await prismaMain.appMenuItem.findMany({
     where: {
       app: {
         slug,

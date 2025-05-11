@@ -20,8 +20,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 const resetPassFormSchema = z.object({

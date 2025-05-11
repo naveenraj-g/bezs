@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { NextResponse } from "next/server";
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const roles = await prisma.role.findMany({
+    const roles = await prismaMain.role.findMany({
       skip: offset,
       take: limit,
       orderBy: {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const rolesCount = await prisma.role.count();
+    const rolesCount = await prismaMain.role.count();
 
     return NextResponse.json({ roles, length: rolesCount });
   } catch (err) {

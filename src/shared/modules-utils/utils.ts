@@ -49,37 +49,59 @@ export function getRolewiseAppMenuItems(rbacSessionData: any, appName: string) {
   return uniqueAppsMenuItems[appName];
 }
 
-export function getRoleOrgWiseApps(rbacSessionData: any) {
-  const apps = rbacSessionData.flatMap((data) => {
-    const orgApps =
-      data?.organization?.appOrganization.map((app) => app?.appId) || [];
+export function getRoleOrgWiseApps(rbacSessionData: any, userRole: string) {
+  // const apps = rbacSessionData.flatMap((data) => {
+  //   const orgApps =
+  //     data?.organization?.appOrganization.map((app) => app?.appId) || [];
 
-    const uniqueApps = [];
+  //   const uniqueApps = [];
 
-    data?.role?.menuPermission.forEach((menuItem) => {
-      // const appName = menuItem.app.slug.split("/").pop();
-      const isOrgApp = orgApps.includes(menuItem.app.id);
+  //   data?.role?.menuPermission.forEach((menuItem) => {
+  //     // const appName = menuItem.app.slug.split("/").pop();
+  //     const isOrgApp = orgApps.includes(menuItem.app.id);
 
-      if (isOrgApp) {
-        if (!uniqueApps.find((app) => app.name === menuItem.app.name)) {
-          uniqueApps.push({
-            name: menuItem.app.name,
-            imageUrl: menuItem.app.imageUrl,
-            slug: menuItem.app.slug,
-          });
+  //     if (isOrgApp) {
+  //       if (!uniqueApps.find((app) => app.name === menuItem.app.name)) {
+  //         uniqueApps.push({
+  //           name: menuItem.app.name,
+  //           imageUrl: menuItem.app.imageUrl,
+  //           slug: menuItem.app.slug,
+  //         });
+  //       }
+  //     }
+  //   });
+
+  //   return uniqueApps;
+  // });
+
+  const orgApps = new Set(
+    rbacSessionData.flatMap(
+      (data) =>
+        data?.organization?.appOrganization.map((app) => app?.appId) || []
+    )
+  );
+
+  const uniqueApps = [];
+
+  rbacSessionData.forEach((data) => {
+    if (data?.role?.name === userRole) {
+      data?.role?.menuPermission.forEach((menuItem) => {
+        const isOrgApp = orgApps.has(menuItem.app.id);
+
+        if (isOrgApp) {
+          if (!uniqueApps.find((app) => app.name === menuItem.app.name)) {
+            uniqueApps.push({
+              name: menuItem.app.name,
+              imageUrl: menuItem.app.imageUrl,
+              slug: menuItem.app.slug,
+            });
+          }
         }
-        // uniqueApps.add({
-        //   name: menuItem.app.name,
-        //   imageUrl: menuItem.app.imageUrl,
-        //   slug: menuItem.app.slug,
-        // });
-      }
-    });
-
-    return uniqueApps;
+      });
+    }
   });
 
-  return apps;
+  return uniqueApps;
 }
 
 // export function getRolewiseAppMenuItems(rbacSessionData: any, appName: string) {

@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/prisma";
 import { UserRolesManage } from "@/modules/account/ui/user-roles-manage";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { redirect } from "next/navigation";

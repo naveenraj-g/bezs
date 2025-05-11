@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { NextResponse } from "next/server";
 
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prismaMain.user.findUnique({
       where: {
         id: userId,
       },

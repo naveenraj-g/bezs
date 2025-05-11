@@ -1,0 +1,15 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/telemedicine-client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL_TELE_MEDICINE")
+}
+
+model Test {
+    id   String @id @default(uuid())
+    name String
+    age  String
+}

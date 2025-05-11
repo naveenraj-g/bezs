@@ -1,8 +1,35 @@
 // lib/prisma.ts
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const globalForPrisma = global as unknown as {
+  prismaMain: PrismaClient | undefined;
+  prismaTeleMedicine: PrismaClient | undefined;
+};
 
-export const prisma = globalForPrisma.prisma || new PrismaClient();
+// Main Database (Bezs)
+export const prismaMain =
+  globalForPrisma.prismaMain ??
+  new PrismaClient({
+    datasources: {
+      mainDB: {
+        url: process.env.DATABASE_URL_MAIN,
+      },
+    },
+  });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Tele Medicine Database
+export const prismaTeleMedicine =
+  globalForPrisma.prismaTeleMedicine ??
+  new PrismaClient({
+    datasources: {
+      mainDB: {
+        url: process.env.DATABASE_URL_TELE_MEDICINE,
+      },
+    },
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  if (!globalForPrisma.prismaMain) globalForPrisma.prismaMain = prismaMain;
+  if (!globalForPrisma.prismaTeleMedicine)
+    globalForPrisma.prismaTeleMedicine = prismaTeleMedicine;
+}

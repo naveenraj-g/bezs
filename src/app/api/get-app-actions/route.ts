@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { NextResponse } from "next/server";
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const appActions = await prisma.appAction.findMany({
+    const appActions = await prismaMain.appAction.findMany({
       skip: offset,
       take: limit,
       orderBy: {
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const appActionsCount = await prisma.appAction.count({
+    const appActionsCount = await prismaMain.appAction.count({
       where: {
         appId,
       },

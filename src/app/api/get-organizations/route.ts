@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { NextResponse } from "next/server";
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const organizations = await prisma.organization.findMany({
+    const organizations = await prismaMain.organization.findMany({
       skip: offset,
       take: limit,
       orderBy: {
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const organizationsLength = await prisma.organization.count();
+    const organizationsLength = await prismaMain.organization.count();
 
     return NextResponse.json({ organizations, length: organizationsLength });
   } catch (err) {

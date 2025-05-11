@@ -1,7 +1,7 @@
 "use server";
 
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 
 export async function getRoleData({ roleId }: { roleId: string }) {
   const session = await getServerSession();
@@ -14,7 +14,7 @@ export async function getRoleData({ roleId }: { roleId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  const roleData = await prisma.role.findUnique({
+  const roleData = await prismaMain.role.findUnique({
     where: {
       id: roleId,
     },
@@ -39,7 +39,7 @@ export async function getAppMenuItems({ appId }: { appId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  const appMenuItemsData = await prisma.appMenuItem.findMany({
+  const appMenuItemsData = await prismaMain.appMenuItem.findMany({
     where: {
       appId,
     },
@@ -59,7 +59,7 @@ export async function getAppActions({ appId }: { appId: string }) {
     throw new Error("Missing required datas.");
   }
 
-  const appActionsData = await prisma.appAction.findMany({
+  const appActionsData = await prismaMain.appAction.findMany({
     where: {
       appId,
     },
@@ -85,7 +85,7 @@ export async function getRoleAppMenuItems({
     throw new Error("Missing required datas.");
   }
 
-  const roleMenuItemsData = await prisma.menuPermission.findMany({
+  const roleMenuItemsData = await prismaMain.menuPermission.findMany({
     where: {
       appId,
       roleId,
@@ -112,7 +112,7 @@ export async function getRoleAppActions({
     throw new Error("Missing required datas.");
   }
 
-  const roleActionsData = await prisma.actionPermission.findMany({
+  const roleActionsData = await prismaMain.actionPermission.findMany({
     where: {
       appId,
       roleId,
@@ -141,7 +141,7 @@ export async function mapAppMenuPermission({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.menuPermission.create({
+  await prismaMain.menuPermission.create({
     data: {
       appId,
       roleId,
@@ -169,7 +169,7 @@ export async function mapAppActionPermission({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.actionPermission.create({
+  await prismaMain.actionPermission.create({
     data: {
       appId,
       roleId,
@@ -197,7 +197,7 @@ export async function unmapAppMenuPermission({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.menuPermission.delete({
+  await prismaMain.menuPermission.delete({
     where: {
       roleId_appId_appMenuItemId: {
         roleId,
@@ -227,7 +227,7 @@ export async function unmapAppActionPermission({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.actionPermission.delete({
+  await prismaMain.actionPermission.delete({
     where: {
       roleId_appId_appActionId: {
         roleId,

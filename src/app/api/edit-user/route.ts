@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { NextResponse } from "next/server";
 
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
   const { id, email, ...userDetails } = await req.json();
 
-  const userData = await prisma.user.findUnique({
+  const userData = await prismaMain.user.findUnique({
     where: {
       id,
     },
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const hasEmailChanged = userData?.email !== email;
 
   try {
-    await prisma.user.update({
+    await prismaMain.user.update({
       where: {
         id,
       },

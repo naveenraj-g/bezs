@@ -2,7 +2,6 @@ import { auth } from "@/modules/auth/services/better-auth/auth";
 import { headers } from "next/headers";
 import ManageAccount from "@/modules/account/ui/manage-account";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
-import { prisma } from "@/lib/prisma";
 
 const AccountSettingsPage = async () => {
   const session = await getServerSession();

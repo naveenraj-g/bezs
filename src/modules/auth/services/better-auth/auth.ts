@@ -9,7 +9,7 @@ import {
   username,
 } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import axios from "axios";
 import {
   GITHUB_CLIENT_ID,
@@ -23,7 +23,7 @@ export const auth = betterAuth({
     window: 10,
     max: 100,
   },
-  database: prismaAdapter(prisma, {
+  database: prismaAdapter(prismaMain, {
     provider: "postgresql",
   }),
   emailAndPassword: {
@@ -129,7 +129,7 @@ export const auth = betterAuth({
     username(),
     organization({
       allowUserToCreateOrganization: async (user) => {
-        const adminUser = await prisma.user.findFirst({
+        const adminUser = await prismaMain.user.findFirst({
           where: {
             id: user.id,
           },
@@ -144,7 +144,7 @@ export const auth = betterAuth({
     customSession(async ({ user, session }) => {
       const userId = session.userId;
 
-      const userRBAC = await prisma.rBAC.findMany({
+      const userRBAC = await prismaMain.rBAC.findMany({
         where: {
           userId,
         },

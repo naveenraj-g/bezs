@@ -20,8 +20,9 @@ import { authClient } from "../../services/better-auth/auth-client";
 import { toast } from "sonner";
 import OauthButton from "./oauth-button";
 import { useState } from "react";
-import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const signUpFormSchema = z.object({
   username: z

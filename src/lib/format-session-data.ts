@@ -1,5 +1,5 @@
 export function formattedRBACSessionData(session) {
-  const filteredData = session.userRBAC.reduce((acc, data) => {
+  const filteredData = session?.userRBAC.reduce((acc, data) => {
     const roleName = data?.role?.name;
     if (!roleName) return acc;
 

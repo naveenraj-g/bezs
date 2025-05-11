@@ -1,7 +1,7 @@
 "use server";
 
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 
 export async function changeUserRole({
   userId,
@@ -29,7 +29,7 @@ export async function changeUserRole({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.user.update({
+  await prismaMain.user.update({
     where: {
       id: userId,
     },

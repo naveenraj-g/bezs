@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { NextResponse } from "next/server";
 
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     //   },
     // });
 
-    const rbacData = await prisma.rBAC.findMany({
+    const rbacData = await prismaMain.rBAC.findMany({
       orderBy: [
         {
           user: {
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const rbacDataCount = await prisma.rBAC.count();
+    const rbacDataCount = await prismaMain.rBAC.count();
 
     return NextResponse.json({ rbacData, length: rbacDataCount });
   } catch (err) {

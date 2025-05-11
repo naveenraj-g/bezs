@@ -38,12 +38,13 @@ const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
 
   useEffect(() => {
     if (!isPending) {
-      const rbacAppsLists = getRoleOrgWiseApps(data?.userRBAC) || [];
+      const rbacAppsLists =
+        getRoleOrgWiseApps(data?.userRBAC || [], data?.user.role) || [];
       setAppLists(rbacAppsLists || []);
       setApps(rbacAppsLists || []);
       console.log(rbacAppsLists);
       if (rbacAppsLists.length === 0 || !rbacAppsLists) {
-        setError("Failed to get apps data");
+        setError("Failed to get apps data or no apps found to your role");
       } else {
         setError(null);
       }

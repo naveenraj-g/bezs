@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 
 export async function getAllOrganizations() {
@@ -10,7 +10,7 @@ export async function getAllOrganizations() {
     throw new Error("Unauthorized!");
   }
 
-  const allOrgData = await prisma.organization.findMany({
+  const allOrgData = await prismaMain.organization.findMany({
     select: {
       id: true,
       name: true,
@@ -27,7 +27,7 @@ export async function getAllRoles() {
     throw new Error("Unauthorized!");
   }
 
-  const allRoleData = await prisma.role.findMany({
+  const allRoleData = await prismaMain.role.findMany({
     select: {
       id: true,
       name: true,
@@ -46,7 +46,7 @@ export async function getOrgMembers({ orgId }: { orgId: string }) {
 
   if (!orgId) throw new Error("Missing required datas.");
 
-  const usersData = await prisma.member.findMany({
+  const usersData = await prismaMain.member.findMany({
     where: {
       organizationId: orgId,
     },
@@ -81,7 +81,7 @@ export async function mapRBACUserOrgRole({
 
   if (!orgId || !userId || !roleId) throw new Error("Missing required datas.");
 
-  await prisma.rBAC.create({
+  await prismaMain.rBAC.create({
     data: {
       organizationId: orgId,
       roleId,
@@ -107,7 +107,7 @@ export async function unmapRBACUserOrgRole({
 
   if (!orgId || !userId || !roleId) throw new Error("Missing required datas.");
 
-  await prisma.rBAC.delete({
+  await prismaMain.rBAC.delete({
     where: {
       organizationId_userId_roleId: {
         organizationId: orgId,

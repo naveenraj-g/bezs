@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 
 const appMenuItems = [
@@ -68,10 +68,10 @@ async function initialSetup() {
   "use server";
 
   // retrieving first created user
-  const firstUser = await prisma.user.findFirst();
+  const firstUser = await prismaMain.user.findFirst();
 
   // assigning admin role
-  await prisma.user.update({
+  await prismaMain.user.update({
     where: {
       id: firstUser?.id,
     },
@@ -81,7 +81,7 @@ async function initialSetup() {
   });
 
   // creating Admin app
-  await prisma.app.create({
+  await prismaMain.app.create({
     data: {
       name: "Admin",
       slug: "/bezs/admin",
@@ -90,11 +90,11 @@ async function initialSetup() {
       type: "custom",
     },
   });
-  const app = await prisma.app.findFirst();
+  const app = await prismaMain.app.findFirst();
 
   // create Admin app Menu Items
   appMenuItems.forEach(async (menuItem) => {
-    await prisma.appMenuItem.create({
+    await prismaMain.appMenuItem.create({
       data: {
         name: menuItem.name,
         slug: menuItem.slug,
@@ -106,7 +106,7 @@ async function initialSetup() {
   });
 
   // creating Admin Hub organization
-  await prisma.organization.create({
+  await prismaMain.organization.create({
     data: {
       name: "Admin Hub",
       slug: "admin-hub",
@@ -123,19 +123,19 @@ async function initialSetup() {
       },
     },
   });
-  const org = await prisma.organization.findFirst();
+  const org = await prismaMain.organization.findFirst();
 
   // creating admin role
-  await prisma.role.create({
+  await prismaMain.role.create({
     data: {
       name: "admin",
       description:
         "Has full access to manage users, roles, permissions, settings, and all app-related data within the organization.",
     },
   });
-  const adminRole = await prisma.role.findFirst();
+  const adminRole = await prismaMain.role.findFirst();
 
-  const adminMenuItems = await prisma.appMenuItem.findMany({
+  const adminMenuItems = await prismaMain.appMenuItem.findMany({
     where: {
       appId: app?.id || "",
     },
@@ -147,7 +147,7 @@ async function initialSetup() {
   });
 
   adminMenuItems.forEach(async (item) => {
-    await prisma.menuPermission.create({
+    await prismaMain.menuPermission.create({
       data: {
         appId: app?.id || "",
         appMenuItemId: item?.id || "",
@@ -156,7 +156,7 @@ async function initialSetup() {
     });
   });
 
-  await prisma.rBAC.create({
+  await prismaMain.rBAC.create({
     data: {
       organizationId: org?.id || "",
       roleId: adminRole?.id || "",

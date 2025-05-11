@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/main-client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL_MAIN")
 }
 
 model User {

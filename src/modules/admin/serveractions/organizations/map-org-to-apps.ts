@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { prismaMain } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 
 export async function getAllApps() {
@@ -10,7 +10,7 @@ export async function getAllApps() {
     throw new Error("Unauthorized!");
   }
 
-  const allApps = await prisma.app.findMany({
+  const allApps = await prismaMain.app.findMany({
     select: {
       id: true,
       name: true,
@@ -35,7 +35,7 @@ export async function getOrganization({
     throw new Error("Missing required datas.");
   }
 
-  const orgData = await prisma.organization.findUnique({
+  const orgData = await prismaMain.organization.findUnique({
     where: {
       id: organizationId,
     },
@@ -59,7 +59,7 @@ export async function getOrganizationApps({
     throw new Error("Missing required datas.");
   }
 
-  const orgAppsData = await prisma.organization.findUnique({
+  const orgAppsData = await prismaMain.organization.findUnique({
     where: {
       id: organizationId,
     },
@@ -92,7 +92,7 @@ export async function addAppToOrganization({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appOrganization.create({
+  await prismaMain.appOrganization.create({
     data: {
       appId,
       organizationId,
@@ -117,7 +117,7 @@ export async function removeAppFromOrganization({
     throw new Error("Missing required datas.");
   }
 
-  await prisma.appOrganization.delete({
+  await prismaMain.appOrganization.delete({
     where: {
       appId_organizationId: {
         appId,
