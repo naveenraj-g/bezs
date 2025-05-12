@@ -1,4 +1,4 @@
-import { prismaMain, prismaTeleMedicine } from "@/lib/prisma";
+import { prismaTeleMedicine } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { redirect } from "next/navigation";
 
@@ -8,7 +8,11 @@ const PatientPage = async () => {
     redirect("/bezs");
   }
 
-  const alreadyHavePatient = false;
+  const alreadyHavePatient = await prismaTeleMedicine.patient.findUnique({
+    where: {
+      userId: session?.user?.id,
+    },
+  });
 
   if (!alreadyHavePatient) {
     redirect("/bezs/tele-medicine/patient/onboarding");

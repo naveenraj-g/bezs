@@ -1,4 +1,4 @@
-import { prismaMain } from "@/lib/prisma";
+import { prismaMain, prismaTeleMedicine } from "@/lib/prisma";
 import { authClient } from "@/modules/auth/services/better-auth/auth-client";
 
 const appMenuItems = [
