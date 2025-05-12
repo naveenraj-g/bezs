@@ -5,7 +5,7 @@ import { AdminModalProvider } from "@/modules/admin/providers/admin-modal-provid
 
 const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-[calc(100vh-52px)] relative">
+    <div className="h-[calc(100vh-53px)] relative overflow-hidden">
       <SidebarProvider
         className="min-h-full"
         style={{
@@ -14,7 +14,7 @@ const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
         }}
       >
         <AdminSideBar />
-        <main className="h-[calc(100vh-52px)] overflow-y-auto w-full p-6 space-y-6">
+        <main className="h-[calc(100vh-53px)] overflow-y-auto w-full p-6 space-y-6">
           <div className="flex items-center">
             <SidebarTrigger className="cursor-pointer" />
             <BreadCrumb />

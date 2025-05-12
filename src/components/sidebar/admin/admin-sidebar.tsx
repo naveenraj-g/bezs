@@ -53,7 +53,8 @@ export const AdminSideBar = () => {
   }, [isPending, appSlug, data]);
 
   return (
-    <Sidebar className="!absolute h-full bg-zinc-200/50 dark:bg-zinc-900 w-[12.5rem]">
+    // <div className="h-(calc(100vh-53px)) overflow-y-auto">
+    <Sidebar className="!absolute h-full overflow-y-auto bg-zinc-200/50 dark:bg-zinc-900 w-[12.5rem]">
       <SidebarGroup>
         <SidebarGroupLabel>Admin Management</SidebarGroupLabel>
         {isPending && <Loader2 className="animate-spin" />}
@@ -87,5 +88,6 @@ export const AdminSideBar = () => {
         </SidebarMenu>
       </SidebarGroup>
     </Sidebar>
+    // </div>
   );
 };
