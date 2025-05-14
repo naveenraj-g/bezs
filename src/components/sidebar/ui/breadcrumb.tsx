@@ -7,6 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cn } from "@/lib/utils";
 import { capitalizeString } from "@/utils/helper";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,7 +35,12 @@ const BreadCrumb = ({ className = "" }: { className?: string }) => {
 
           return index + 1 === pathSegmentsLength ? (
             <BreadcrumbItem key={pathSegment}>
-              <BreadcrumbPage className="text-base text-primary font-medium">
+              <BreadcrumbPage
+                className={cn(
+                  "text-base text-primary font-medium",
+                  formattedPathSegment === "rbac" && "uppercase"
+                )}
+              >
                 {capitalizeString(
                   formattedPathSegment === "bezs"
                     ? "Home"

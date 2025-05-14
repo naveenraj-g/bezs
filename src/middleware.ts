@@ -89,7 +89,7 @@ export async function middleware(req: NextRequest) {
   const userRole = session?.user?.role || "";
   const rbacData = formattedRBACSessionData(session);
   const roleBasedAllowedRoutes: string[] = rbacData[userRole] || [];
-  console.log({ roleBasedAllowedRoutes });
+  console.log({ roleBasedAllowedRoutes, pathname });
 
   if (!roleBasedAllowedRoutes.some((route) => pathname === route)) {
     return NextResponse.redirect(new URL("/", url));

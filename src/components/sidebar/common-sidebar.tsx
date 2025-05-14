@@ -8,17 +8,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { getAdminMenuItems } from "@/modules/admin/serveractions/admin-actions";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { getRolewiseAppMenuItems } from "@/shared/modules-utils/utils";
-import {
-  Building,
-  LayoutGrid,
-  Loader2,
-  ShieldUser,
-  User,
-  UserCog,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -32,7 +24,15 @@ type MenuItemsStateType = {
   description: string;
 }[];
 
-export const AdminSideBar = () => {
+const isMatch = (pathname: string, slug: string) => {
+  return pathname === slug;
+};
+
+const isActive = (pathname: string, slug: string) => {
+  return pathname === slug || pathname.startsWith(slug);
+};
+
+export const CommonSideBar = ({ label }: { label: string }) => {
   const { data, isPending } = useSession();
   const pathname = usePathname();
   const { resolvedTheme } = useTheme();
@@ -53,10 +53,12 @@ export const AdminSideBar = () => {
   }, [isPending, appSlug, data]);
 
   return (
-    // <div className="h-(calc(100vh-53px)) overflow-y-auto">
-    <Sidebar className="!absolute h-full overflow-y-auto bg-zinc-200/50 dark:bg-zinc-900 w-[12.5rem]">
+    <Sidebar
+      className="!absolute h-full overflow-y-auto bg-zinc-100/50 dark:bg-zinc-900 w-[12.5rem]"
+      collapsible="icon"
+    >
       <SidebarGroup>
-        <SidebarGroupLabel>Admin Management</SidebarGroupLabel>
+        <SidebarGroupLabel>{label}</SidebarGroupLabel>
         {isPending && <Loader2 className="animate-spin" />}
         {error && <p>{error}</p>}
         <SidebarMenu>
@@ -66,14 +68,21 @@ export const AdminSideBar = () => {
                 LucideIcons[item?.icon as keyof typeof LucideIcons] ||
                 LucideIcons.LayoutGrid;
 
+              if (!item.icon) return null;
+
               return (
                 <SidebarMenuButton
                   key={i}
                   className={
-                    pathname.includes(item.slug)
+                    (
+                      appSlug === "tele-medicine"
+                        ? isMatch(pathname, item.slug)
+                        : isActive(pathname, item.slug)
+                    )
                       ? `bg-primary hover:bg-primary/50 ${resolvedTheme === "zinc-dark" ? "text-zinc-900 hover:text-zinc-100" : "text-zinc-100 hover:text-zinc-100"}`
                       : "hover:bg-primary/20"
                   }
+                  asChild
                 >
                   <Link
                     href={item.slug}
@@ -88,6 +97,5 @@ export const AdminSideBar = () => {
         </SidebarMenu>
       </SidebarGroup>
     </Sidebar>
-    // </div>
   );
 };

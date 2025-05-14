@@ -40,7 +40,7 @@ const AppNavbar = ({ session }: { session: Session }) => {
   const router = useRouter();
 
   const {
-    user: { name, email, image },
+    user: { name, email, image, username },
   } = session;
 
   async function handleLogout() {
@@ -109,7 +109,9 @@ const AppNavbar = ({ session }: { session: Session }) => {
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
                 <div className="space-y-0.5">
-                  <p>{name}</p>
+                  <p>
+                    {name} (@{username || "no username"})
+                  </p>
                   <p>{email}</p>
                 </div>
               </DropdownMenuLabel>

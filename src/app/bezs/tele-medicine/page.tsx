@@ -1,3 +1,7 @@
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+
 const TeleMedicineHomePage = () => {
   return (
     <div className="h-[calc(100vh-53px)]">
@@ -17,6 +21,13 @@ const TeleMedicineHomePage = () => {
               Welcome to the Telemedicine page! Here you can find information
               about our telemedicine services.
             </p>
+
+            <Link
+              href="/bezs/tele-medicine/patient"
+              className={cn(buttonVariants({ size: "sm" }))}
+            >
+              Go To Patient
+            </Link>
           </div>
         </div>
       </div>
