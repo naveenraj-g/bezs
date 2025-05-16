@@ -37,7 +37,7 @@ export const StatSummaryChart = ({
 
   return (
     <div className="rounded-xl w-full h-full">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap gap-2 justify-between items-center">
         <h1 className="text-lg font-semibold">Summary</h1>
 
         <Button
@@ -68,11 +68,11 @@ export const StatSummaryChart = ({
 
         <Users
           size={30}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400"
+          className="absolute size-[16px] xxs:size-[30px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400"
         />
       </div>
 
-      <div className="flex justify-center gap-16">
+      <div className="flex justify-center flex-wrap md:flex-nowrap gap-4 xs:gap-16">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 bg-[#000000] rounded-xl" />

@@ -75,7 +75,7 @@ export const processAppointments = async (appointments: Appointment[]) => {
 export async function getPatientDashboardData() {
   const session = await getServerSession();
 
-  if (!session || session?.user?.role !== "patient") {
+  if (!session || session?.user?.role !== "telemedicine-patient") {
     throw new Error("Unauthorized");
   }
 
@@ -85,16 +85,11 @@ export async function getPatientDashboardData() {
     },
     select: {
       id: true,
-      first_name: true,
-      last_name: true,
+      name: true,
       gender: true,
       img: true,
     },
   });
-
-  if (!patientData) {
-    throw new Error("Patient not found");
-  }
 
   const appointments = await prismaTeleMedicine.appointment.findMany({
     where: {
@@ -107,6 +102,14 @@ export async function getPatientDashboardData() {
           name: true,
           img: true,
           specialization: true,
+        },
+      },
+      patient: {
+        select: {
+          name: true,
+          gender: true,
+          date_of_birth: true,
+          img: true,
         },
       },
     },

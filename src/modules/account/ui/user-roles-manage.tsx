@@ -97,7 +97,7 @@ export function UserRolesManage({
                     defaultValue={currentRole}
                     disabled={isSubmitting}
                   >
-                    <SelectTrigger className="w-[150px]">
+                    <SelectTrigger className="w-[210px] w-fit">
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>

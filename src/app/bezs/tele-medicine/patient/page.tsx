@@ -27,7 +27,7 @@ const PatientDashboardPage = async () => {
   } = await getPatientDashboardData();
 
   if (!patientData) {
-    return null;
+    redirect("/bezs/tele-medicine/patient/profile");
   }
 
   const cardData = [
@@ -67,13 +67,13 @@ const PatientDashboardPage = async () => {
 
   return (
     <>
-      <div className="flex flex-col rounded-xl xl:flex-row gap-6">
+      <div className="grid rounded-xl xl:grid-cols-[2.5fr_1fr] gap-6">
         {/* Left */}
-        <div className="w-full xl:w-[69%]">
+        <div className="w-full">
           <Card className="rounded-xl mb-8 space-y-4 p-4">
             <div className="flex flex-wrap gap-2 items-center justify-between">
               <h1 className="text-lg xl:text-2xl font-semibold">
-                Welcome {patientData?.first_name || session?.user?.name}
+                Welcome {patientData?.name || session?.user?.name}
               </h1>
 
               <div className="space-x-2">
@@ -97,13 +97,13 @@ const PatientDashboardPage = async () => {
             <AppoinmentChart data={monthlyData} />
           </div>
 
-          <div className="bg-white rounded-xl p-4 mt-8">
+          <div className="rounded-xl mt-8">
             <RecentAppointmentsTable data={last5Records} />
           </div>
         </div>
         {/* Right */}
-        <div className="w-full xl:w-[30%]">
-          <Card className="w-full h-[450px] mb-8 p-4">
+        <div className="w-full">
+          <Card className="w-full xxs:h-[450px] mb-8 p-4">
             <StatSummaryChart
               data={appointmentCounts}
               total={totalAppointments}

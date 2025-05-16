@@ -35,7 +35,7 @@ export const StatCard = ({
 }: StatCardProps) => {
   return (
     <Card className={cn("w-full gap-0 p-0", className)}>
-      <CardHeader className="flex flex-row items-center justify-between py-3 capitalize">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between py-3 capitalize">
         <h3>{title}</h3>
         <Button
           asChild

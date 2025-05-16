@@ -8,15 +8,6 @@ datasource db {
     url      = env("DATABASE_URL_TELE_MEDICINE")
 }
 
-enum Role {
-    ADMIN
-    NURSE
-    DOCTOR
-    LAB_TECHNICIAN
-    PATIENT
-    CASHIER
-}
-
 enum Status {
     ACTIVE
     INACTIVE
@@ -54,9 +45,10 @@ enum PaymentStatus {
 
 model Patient {
     id                       String   @id @default(uuid())
+    orgId                    String
     userId                   String   @unique
-    first_name               String
-    last_name                String
+    role                     String
+    name                     String
     date_of_birth            DateTime
     gender                   Gender   @default(MALE)
     phone                    String
@@ -89,7 +81,9 @@ model Patient {
 
 model Doctor {
     id                  String  @id
+    orgId               String
     userId              String  @unique
+    role                String
     email               String  @unique
     name                String
     specialization      String
@@ -126,6 +120,7 @@ model WorkingDays {
 
 model Staff {
     id             String  @id
+    orgId          String
     userId         String
     email          String  @unique
     name           String
@@ -136,7 +131,6 @@ model Staff {
     license_number String?
     colorCode      String?
 
-    role   Role
     status Status @default(ACTIVE)
 
     created_at DateTime @default(now())

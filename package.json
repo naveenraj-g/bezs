@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "telemedicine-studio": "bunx prisma studio --schema ./prisma/telemedicine-database/schema.prisma",
+    "main-studio": "bunx prisma studio --schema ./prisma/main-database/schema.prisma"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",

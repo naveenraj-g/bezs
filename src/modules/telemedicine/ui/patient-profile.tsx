@@ -37,16 +37,11 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [firstName, lastName] = user?.name.split(" ") || [];
-
   const userData = {
-    first_name: firstName || "",
-    last_name: lastName || "",
+    name: user?.name || "",
     email: user?.email || "",
     phone: "",
   };
-
-  console.log(data.date_of_birth);
 
   const form = useForm<z.infer<typeof PatientFormSchema>>({
     resolver: zodResolver(PatientFormSchema),
@@ -80,8 +75,7 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
           .split("T")[0];
 
         form.reset({
-          first_name: data.first_name,
-          last_name: data.last_name,
+          name: data.name,
           email: data.email,
           phone: data.phone,
           date_of_birth: formattedDateOfBirth,
@@ -164,22 +158,14 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
               {/* <ImageUploader
           
               /> */}
-              <div className="flex flex-col lg:flex-row  gap-y-6 items-center gap-2 md:gap-x-4">
-                <CustomInput
-                  type="input"
-                  control={form.control}
-                  name="first_name"
-                  placeholder="John"
-                  label="First Name"
-                />
-                <CustomInput
-                  type="input"
-                  control={form.control}
-                  name="last_name"
-                  placeholder="Doe"
-                  label="Last Name"
-                />
-              </div>
+
+              <CustomInput
+                type="input"
+                control={form.control}
+                name="name"
+                placeholder="Doe"
+                label="Name"
+              />
               <CustomInput
                 type="input"
                 control={form.control}
