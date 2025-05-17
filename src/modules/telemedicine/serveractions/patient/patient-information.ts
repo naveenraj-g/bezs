@@ -102,6 +102,7 @@ export async function getPatientDashboardData() {
           name: true,
           img: true,
           specialization: true,
+          colorCode: true,
         },
       },
       patient: {
@@ -110,6 +111,7 @@ export async function getPatientDashboardData() {
           gender: true,
           date_of_birth: true,
           img: true,
+          colorCode: true,
         },
       },
     },

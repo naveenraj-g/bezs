@@ -136,8 +136,8 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
   };
 
   return (
-    <Card className="w-full border-0 shadow-none bg-transparent">
-      <CardHeader>
+    <Card className="w-full border-0 shadow-none bg-transparent p-0 m-0">
+      <CardHeader className="p-0">
         <CardTitle>Patient Profile</CardTitle>
         <CardDescription>
           Please provide all the information below to help us understand better
@@ -145,7 +145,7 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-0">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

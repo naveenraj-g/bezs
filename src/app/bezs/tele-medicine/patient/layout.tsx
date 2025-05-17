@@ -25,7 +25,7 @@ const PatientLayout = async ({ children }: { children: React.ReactNode }) => {
             <SidebarTrigger className="cursor-pointer" />
             <BreadCrumb />
           </div>
-          <div className="py-4">{children}</div>
+          <div className="">{children}</div>
         </main>
       </SidebarProvider>
     </div>

@@ -50,6 +50,7 @@ export async function createPatientProfile(patientProfileData: any) {
     data: {
       userId: session?.user?.id,
       role: session?.user?.role,
+      img: session?.user?.image || "",
       orgId,
       ...validateData.data,
     },

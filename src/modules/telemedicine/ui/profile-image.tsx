@@ -1,4 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { generateRandomColor } from "../utils";
+import { cn } from "@/lib/utils";
 
 type ProfileAvatarPropsType = {
   imgUrl: string | null;
@@ -6,6 +8,7 @@ type ProfileAvatarPropsType = {
   className?: string;
   fallbackTextClass?: string;
   size?: string;
+  colorCode?: string | null;
 };
 
 export function ProfileAvatar({
@@ -14,14 +17,17 @@ export function ProfileAvatar({
   className,
   fallbackTextClass,
   size,
+  colorCode,
 }: ProfileAvatarPropsType) {
   const fallbackText = name.split(" ").flatMap((word) => word[0]);
+  const randomColor = generateRandomColor();
 
   return (
     <Avatar className={`size-${size}`}>
       <AvatarImage src={imgUrl || ""} alt="name" className={className} />
       <AvatarFallback
-        className={`bg-violet-600 text-white ${fallbackTextClass}`}
+        className={cn("text-white", fallbackTextClass || "")}
+        style={{ backgroundColor: colorCode || randomColor }}
       >
         {fallbackText}
       </AvatarFallback>

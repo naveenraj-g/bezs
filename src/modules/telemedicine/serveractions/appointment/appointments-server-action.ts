@@ -41,3 +41,58 @@ export async function getAppointmentById(id: number | undefined) {
 
   return appointmentData;
 }
+
+export async function getPatientAppointments(patientId: string | undefined) {
+  const session = await getServerSession();
+
+  if (!session) {
+    throw new Error("Unauthorized.");
+  }
+
+  if (!patientId) {
+    throw new Error("Missing required datas.");
+  }
+
+  const appointmentsData = await prismaTeleMedicine.appointment.findMany({
+    where: {
+      patient_id: patientId,
+    },
+    select: {
+      id: true,
+      patient_id: true,
+      doctor_id: true,
+      type: true,
+      appointment_date: true,
+      time: true,
+      status: true,
+      patient: {
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          gender: true,
+          img: true,
+          date_of_birth: true,
+          colorCode: true,
+        },
+      },
+      doctor: {
+        select: {
+          id: true,
+          name: true,
+          specialization: true,
+          img: true,
+          colorCode: true,
+        },
+      },
+    },
+  });
+
+  const appointmentsCount = await prismaTeleMedicine.appointment.count({
+    where: {
+      patient_id: patientId,
+    },
+  });
+
+  return { appointmentsData, appointmentsCount };
+}
