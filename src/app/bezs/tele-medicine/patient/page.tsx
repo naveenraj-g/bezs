@@ -22,7 +22,7 @@ const PatientDashboardPage = async () => {
     appointmentCounts,
     last5Records,
     totalAppointments,
-    avaliableDoctor,
+    // avaliableDoctor,
     monthlyData,
   } = await getPatientDashboardData();
 
@@ -67,7 +67,7 @@ const PatientDashboardPage = async () => {
 
   return (
     <>
-      <div className="grid rounded-xl xl:grid-cols-[2.5fr_1fr] gap-6">
+      <div className="xl:grid rounded-xl xl:grid-cols-[2.5fr_1fr] xl:gap-6 w-full space-y-6 xl:space-y-0">
         {/* Left */}
         <div className="w-full">
           <Card className="rounded-xl mb-8 space-y-4 p-4">

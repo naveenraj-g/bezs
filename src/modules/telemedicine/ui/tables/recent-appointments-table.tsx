@@ -96,10 +96,10 @@ export const RecentAppointmentsTable = ({ data }: DataProps) => {
   return (
     <Card className="rounded-xl p-4">
       <CardTitle>
-        <div className="flex justify-between items-center flex-wrap">
+        <div className="flex justify-between items-center flex-wrap gap-2">
           <h1 className="text-lg font-semibold">Recent Appointments</h1>
           <Button asChild variant="outline" size="sm">
-            <Link href="/bezs/tele-medicine/patient/record/appointments">
+            <Link href="/bezs/tele-medicine/patient/appointments">
               View All
             </Link>
           </Button>

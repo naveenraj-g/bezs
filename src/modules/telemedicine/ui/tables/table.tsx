@@ -1,9 +1,9 @@
 import {
   Table,
   TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
+  // TableCaption,
+  // TableCell,
+  // TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -17,7 +17,7 @@ interface TableProps {
 
 export const TableComp = ({ columns, renderRow, data }: TableProps) => {
   return (
-    <>
+    <div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -35,6 +35,6 @@ export const TableComp = ({ columns, renderRow, data }: TableProps) => {
         </TableBody>
       </Table>
       {data?.length < 1 && <p className="py-8 text-center">No Data Found</p>}
-    </>
+    </div>
   );
 };
