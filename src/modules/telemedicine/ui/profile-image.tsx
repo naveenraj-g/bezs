@@ -3,12 +3,12 @@ import { generateRandomColor } from "../utils";
 import { cn } from "@/lib/utils";
 
 type ProfileAvatarPropsType = {
-  imgUrl: string | null;
-  name: string;
+  imgUrl?: string | null;
+  name: string | undefined;
   className?: string;
   fallbackTextClass?: string;
-  size?: string;
   colorCode?: string | null;
+  avatarClassName?: string;
 };
 
 export function ProfileAvatar({
@@ -16,14 +16,14 @@ export function ProfileAvatar({
   name,
   className,
   fallbackTextClass,
-  size,
   colorCode,
+  avatarClassName,
 }: ProfileAvatarPropsType) {
-  const fallbackText = name.split(" ").flatMap((word) => word[0]);
+  const fallbackText = name?.split(" ").flatMap((word) => word[0]);
   const randomColor = generateRandomColor();
 
   return (
-    <Avatar className={`size-${size}`}>
+    <Avatar className={avatarClassName}>
       <AvatarImage src={imgUrl || ""} alt="name" className={className} />
       <AvatarFallback
         className={cn("text-white", fallbackTextClass || "")}

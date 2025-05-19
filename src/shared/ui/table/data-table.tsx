@@ -53,10 +53,11 @@ type DataTableAdditionalType = {
   label?: string;
   dataSize?: string | number;
   addLabelName?: string;
-  fallbackText: string;
+  fallbackText?: string;
   searchField?: string;
   filterField?: string;
   filterValues?: any[];
+  openModal?: () => void;
 };
 
 export function DataTable<TData, TValue>({
@@ -69,6 +70,7 @@ export function DataTable<TData, TValue>({
   searchField = "",
   filterField = "",
   filterValues = [],
+  openModal,
 }: DataTableProps<TData, TValue> & DataTableAdditionalType) {
   const [pageSize, setPageSize] = useState<number>(5);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -141,7 +143,7 @@ export function DataTable<TData, TValue>({
                 <ListFilter /> Filter
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
+                <DropdownMenuLabel>Filter by {filterField}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {filterValues.map((value, index) => {
                   const isActive =
@@ -179,11 +181,7 @@ export function DataTable<TData, TValue>({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <Button
-            size="sm"
-            className="cursor-pointer"
-            // onClick={() => openModal({ type: "addAppAction", appId })}
-          >
+          <Button size="sm" className="cursor-pointer" onClick={openModal}>
             <Plus /> {addLabelName}
           </Button>
         </div>

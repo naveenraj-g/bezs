@@ -80,7 +80,7 @@ model Patient {
 }
 
 model Doctor {
-    id                  String  @id
+    id                  String  @id @default(uuid())
     orgId               String
     userId              String  @unique
     role                String

@@ -26,7 +26,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { useTelemedicinePatientModal } from "@/modules/telemedicine/stores/use-telemedicine-patient-modal-store";
 
 export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] =
   [
@@ -140,10 +141,20 @@ export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] 
       cell: ({ row }) => {
         const id: number = row.original.id;
         const status: AppointmentStatus = row.getValue("status");
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const openModal = useTelemedicinePatientModal((state) => state.onOpen);
 
         return (
           <div className="flex items-center gap-1">
-            <ViewAppointment id={id} />
+            <Button
+              size="sm"
+              className="rounded-full"
+              onClick={() =>
+                openModal({ type: "viewAppointment", appointmentId: id })
+              }
+            >
+              View
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger
                 className={cn(

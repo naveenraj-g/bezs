@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { TableComp } from "./table";
@@ -7,7 +9,7 @@ import { ProfileAvatar } from "../profile-image";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { AppointmentStatusIndicator } from "../appointments/appointment-status-indicator";
-import { ViewAppointment } from "../appointments/view-appointment";
+import { useTelemedicinePatientModal } from "../../stores/use-telemedicine-patient-modal-store";
 
 interface DataProps {
   data: any[];
@@ -42,17 +44,19 @@ const columns = [
 ];
 
 export const RecentAppointmentsTable = ({ data }: DataProps) => {
+  const openModal = useTelemedicinePatientModal((state) => state.onOpen);
+
   const renderRow = (item: AppointmentType) => {
     return (
       <TableRow key={item?.id}>
         <TableCell>
-          <div className="flex items-center gap-2 2xl:gap-4 py-2">
+          <div className="flex items-center gap-2 2xl:gap-3 py-2">
             <ProfileAvatar
               imgUrl={item?.patient?.img}
               name={item?.patient?.name}
             />
-            <div className="font-semibold">
-              <h3>{item?.patient?.name}</h3>
+            <div>
+              <h3 className="font-bold">{item?.patient?.name}</h3>
               <span className="text-xs capitalize">
                 {item?.patient.gender.toLowerCase()}
               </span>
@@ -62,13 +66,13 @@ export const RecentAppointmentsTable = ({ data }: DataProps) => {
         <TableCell>{format(item?.appointment_date, "dd-MMM-yyyy")}</TableCell>
         <TableCell>{item?.time}</TableCell>
         <TableCell>
-          <div className="flex items-center gap-2 2xl:gap-4 py-2">
+          <div className="flex items-center gap-2 2xl:gap-3 py-2">
             <ProfileAvatar
               imgUrl={item?.doctor?.img}
               name={item?.doctor?.name}
             />
-            <div className="font-semibold">
-              <h3>{item?.doctor?.name}</h3>
+            <div>
+              <h3 className="font-bold">{item?.doctor?.name}</h3>
               <span className="text-xs capitalize">
                 {item?.doctor?.specialization}
               </span>
@@ -79,15 +83,15 @@ export const RecentAppointmentsTable = ({ data }: DataProps) => {
           <AppointmentStatusIndicator status={item?.status} />
         </TableCell>
         <TableCell>
-          <div className="flex flex-col items-start gap-1">
-            <ViewAppointment id={item?.id} />
-            {/* <Link
-              href={`/bezs/tele-medicine/patient/record/appointments/${item?.id}`}
-              className="hover:underline"
-            >
-              See all
-            </Link> */}
-          </div>
+          <Button
+            className="rounded-full"
+            size="sm"
+            onClick={() =>
+              openModal({ type: "viewAppointment", appointmentId: item?.id })
+            }
+          >
+            View
+          </Button>
         </TableCell>
       </TableRow>
     );

@@ -1,3 +1,5 @@
+"use server";
+
 import { prismaTeleMedicine } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 
@@ -85,6 +87,9 @@ export async function getPatientAppointments(patientId: string | undefined) {
           colorCode: true,
         },
       },
+    },
+    orderBy: {
+      created_at: "desc",
     },
   });
 

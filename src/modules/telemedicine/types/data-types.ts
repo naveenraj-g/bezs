@@ -1,9 +1,11 @@
+import { z } from "zod";
 import {
   AppointmentStatus,
   Gender,
   Doctor,
   Patient,
 } from "../../../../prisma/generated/telemedicine";
+import { createDoctorFormSchema } from "../schemas/create-doctor-form-schema";
 
 export type AppointmentChartProps = {
   name: string;
@@ -52,4 +54,31 @@ export type AppointmentTableDataType = {
   appointment_date: Date;
   time: string;
   doctor: AppointmentTableDoctor;
+};
+
+export type AdminDoctorsDataType = {
+  name: string;
+  id: string;
+  email: string;
+  specialization: string;
+};
+
+export type CreateDoctorDataType = z.infer<typeof createDoctorFormSchema>;
+
+export type UserWithDoctorRoleDataType = {
+  user: {
+    name: string;
+    id: string;
+    email: string;
+    username: string | null;
+  };
+  role: {
+    name: string;
+  };
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  organizationId: string;
+  roleId: string;
 };

@@ -29,8 +29,12 @@ interface InputProps {
   label?: string;
   placeholder?: string;
   inputType?: "text" | "email" | "password" | "date";
-  selectList?: { label: string; value: string }[];
+  selectList?: { label: any; value: string }[];
   defaultValue?: string;
+  formItemClassName?: string;
+  className?: string;
+  dateMin?: string;
+  disable?: boolean;
 }
 
 const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
@@ -41,6 +45,9 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
           <Input
             type={props.inputType}
             placeholder={props.placeholder}
+            className={props.className}
+            min={props.dateMin}
+            disabled={props.disable}
             {...field}
           />
         </FormControl>
@@ -50,11 +57,11 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
       return (
         <Select onValueChange={field.onChange} value={field?.value}>
           <FormControl>
-            <SelectTrigger>
+            <SelectTrigger className={props.className} disabled={props.disable}>
               <SelectValue placeholder={props.placeholder} />
             </SelectTrigger>
           </FormControl>
-          <SelectContent>
+          <SelectContent className="max-h-[220px]">
             {props.selectList?.map((i, id) => (
               <SelectItem key={id} value={i.value}>
                 {i.label}
@@ -70,6 +77,8 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
           <Checkbox
             id={props.name}
             onCheckedChange={(e) => field.onChange(e === true || null)}
+            className={props.className}
+            disabled={props.disable}
           />
           <div className="grid gap-1.5 leading-none">
             <label
@@ -91,6 +100,7 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
             defaultValue={props.defaultValue}
             onChange={field.onChange}
             className="flex gap-4"
+            disabled={props.disable}
           >
             {props?.selectList?.map((i, id) => (
               <div className="flex items-center w-full" key={id}>
@@ -98,6 +108,7 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
                   value={i.value}
                   id={i.value}
                   className="peer sr-only"
+                  disabled={props.disable}
                 />
                 <Label
                   htmlFor={i.value}
@@ -117,6 +128,8 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
           <Textarea
             type={props.inputType}
             placeholder={props.placeholder}
+            className={props.className}
+            disabled={props.disable}
             {...field}
           ></Textarea>
         </FormControl>
@@ -132,7 +145,7 @@ export const CustomInput = (props: InputProps) => {
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="w-full">
+        <FormItem className={`w-full ${props.formItemClassName}`}>
           {type !== "radio" && type !== "checkbox" && (
             <FormLabel>{label}</FormLabel>
           )}

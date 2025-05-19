@@ -54,7 +54,7 @@ export const CommonSideBar = ({ label }: { label: string }) => {
 
   return (
     <Sidebar
-      className="!absolute h-full overflow-y-auto bg-zinc-100/50 dark:bg-zinc-900 w-[12.5rem]"
+      className="!absolute h-full overflow-y-auto bg-zinc-100/50 dark:bg-zinc-900 w-[12.5rem] overflow-hidden"
       collapsible="icon"
     >
       <SidebarGroup>

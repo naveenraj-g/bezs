@@ -6,7 +6,7 @@ import { prismaTeleMedicine } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { PatientFormSchema } from "../../schemas/patient-form-schema";
 
-function findOrgId(userRBAC: any, appSlug: string): string {
+export async function findOrgId(userRBAC: any, appSlug: string): string {
   // let orgId: string = "";
   // userRBAC.forEach((data: any) => {
   //   data.organization.appOrganization.forEach((appData: any) => {
@@ -40,7 +40,7 @@ export async function createPatientProfile(patientProfileData: any) {
     throw new Error("Unauthorized");
   }
 
-  const orgId = findOrgId(session?.userRBAC, appSlug);
+  const orgId = await findOrgId(session?.userRBAC, appSlug);
 
   if (!validateData.success) {
     throw new Error("Invalid data");

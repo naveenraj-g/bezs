@@ -4,6 +4,8 @@ import DataTable from "@/shared/ui/table/data-table";
 import { AppointmentTableDataType } from "../../types/data-types";
 import { appointmentsListTableColumn } from "./table-columns/appointments-list-table-column";
 import { AppointmentStatus } from "../../../../../prisma/generated/telemedicine";
+import { useTelemedicinePatientModal } from "../../stores/use-telemedicine-patient-modal-store";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 
 export const AppointmentsListTable = ({
   appointmentsData,
@@ -12,6 +14,10 @@ export const AppointmentsListTable = ({
   appointmentsData: AppointmentTableDataType[];
   appointmentsCount: number;
 }) => {
+  const { data } = useSession();
+
+  const openModal = useTelemedicinePatientModal((state) => state.onOpen);
+
   const appointmentStatusData = Object.keys(AppointmentStatus).map(
     (key) => AppointmentStatus[key as keyof typeof AppointmentStatus]
   );
@@ -32,6 +38,12 @@ export const AppointmentsListTable = ({
         searchField="doctor"
         filterField="status"
         filterValues={appointmentStatusData}
+        openModal={() =>
+          openModal({
+            type: "bookAppointment",
+            mainUserId: data?.user?.id || "",
+          })
+        }
       />
     </div>
   );

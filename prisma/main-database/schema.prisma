@@ -219,7 +219,6 @@ model AppMenuItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([appId, name])
   @@unique([appId, slug])
   @@index([id])
 }

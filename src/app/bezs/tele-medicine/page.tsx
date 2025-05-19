@@ -1,8 +1,11 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import Link from "next/link";
 
-const TeleMedicineHomePage = () => {
+const TeleMedicineHomePage = async () => {
+  const session = await getServerSession();
+
   return (
     <div className="h-[calc(100vh-53px)]">
       <div className="flex flex-col items-center justify-center h-full p-6">
@@ -21,13 +24,32 @@ const TeleMedicineHomePage = () => {
               Welcome to the Telemedicine page! Here you can find information
               about our telemedicine services.
             </p>
-
-            <Link
-              href="/bezs/tele-medicine/patient"
-              className={cn(buttonVariants({ size: "sm" }))}
-            >
-              Go To Patient
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              {session?.user?.role === "telemedicine-patient" && (
+                <Link
+                  href="/bezs/tele-medicine/patient"
+                  className={cn(buttonVariants({ size: "sm" }))}
+                >
+                  Go To Patient
+                </Link>
+              )}
+              {session?.user?.role === "telemedicine-admin" && (
+                <Link
+                  href="/bezs/tele-medicine/admin"
+                  className={cn(buttonVariants({ size: "sm" }))}
+                >
+                  Go To Admin
+                </Link>
+              )}
+              {session?.user?.role === "telemedicine-doctor" && (
+                <Link
+                  href="/bezs/tele-medicine/doctor"
+                  className={cn(buttonVariants({ size: "sm" }))}
+                >
+                  Go To Doctor
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>
