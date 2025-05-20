@@ -21,6 +21,9 @@ export async function getAllDoctors() {
         email: true,
         name: true,
         specialization: true,
+        phone: true,
+        license_number: true,
+        created_at: true,
       },
     });
 

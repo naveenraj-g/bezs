@@ -61,6 +61,9 @@ export type AdminDoctorsDataType = {
   id: string;
   email: string;
   specialization: string;
+  phone: string;
+  license_number: string;
+  created_at: Date;
 };
 
 export type CreateDoctorDataType = z.infer<typeof createDoctorFormSchema>;

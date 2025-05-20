@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { AdminDoctorsDataType } from "@/modules/telemedicine/types/data-types";
 import { TanstackTableColumnSorting } from "@/shared/ui/table/tanstack-table-column-sorting";
 import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 import {
   EllipsisVertical,
   PencilLine,
@@ -34,6 +35,14 @@ export const AdminDoctorTableColumn: ColumnDef<AdminDoctorsDataType>[] = [
     accessorKey: "name",
   },
   {
+    header: "LICENSE",
+    accessorKey: "license_number",
+  },
+  {
+    header: "PHONE",
+    accessorKey: "phone",
+  },
+  {
     header: "Email",
     accessorKey: "email",
   },
@@ -50,6 +59,26 @@ export const AdminDoctorTableColumn: ColumnDef<AdminDoctorsDataType>[] = [
       );
     },
     accessorKey: "specialization",
+  },
+  {
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+
+      return (
+        <TanstackTableColumnSorting
+          label="Joined Date"
+          column={column}
+          isSorted={isSorted}
+        />
+      );
+    },
+    accessorKey: "created_at",
+    cell: ({ row }) => {
+      const date: Date = row.getValue("created_at");
+      const formattedDate = format(date, "dd-MMM-yyyy");
+
+      return formattedDate;
+    },
   },
   {
     header: "Actions",
