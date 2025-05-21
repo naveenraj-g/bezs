@@ -7,7 +7,7 @@ import { AppointmentStatus } from "../../../../../prisma/generated/telemedicine"
 import { useTelemedicinePatientModal } from "../../stores/use-telemedicine-patient-modal-store";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 
-export const AppointmentsListTable = ({
+export const PatientappointmentsListTable = ({
   appointmentsData,
   appointmentsCount,
 }: {

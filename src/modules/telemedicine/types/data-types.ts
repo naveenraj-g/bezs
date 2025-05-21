@@ -4,6 +4,7 @@ import {
   Gender,
   Doctor,
   Patient,
+  Appointment,
 } from "../../../../prisma/generated/telemedicine";
 import { createDoctorFormSchema } from "../schemas/create-doctor-form-schema";
 
@@ -54,6 +55,16 @@ export type AppointmentTableDataType = {
   appointment_date: Date;
   time: string;
   doctor: AppointmentTableDoctor;
+};
+
+export type DoctorAppointmentTableDataType = Appointment & {
+  patient: {
+    id: string;
+    userId: string;
+    name: string;
+    gender: Gender;
+    img: string | null;
+  };
 };
 
 export type AdminDoctorsDataType = {

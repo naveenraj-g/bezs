@@ -1,7 +1,7 @@
 import { prismaTeleMedicine } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
-import { getPatientAppointments } from "@/modules/telemedicine/serveractions/appointment/appointments-server-action";
-import { PatientappointmentsListTable } from "@/modules/telemedicine/ui/tables/patient-appointments-list-table";
+import { getDoctorAppointments } from "@/modules/telemedicine/serveractions/doctor/appointment-actions";
+import { DoctorAppointmentsListTable } from "@/modules/telemedicine/ui/tables/doctor-appointments-list-table";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -10,7 +10,7 @@ const AppointmentsPage = async () => {
 
   if (!session) redirect("/");
 
-  const userId = await prismaTeleMedicine.patient.findUnique({
+  const userId = await prismaTeleMedicine.doctor.findUnique({
     where: {
       userId: session?.user?.id,
     },
@@ -19,13 +19,13 @@ const AppointmentsPage = async () => {
     },
   });
 
-  const { appointmentsData, appointmentsCount } = await getPatientAppointments(
+  const { appointmentsData, appointmentsCount } = await getDoctorAppointments(
     userId?.id
   );
 
   return (
     <>
-      <PatientappointmentsListTable
+      <DoctorAppointmentsListTable
         appointmentsData={appointmentsData}
         appointmentsCount={appointmentsCount}
       />

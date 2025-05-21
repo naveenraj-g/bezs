@@ -33,7 +33,15 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Check, ListFilter, Plus, Search, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ListFilter,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +63,7 @@ type DataTableAdditionalType = {
   addLabelName?: string;
   fallbackText?: string;
   searchField?: string;
+  isAddButton?: boolean;
   filterField?: string;
   filterValues?: any[];
   openModal?: () => void;
@@ -65,6 +74,7 @@ export function DataTable<TData, TValue>({
   data,
   label = "Table Name",
   dataSize = 0,
+  isAddButton = true,
   addLabelName = "Add LabelName",
   fallbackText = "No results",
   searchField = "",
@@ -181,9 +191,11 @@ export function DataTable<TData, TValue>({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <Button size="sm" className="cursor-pointer" onClick={openModal}>
-            <Plus /> {addLabelName}
-          </Button>
+          {isAddButton && (
+            <Button size="sm" className="cursor-pointer" onClick={openModal}>
+              <Plus /> {addLabelName}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -267,7 +279,7 @@ export function DataTable<TData, TValue>({
             }}
             disabled={!table.getCanPreviousPage()}
           >
-            Prev
+            <ChevronLeft />
           </Button>
 
           <Button
@@ -279,7 +291,7 @@ export function DataTable<TData, TValue>({
             }}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            <ChevronRight />
           </Button>
         </div>
       </div>
