@@ -121,6 +121,7 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
       id: "actions",
       cell: ({ row }) => {
         const id: number = row.original.id;
+        const rowData = row.original;
         const status: AppointmentStatus = row.getValue("status");
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const openModal = useTelemedicineDoctorModal((state) => state.onOpen);
@@ -130,9 +131,12 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
             <Button
               size="sm"
               className="rounded-full"
-              // onClick={() =>
-              //   openModal({ type: "viewAppointment", appointmentId: id })
-              // }
+              onClick={() =>
+                openModal({
+                  type: "viewAppointment",
+                  appointmentData: rowData,
+                })
+              }
             >
               View
             </Button>
@@ -153,6 +157,7 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
                       openModal({
                         type: "confirmAppointment",
                         appointmentId: id,
+                        appointmentData: rowData,
                       })
                     }
                   >
@@ -164,18 +169,26 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
                   <>
                     <DropdownMenuItem
                       className="cursor-pointer"
-                      //   onClick={() =>
-                      //     openModal({ type: "editUser", userId: user.id })
-                      //   }
+                      onClick={() =>
+                        openModal({
+                          type: "rescheduleAppointment",
+                          appointmentId: id,
+                          appointmentData: rowData,
+                        })
+                      }
                     >
                       <CalendarCog />
                       Reschedule Appointment
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="cursor-pointer"
-                      //   onClick={() =>
-                      //     openModal({ type: "editUser", userId: user.id })
-                      //   }
+                      onClick={() =>
+                        openModal({
+                          type: "cancelAppointment",
+                          appointmentId: id,
+                          appointmentData: rowData,
+                        })
+                      }
                     >
                       <X />
                       Cancel Appointment
@@ -184,13 +197,8 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
                 )}
                 {(status === "CANCELLED" || status === "COMPLETED") && (
                   <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="space-x-2 cursor-pointer"
-                      //   onClick={() =>
-                      //     openModal({ type: "deleteUser", userId: user.id })
-                      //   }
-                    >
+                    {status === "COMPLETED" && <DropdownMenuSeparator />}
+                    <DropdownMenuItem className="space-x-2 cursor-pointer">
                       <div className="flex items-center gap-2">
                         <Trash2 />
                         Delete

@@ -137,6 +137,11 @@ model Staff {
     updated_at DateTime @updatedAt
 }
 
+enum AppointmentMode {
+    VIDEO
+    INPERSON
+}
+
 model Appointment {
     id               Int               @id @default(autoincrement())
     patient_id       String
@@ -146,8 +151,11 @@ model Appointment {
     status           AppointmentStatus @default(PENDING)
     type             String
     note             String?
-    patient          Patient           @relation(fields: [patient_id], references: [id], onDelete: Cascade)
-    doctor           Doctor            @relation(fields: [doctor_id], references: [id], onDelete: Cascade)
+    appointment_mode AppointmentMode
+    livekit_room_id  String?
+
+    patient Patient @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+    doctor  Doctor  @relation(fields: [doctor_id], references: [id], onDelete: Cascade)
 
     bills   Payment[]
     medical MedicalRecords[]

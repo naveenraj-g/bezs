@@ -7,6 +7,7 @@ import {
   Appointment,
 } from "../../../../prisma/generated/telemedicine";
 import { createDoctorFormSchema } from "../schemas/create-doctor-form-schema";
+import { scheduleAppointmentFormSchema } from "../schemas/schedule-appointment-form-schema";
 
 export type AppointmentChartProps = {
   name: string;
@@ -96,3 +97,7 @@ export type UserWithDoctorRoleDataType = {
   organizationId: string;
   roleId: string;
 };
+
+export type ScheduleAppointmentFormSchemaType = z.infer<
+  typeof scheduleAppointmentFormSchema
+>;

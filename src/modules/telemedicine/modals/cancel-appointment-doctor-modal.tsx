@@ -13,12 +13,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { confirmPatientAppointment } from "../serveractions/doctor/appointment-actions";
+import { cancelPatientAppointment } from "../serveractions/doctor/appointment-actions";
 import { ModalAppointmentDetails } from "../ui/doctor/modal-appointment-details";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
-export const ConfirmAppointmentDoctorModal = () => {
+export const CancelAppointmentDoctorModal = () => {
   const session = useSession();
   const router = useRouter();
 
@@ -31,7 +31,7 @@ export const ConfirmAppointmentDoctorModal = () => {
   const modalType = useTelemedicineDoctorModal((state) => state.type);
   const isOpen = useTelemedicineDoctorModal((state) => state.isOpen);
 
-  const isModalOpen = isOpen && modalType === "confirmAppointment";
+  const isModalOpen = isOpen && modalType === "cancelAppointment";
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -42,12 +42,12 @@ export const ConfirmAppointmentDoctorModal = () => {
 
     try {
       setIsLoading(true);
-      await confirmPatientAppointment(
+      await cancelPatientAppointment(
         typeof appointmentId === "string"
           ? Number(appointmentId)
           : appointmentId
       );
-      toast("Appointment Confirmed.");
+      toast("Appointment Cancelled.");
       router.refresh();
       handleCloseModal();
     } catch (err) {
@@ -68,9 +68,9 @@ export const ConfirmAppointmentDoctorModal = () => {
     <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
       <DialogContent className="space-y-4">
         <DialogHeader>
-          <DialogTitle>Confirm Appointment</DialogTitle>
+          <DialogTitle>Cancel Appointment</DialogTitle>
           <DialogDescription>
-            Are you sure to confirm this appointment?
+            Are you sure to Cancel this appointment?
           </DialogDescription>
         </DialogHeader>
         {appointmentData ? (
