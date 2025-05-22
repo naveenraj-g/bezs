@@ -49,11 +49,24 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
       ...userData,
       address: "",
       date_of_birth: new Date(),
-      gender: "MALE",
-      marital_status: "single",
+      gender: data?.gender || undefined,
+      marital_status: data?.marital_status as
+        | "married"
+        | "single"
+        | "divorced"
+        | "widowed"
+        | "separated"
+        | undefined,
       emergency_contact_name: "",
       emergency_contact_number: "",
-      relation: "mother",
+      relation:
+        (data?.relation as
+          | "mother"
+          | "father"
+          | "husband"
+          | "wife"
+          | "other"
+          | undefined) || undefined,
       blood_group: "",
       allergies: "",
       medical_conditions: "",
@@ -62,6 +75,8 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
       medical_history: "",
     },
   });
+
+  console.log(form.getValues("gender"));
 
   useEffect(() => {
     if (type === "create") {
@@ -347,7 +362,13 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
               type="submit"
               className="w-full md:w-fit px-6"
             >
-              {type === "create" ? "Submit" : "Update"}
+              {type === "create"
+                ? isLoading
+                  ? "Submitting..."
+                  : "Submit"
+                : isLoading
+                  ? "Updating..."
+                  : "Update"}
             </Button>
           </form>
         </Form>

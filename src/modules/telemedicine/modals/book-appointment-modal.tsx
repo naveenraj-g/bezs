@@ -45,6 +45,8 @@ import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { createDoctorAppointment } from "../serveractions/appointment/create-appointment";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { AppointmentMode } from "../../../../prisma/generated/telemedicine";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type PatientDataType = {
   name: string;
@@ -106,6 +108,7 @@ export const BookAppointmentModal = () => {
       date: new Date(),
       doctorId: "",
       note: "",
+      appointmentMode: undefined,
       time: "",
     },
   });
@@ -115,9 +118,10 @@ export const BookAppointmentModal = () => {
   } = form;
 
   function handleCloseModal() {
-    form.reset();
     setPatientData(null);
     setDoctorsData([]);
+    setIsLoading(false);
+    form.reset();
     closeModal();
   }
 
@@ -133,13 +137,12 @@ export const BookAppointmentModal = () => {
       toast("Appointment booked successfully.");
       router.refresh();
       form.reset();
+      handleCloseModal();
     } catch (err) {
       toast("Error!", {
         description: (err as Error).message,
       });
     }
-
-    handleCloseModal();
   }
 
   const selectList = [
@@ -167,6 +170,11 @@ export const BookAppointmentModal = () => {
     { label: "05:00 PM", value: "17:00" },
   ];
 
+  const appointmentModeSelectList = [
+    { label: "Video", value: AppointmentMode.VIDEO },
+    { label: "In Person", value: AppointmentMode.INPERSON },
+  ];
+
   const selectDoctorList = doctorsData?.map((data) => {
     return {
       label: (
@@ -192,23 +200,34 @@ export const BookAppointmentModal = () => {
           ) : (
             <>
               <DialogDescription asChild className="mt-6">
-                {patientData && (
-                  <div className="flex items-center justify-center gap-3 w-fit mb-2">
-                    <ProfileAvatar
-                      imgUrl={patientData?.img}
-                      name={patientData?.name}
-                      avatarClassName="size-12"
-                    />
-                    <div>
-                      <h2 className="text-lg md:text-xl font-semibold text-zinc-800 dark:text-white">
-                        {patientData?.name}
-                      </h2>
-                      <span className="capitalize">
-                        {patientData?.gender.toLowerCase()}
-                      </span>
+                <div className="flex items-center justify-center gap-3 w-fit mb-2">
+                  {isLoading && (
+                    <div className="flex items-center space-x-4">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-[150px]" />
+                        <Skeleton className="h-4 w-[100px]" />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                  {patientData && (
+                    <>
+                      <ProfileAvatar
+                        imgUrl={patientData?.img}
+                        name={patientData?.name}
+                        avatarClassName="size-12"
+                      />
+                      <div>
+                        <h2 className="text-lg md:text-xl font-semibold text-zinc-800 dark:text-white">
+                          {patientData?.name}
+                        </h2>
+                        <span className="capitalize">
+                          {patientData?.gender.toLowerCase()}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
               </DialogDescription>
               <div className="mt-4">
                 <Form {...form}>
@@ -310,6 +329,16 @@ export const BookAppointmentModal = () => {
                         selectList={selectListTime}
                       />
                     </div>
+                    <CustomInput
+                      type="select"
+                      name="appointmentMode"
+                      label="Appointment Mode"
+                      placeholder="Select time"
+                      control={form.control}
+                      formItemClassName="flex-1"
+                      className="w-full"
+                      selectList={appointmentModeSelectList}
+                    />
                     <CustomInput
                       type="textarea"
                       name="note"

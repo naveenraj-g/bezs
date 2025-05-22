@@ -66,6 +66,17 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
       },
     },
     {
+      header: "MODE",
+      accessorKey: "appointment_mode",
+      cell: ({ row }) => {
+        const appointmentMode: "VIDEO" | "INPERSON" =
+          row.getValue("appointment_mode");
+        return (
+          <span className="capitalize">{appointmentMode.toLowerCase()}</span>
+        );
+      },
+    },
+    {
       header: ({ column }) => {
         const isSorted = column.getIsSorted();
 

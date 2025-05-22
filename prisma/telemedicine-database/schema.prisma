@@ -152,7 +152,7 @@ model Appointment {
     type             String
     note             String?
     appointment_mode AppointmentMode
-    livekit_room_id  String?
+    livekit_room_id  String?           @unique
 
     patient Patient @relation(fields: [patient_id], references: [id], onDelete: Cascade)
     doctor  Doctor  @relation(fields: [doctor_id], references: [id], onDelete: Cascade)

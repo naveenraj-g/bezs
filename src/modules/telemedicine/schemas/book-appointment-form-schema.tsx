@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppointmentMode } from "../../../../prisma/generated/telemedicine";
 
 export const bookAppointmentFormSchema = z.object({
   appointmentType: z.string().min(2, { message: "Please select a type" }),
@@ -9,6 +10,11 @@ export const bookAppointmentFormSchema = z.object({
     .date()
     .refine((val) => val !== undefined, { message: "Please select a date" }),
   time: z.string().min(2, { message: "Please sekect a time" }),
+  appointmentMode: z
+    .nativeEnum(AppointmentMode)
+    .refine((val) => Object.values(AppointmentMode).includes(val), {
+      message: "Please selecta a valid appointment mode",
+    }),
   note: z
     .string()
     .min(10, {
