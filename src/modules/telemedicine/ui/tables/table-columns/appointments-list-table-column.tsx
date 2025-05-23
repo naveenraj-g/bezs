@@ -9,7 +9,6 @@ import { AppointmentStatus } from "../../../../../../prisma/generated/telemedici
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ProfileAvatar } from "../../profile-image";
-import { ViewAppointment } from "../../appointments/view-appointment";
 import { AppointmentStatusIndicator } from "../../appointments/appointment-status-indicator";
 import {
   EllipsisVertical,
@@ -28,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useTelemedicinePatientModal } from "@/modules/telemedicine/stores/use-telemedicine-patient-modal-store";
+import Link from "next/link";
 
 export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] =
   [
@@ -140,7 +140,10 @@ export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] 
       id: "actions",
       cell: ({ row }) => {
         const id: number = row.original.id;
+        const rowData = row.original;
         const status: AppointmentStatus = row.getValue("status");
+        console.log({ rowData });
+
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const openModal = useTelemedicinePatientModal((state) => state.onOpen);
 
@@ -191,6 +194,15 @@ export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] 
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            {rowData.appointment_mode === "VIDEO" &&
+              rowData.status === "SCHEDULED" && (
+                <Link
+                  className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+                  href={`/bezs/tele-medicine/patient/appointments/video?roomId=${rowData.livekit_room_id}`}
+                >
+                  Video Chat
+                </Link>
+              )}
           </div>
         );
       },

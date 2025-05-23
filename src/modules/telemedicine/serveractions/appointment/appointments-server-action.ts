@@ -67,6 +67,8 @@ export async function getPatientAppointments(patientId: string | undefined) {
       appointment_date: true,
       time: true,
       status: true,
+      appointment_mode: true,
+      livekit_room_id: true,
       patient: {
         select: {
           id: true,

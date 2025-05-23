@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useTelemedicineDoctorModal } from "@/modules/telemedicine/stores/use-telemedicine-doctor-modal-store";
+import Link from "next/link";
 
 export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTableDataType>[] =
   [
@@ -220,6 +221,15 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
+            {rowData.appointment_mode === "VIDEO" &&
+              rowData.status === "SCHEDULED" && (
+                <Link
+                  className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+                  href={`/bezs/tele-medicine/doctor/appointments/video?roomId=${rowData.livekit_room_id}`}
+                >
+                  Video Chat
+                </Link>
+              )}
           </div>
         );
       },

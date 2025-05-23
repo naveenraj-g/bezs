@@ -56,6 +56,8 @@ export type AppointmentTableDataType = {
   appointment_date: Date;
   time: string;
   doctor: AppointmentTableDoctor;
+  appointment_mode: "VIDEO" | "INPERSON";
+  livekit_room_id: string;
 };
 
 export type DoctorAppointmentTableDataType = Appointment & {
