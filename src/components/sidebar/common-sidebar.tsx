@@ -75,7 +75,7 @@ export const CommonSideBar = ({ label }: { label: string }) => {
                   key={i}
                   className={
                     (
-                      appSlug === "tele-medicine"
+                      appSlug === "tele-medicine" || appSlug === "admin"
                         ? isMatch(pathname, item.slug)
                         : isActive(pathname, item.slug)
                     )

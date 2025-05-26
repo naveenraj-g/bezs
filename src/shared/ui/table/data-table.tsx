@@ -38,6 +38,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ListFilter,
+  Loader2,
   Plus,
   Search,
   X,
@@ -66,6 +67,8 @@ type DataTableAdditionalType = {
   isAddButton?: boolean;
   filterField?: string;
   filterValues?: any[];
+  isLoading?: boolean;
+  error?: string | null;
   openModal?: () => void;
 };
 
@@ -80,6 +83,8 @@ export function DataTable<TData, TValue>({
   searchField = "",
   filterField = "",
   filterValues = [],
+  isLoading = false,
+  error = null,
   openModal,
 }: DataTableProps<TData, TValue> & DataTableAdditionalType) {
   const [pageSize, setPageSize] = useState<number>(5);
@@ -120,8 +125,8 @@ export function DataTable<TData, TValue>({
           <h1 className="text-lg font-semibold">
             {label} ({dataSize})
           </h1>
-          {/* {isLoading && <Loader2 className="animate-spin w-5 h-5" />} */}
-          {/* {error && <p className="text-rose-600">{error}</p>} */}
+          {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
+          {error && <p className="text-rose-600">{error}</p>}
         </div>
         <div className="flex items-center gap-4 flex-wrap">
           {searchField && (
@@ -163,20 +168,15 @@ export function DataTable<TData, TValue>({
                   return (
                     <DropdownMenuItem
                       key={index}
-                      className="capitalize"
                       onClick={() => {
                         table.getColumn(filterField)?.setFilterValue(value);
                       }}
                     >
-                      {value.toLowerCase()}{" "}
-                      {isActive && <Check className="ml-auto" />}
+                      {value} {isActive && <Check className="ml-auto" />}
                     </DropdownMenuItem>
                   );
                 })}
-                {(table.getColumn(filterField)?.getFilterValue() as
-                  | string
-                  | null
-                  | undefined) && (
+                {(table.getColumn(filterField)?.getFilterValue() as string) && (
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
