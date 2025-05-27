@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import Link from "next/link";
 
-const TeleMedicineHomePage = async () => {
+const FileNestHomePage = async () => {
   const session = await getServerSession();
 
   return (
@@ -14,39 +14,31 @@ const TeleMedicineHomePage = async () => {
             <h1 className="text-4xl md:text-5xl font-bold text-center">
               Welcome to <br />
               <span className="text-blue-700 text-5xl md:text-6xl">
-                TeleMedicine
+                FileNest
               </span>
             </h1>
           </div>
 
           <div className="text-center max-w-xl flex flex-col items-center justify-center">
             <p className="mb-8">
-              Welcome to the Telemedicine page! Here you can find information
-              about our telemedicine services.
+              Welcome to the FileNest page! Here you can store your datas
+              securly and safely.
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              {session?.user?.role === "telemedicine-patient" && (
-                <Link
-                  href="/bezs/tele-medicine/patient"
-                  className={cn(buttonVariants({ size: "sm" }))}
-                >
-                  Go To Patient
-                </Link>
-              )}
               {session?.user?.role === "application-admin" && (
                 <Link
-                  href="/bezs/tele-medicine/admin"
+                  href="/bezs/file-nest/admin"
                   className={cn(buttonVariants({ size: "sm" }))}
                 >
                   Go To Admin
                 </Link>
               )}
-              {session?.user?.role === "telemedicine-doctor" && (
+              {session?.user?.role === "filenest-user" && (
                 <Link
-                  href="/bezs/tele-medicine/doctor"
+                  href="/bezs/file-nest/dashboard"
                   className={cn(buttonVariants({ size: "sm" }))}
                 >
-                  Go To Doctor
+                  Open App
                 </Link>
               )}
             </div>
@@ -57,4 +49,4 @@ const TeleMedicineHomePage = async () => {
   );
 };
 
-export default TeleMedicineHomePage;
+export default FileNestHomePage;

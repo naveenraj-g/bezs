@@ -91,7 +91,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const isActiveFilter = useRef<boolean>(false);
+  // const isActiveFilter = useRef<boolean>(false);
 
   const table = useReactTable({
     data,
@@ -163,7 +163,7 @@ export function DataTable<TData, TValue>({
                 {filterValues.map((value, index) => {
                   const isActive =
                     table.getColumn(filterField)?.getFilterValue() === value;
-                  isActiveFilter.current = isActive;
+                  // isActiveFilter.current = isActive;
 
                   return (
                     <DropdownMenuItem

@@ -24,7 +24,11 @@ export function formattedRBACSessionData(session) {
       }
     });
 
-    acc[roleName] = Array.from(uniqueSlugs);
+    if (!acc[roleName]) {
+      acc[roleName] = Array.from(uniqueSlugs);
+    } else {
+      acc[roleName].push(...Array.from(uniqueSlugs));
+    }
     return acc;
   }, {});
 

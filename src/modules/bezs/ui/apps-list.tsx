@@ -1,6 +1,5 @@
 "use client";
 
-import { appLists } from "../mockdatas/app-list-data";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";

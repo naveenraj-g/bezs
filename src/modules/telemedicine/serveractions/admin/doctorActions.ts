@@ -6,11 +6,12 @@ import { CreateDoctorDataType } from "../../types/data-types";
 import { createDoctorFormSchema } from "../../schemas/create-doctor-form-schema";
 import { findOrgId } from "../patient/patient-profile-actions";
 import { headers } from "next/headers";
+import { adminRole } from "../../utils/roles";
 
 export async function getAllDoctors() {
   const session = await getServerSession();
 
-  if (session?.user?.role !== "telemedicine-admin") {
+  if (session?.user?.role !== adminRole) {
     throw new Error("Unauthorized");
   }
 
@@ -47,7 +48,7 @@ export async function getAllUsersWithTelemedicineDoctorRole() {
 
   const orgId = await findOrgId(session?.userRBAC, appSlug);
 
-  if (session?.user?.role !== "telemedicine-admin") {
+  if (session?.user?.role !== adminRole) {
     throw new Error("Unauthorized");
   }
 
@@ -57,7 +58,7 @@ export async function getAllUsersWithTelemedicineDoctorRole() {
         where: {
           organizationId: orgId,
           role: {
-            name: "telemedicine-doctor",
+            name: adminRole,
           },
         },
         include: {
@@ -105,7 +106,7 @@ export async function getAllUsersWithTelemedicineDoctorRole() {
 export async function createDoctor(data: CreateDoctorDataType, userData: any) {
   const session = await getServerSession();
 
-  if (session?.user?.role !== "telemedicine-admin") {
+  if (session?.user?.role !== adminRole) {
     throw new Error("Unauthorized");
   }
 

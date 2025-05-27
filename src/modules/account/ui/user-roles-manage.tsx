@@ -44,7 +44,11 @@ export function UserRolesManage({
 }) {
   const router = useRouter();
 
-  const roles = ["guest", ...rbacSessionData?.map((data) => data.role?.name)];
+  const userRoles = new Set(
+    rbacSessionData?.map((data: any) => data.role?.name).filter(Boolean)
+  );
+
+  const roles = ["guest", ...userRoles];
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
