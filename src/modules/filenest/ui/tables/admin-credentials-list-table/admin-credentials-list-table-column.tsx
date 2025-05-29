@@ -40,13 +40,13 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
 
         return (
           <TanstackTableColumnSorting
-            label="Organization"
+            label="Type"
             column={column}
             isSorted={isSorted}
           />
         );
       },
-      accessorKey: "organizationName",
+      accessorKey: "type",
     },
     {
       header: ({ column }) => {
@@ -61,20 +61,6 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
         );
       },
       accessorKey: "bucketName",
-    },
-    {
-      header: ({ column }) => {
-        const isSorted = column.getIsSorted();
-
-        return (
-          <TanstackTableColumnSorting
-            label="Type"
-            column={column}
-            isSorted={isSorted}
-          />
-        );
-      },
-      accessorKey: "type",
     },
     {
       header: ({ column }) => {
@@ -116,13 +102,13 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
 
         return (
           <TanstackTableColumnSorting
-            label="Access Key"
+            label="Client Id"
             column={column}
             isSorted={isSorted}
           />
         );
       },
-      accessorKey: "accessKey",
+      accessorKey: "clientId",
     },
     {
       header: ({ column }) => {
@@ -130,13 +116,13 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
 
         return (
           <TanstackTableColumnSorting
-            label="Secrate Key"
+            label="Client Secret"
             column={column}
             isSorted={isSorted}
           />
         );
       },
-      accessorKey: "secureAccessKey",
+      accessorKey: "clientSecret",
     },
     {
       header: ({ column }) => {
@@ -144,7 +130,7 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
 
         return (
           <TanstackTableColumnSorting
-            label="Joined"
+            label="Created At"
             column={column}
             isSorted={isSorted}
           />

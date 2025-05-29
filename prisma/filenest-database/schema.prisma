@@ -14,16 +14,14 @@ enum CloudStorageType {
 }
 
 model CloudStorageCredentials {
-    id               String           @id @default(uuid())
-    organizationId   String
-    organizationName String
-    name             String           @unique
-    type             CloudStorageType
-    bucketName       String
-    region           String
-    accessKey        String           @unique
-    secureAccessKey  String           @unique
-    maxFileSize      Int
+    id           String           @id @default(uuid())
+    name         String           @unique
+    type         CloudStorageType
+    bucketName   String
+    region       String
+    clientId     String           @unique
+    clientSecret String           @unique
+    maxFileSize  Int
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

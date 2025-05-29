@@ -4,7 +4,7 @@ const FileNestDocumentsPage = () => {
   return (
     <>
       <h1>File Nest Documents Page</h1>
-      <ButtonFileUpload uploadUiType="click" />
+      <ButtonFileUpload uploadUiType="dragAndDrop" />
     </>
   );
 };

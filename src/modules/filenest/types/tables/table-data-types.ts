@@ -3,14 +3,12 @@ import { CloudStorageType } from "../../../../../prisma/generated/filenest";
 export type CredentialDataType = {
   name: string;
   id: string;
-  organizationId: string;
   type: CloudStorageType;
-  organizationName: string;
   bucketName: string;
   region: string;
-  accessKey: string;
-  secureAccessKey: string;
-  maxFileSize: bigint;
+  clientId: string;
+  clientSecret: string;
+  maxFileSize: number;
   createdAt: Date;
   updatedAt: Date;
 };

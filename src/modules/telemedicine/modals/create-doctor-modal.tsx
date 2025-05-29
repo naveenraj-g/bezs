@@ -25,6 +25,7 @@ import {
 import { useEffect, useState } from "react";
 import { UserWithDoctorRoleDataType } from "../types/data-types";
 import { Loader2, TriangleAlert } from "lucide-react";
+import { adminRole } from "../utils/roles";
 
 type CreateDoctorFormSchemaType = z.infer<typeof createDoctorFormSchema>;
 
@@ -77,7 +78,7 @@ export const CreateDoctorModal = () => {
   } = form;
 
   async function onSubmit(values: CreateDoctorFormSchemaType) {
-    if (session?.data?.user?.role !== "telemedicine-admin") {
+    if (session?.data?.user?.role !== adminRole) {
       toast("unauthorized.");
       return;
     }

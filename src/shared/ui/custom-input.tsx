@@ -28,7 +28,7 @@ interface InputProps {
   name: string;
   label?: string;
   placeholder?: string;
-  inputType?: "text" | "email" | "password" | "date";
+  inputType?: "text" | "email" | "password" | "date" | "number";
   selectList?: { label: any; value: string }[];
   defaultValue?: any;
   formItemClassName?: string;

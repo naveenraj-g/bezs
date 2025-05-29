@@ -35,7 +35,7 @@ export const CancelAppointmentDoctorModal = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  async function handleConfirmAppointment() {
+  async function handleCancelAppointment() {
     if (!session) {
       return;
     }
@@ -82,7 +82,7 @@ export const CancelAppointmentDoctorModal = () => {
           <div className="flex gap-2">
             <Button
               size="sm"
-              onClick={handleConfirmAppointment}
+              onClick={handleCancelAppointment}
               disabled={isLoading}
             >
               Confirm

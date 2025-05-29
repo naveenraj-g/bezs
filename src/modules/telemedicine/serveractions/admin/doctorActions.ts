@@ -112,8 +112,6 @@ export async function createDoctor(data: CreateDoctorDataType, userData: any) {
 
   const validateData = createDoctorFormSchema.safeParse(data);
 
-  console.log({ validateData, userData });
-
   if (!validateData.success) {
     throw new Error("Invalid data");
   }

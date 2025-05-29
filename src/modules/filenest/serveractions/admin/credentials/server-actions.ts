@@ -3,11 +3,24 @@
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { prismaFileNest } from "@/lib/prisma";
 import { ADMIN_ROLE } from "@/modules/filenest/utils/roles";
+import { z } from "zod";
+import { adminCreateCredentialsModalFormSchema } from "@/modules/filenest/schema/admin-credentials-modal-schema";
+import { createServerActionProcedure } from "zsa";
+
+const authProcedures = createServerActionProcedure().handler(async () => {
+  try {
+    const session = await getServerSession();
+
+    return session?.user?.id;
+  } catch {
+    throw new Error("Unauthorized");
+  }
+});
 
 export async function getAllCredentialsData() {
   const session = await getServerSession();
 
-  if (!session?.user?.role || session?.user?.role !== ADMIN_ROLE) {
+  if (!session || session?.user?.role !== ADMIN_ROLE) {
     throw new Error("Unauthorized!");
   }
 
@@ -17,3 +30,42 @@ export async function getAllCredentialsData() {
 
   return { credentialsData, total };
 }
+
+export const createAdminCloudStorageCredentials = authProcedures
+  .createServerAction()
+  .input(adminCreateCredentialsModalFormSchema)
+  .handler(async ({ input }) => {
+    await prismaFileNest.cloudStorageCredentials.create({
+      data: {
+        ...input,
+      },
+    });
+
+    return { message: "Credentials created successfully!" };
+  });
+
+// export async function createAdminCloudStorageCredentials(
+//   data: z.infer<typeof adminCreateCredentialsModalFormSchema>
+// ) {
+//   const session = await getServerSession();
+
+//   if (!session || session?.user?.role !== ADMIN_ROLE) {
+//     throw new Error("Unauthorized!");
+//   }
+
+//   const validateData = adminCreateCredentialsModalFormSchema.safeParse(data);
+
+//   if (!validateData.success) {
+//     throw new Error("Invalid data");
+//   }
+
+//   try {
+//     await prismaFileNest.cloudStorageCredentials.create({
+//       data: {
+//         ...data,
+//       },
+//     });
+//   } catch (err) {
+//     throw new Error(err);
+//   }
+// }
