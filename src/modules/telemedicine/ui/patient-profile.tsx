@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { CustomInput } from "./custom-input";
+import { CustomInput } from "../../../shared/ui/custom-input";
 import { MARITAL_STATUS, RELATION, GENDER } from "../datas";
 import { Form } from "@/components/ui/form";
 import {

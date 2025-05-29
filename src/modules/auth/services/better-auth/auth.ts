@@ -173,6 +173,9 @@ export const auth = betterAuth({
                   app: true,
                   appMenuItem: true,
                 },
+                orderBy: {
+                  createdAt: "asc",
+                },
               },
               actionPermission: {
                 include: {

@@ -1,6 +1,8 @@
-import { AppMenuItemsListTable } from "@/modules/admin/ui/app-menuItems-list-table";
+import { AppMenuItemsListTable } from "@/modules/admin/ui/tables/app-menuItems-list-table/app-menuItems-list-table";
 
-const MenuItemsPage = async ({
+// import { AppMenuItemsListTable } from "@/modules/admin/ui/app-menuItems-list-table copy";
+
+const AppMenuItemsPage = async ({
   searchParams,
 }: {
   searchParams?: { appId: string };
@@ -18,4 +20,4 @@ const MenuItemsPage = async ({
   );
 };
 
-export default MenuItemsPage;
+export default AppMenuItemsPage;

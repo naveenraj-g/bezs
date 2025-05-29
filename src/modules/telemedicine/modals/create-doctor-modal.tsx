@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useTelemedicineAdminModal } from "../stores/use-telemedicine-admin-modal-store";
 import { createDoctorFormSchema } from "../schemas/create-doctor-form-schema";
-import { CustomInput } from "../ui/custom-input";
+import { CustomInput } from "../../../shared/ui/custom-input";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";

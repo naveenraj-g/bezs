@@ -74,11 +74,12 @@ export const CommonSideBar = ({ label }: { label: string }) => {
                 <SidebarMenuButton
                   key={i}
                   className={
-                    (
-                      appSlug === "tele-medicine" || appSlug === "admin"
-                        ? isMatch(pathname, item.slug)
-                        : isActive(pathname, item.slug)
-                    )
+                    // appSlug === "tele-medicine" ||
+                    // appSlug === "admin" ||
+                    // appSlug === "file-nest"
+                    //   ? isMatch(pathname, item.slug)
+                    //   : isActive(pathname, item.slug)
+                    isMatch(pathname, item.slug)
                       ? `bg-primary hover:bg-primary/50 ${resolvedTheme === "zinc-dark" ? "text-zinc-900 hover:text-zinc-100" : "text-zinc-100 hover:text-zinc-100"}`
                       : "hover:bg-primary/20"
                   }

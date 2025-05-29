@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { reschedulePatientAppointment } from "../serveractions/doctor/appointment-actions";
 import { ModalAppointmentDetails } from "../ui/doctor/modal-appointment-details";
 import { Loader2 } from "lucide-react";
-import { CustomInput } from "../ui/custom-input";
+import { CustomInput } from "../../../shared/ui/custom-input";
 import { useForm } from "react-hook-form";
 import { scheduleAppointmentFormSchema } from "../schemas/schedule-appointment-form-schema";
 import { z } from "zod";

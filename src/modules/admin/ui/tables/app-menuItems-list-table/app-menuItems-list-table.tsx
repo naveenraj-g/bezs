@@ -4,18 +4,23 @@
 import { useEffect, useState } from "react";
 import { useAdminModal } from "../../../stores/use-admin-modal-store";
 import DataTable from "@/shared/ui/table/data-table";
-import { ManageAppsTableDataType } from "@/modules/admin/types/tables/table-data-types";
-import { getAllAppsData } from "@/modules/admin/serveractions/apps/server-actions";
-import { appsListTableColumn } from "./apps-list-table-column";
+import { ManageAppMenuItemsTableDataType } from "@/modules/admin/types/tables/table-data-types";
+import { getAppMenuItems } from "@/modules/admin/serveractions/apps/server-actions";
+import { appMenuItemsListColumn } from "./app-menuItems-list-column";
 
-export const AppsListTable = () => {
+export const AppMenuItemsListTable = ({
+  appId,
+}: {
+  appId: string | undefined;
+}) => {
   const openModal = useAdminModal((state) => state.onOpen);
   const triggerRefetch = useAdminModal((state) => state.trigger);
 
-  const [appsTableData, setAppsTableData] = useState<ManageAppsTableDataType>({
-    data: [],
-    total: 0,
-  });
+  const [appMenuItemsTableData, setappMenuItemsTableData] =
+    useState<ManageAppMenuItemsTableDataType>({
+      data: [],
+      total: 0,
+    });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,13 +29,13 @@ export const AppsListTable = () => {
       try {
         setError(null);
         setIsLoading(true);
-        const appDatas = await getAllAppsData();
+        const appMenuItemsDatas = await getAppMenuItems({ appId });
 
-        setAppsTableData((prevState) => {
+        setappMenuItemsTableData((prevState) => {
           return {
             ...prevState,
-            data: appDatas.appsData ?? [],
-            total: appDatas.total ?? 0,
+            data: appMenuItemsDatas.appMenuItemsData ?? [],
+            total: appMenuItemsDatas.total ?? 0,
           };
         });
       } catch (error) {
@@ -39,9 +44,7 @@ export const AppsListTable = () => {
         setIsLoading(false);
       }
     })();
-  }, [triggerRefetch]);
-
-  const typeFilteredData = ["platform", "custom"];
+  }, [triggerRefetch, appId]);
 
   return (
     <>
@@ -51,22 +54,24 @@ export const AppsListTable = () => {
           <p className="text-sm">Manage Apps and its functionality.</p>
         </div>
         <DataTable
-          columns={appsListTableColumn}
-          data={appsTableData.data}
-          dataSize={appsTableData.total}
-          label="All Apps"
-          addLabelName="Add App"
+          columns={appMenuItemsListColumn}
+          data={appMenuItemsTableData.data}
+          dataSize={appMenuItemsTableData.total}
+          label="All Menu Items"
+          addLabelName="Add Menu Item"
           searchField="name"
           isLoading={isLoading}
-          error={(appsTableData.data.length === 0 && error) || null}
+          error={(appMenuItemsTableData.data.length === 0 && error) || null}
           fallbackText={
-            isLoading ? "Loading apps..." : error ? error : "No Apps"
+            isLoading
+              ? "Loading menu items..."
+              : error
+                ? error
+                : "No Menu Items"
           }
-          filterField="type"
-          filterValues={typeFilteredData}
           openModal={() =>
             openModal({
-              type: "addApp",
+              type: "addAppMenuItem",
             })
           }
         />

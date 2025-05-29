@@ -1,5 +1,6 @@
-import { RBACListTable } from "@/modules/admin/ui/rbac/rbac-list-table";
+// import { RBACListTable } from "@/modules/admin/ui/rbac/rbac-list-table copy";
 import { RBACOrgUserRoleMap } from "@/modules/admin/ui/rbac/rbac-org-user-role-map";
+import { RBACListTable } from "@/modules/admin/ui/tables/rbac-list-table/rbac-list-table";
 
 const RBACPage = () => {
   return (

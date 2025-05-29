@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "telemedicine-studio": "bunx prisma studio --schema ./prisma/telemedicine-database/schema.prisma",
-    "main-studio": "bunx prisma studio --schema ./prisma/main-database/schema.prisma"
+    "main-studio": "bunx prisma studio --schema ./prisma/main-database/schema.prisma",
+    "filenest-studio": "bunx prisma studio --schema ./prisma/filenest-database/schema.prisma"
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0",

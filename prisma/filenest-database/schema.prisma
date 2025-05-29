@@ -1,0 +1,30 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/filenest"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL_FILE_NEST")
+}
+
+enum CloudStorageType {
+    AWS_S3
+    AZURE_BLOB
+}
+
+model CloudStorageCredentials {
+    id               String           @id @default(uuid())
+    organizationId   String
+    organizationName String
+    name             String           @unique
+    type             CloudStorageType
+    bucketName       String
+    region           String
+    accessKey        String           @unique
+    secureAccessKey  String           @unique
+    maxFileSize      Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

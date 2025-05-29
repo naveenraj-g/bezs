@@ -39,7 +39,7 @@ import {
 // import { Input } from "@/components/ui/input";
 import { ProfileAvatar } from "../ui/profile-image";
 import { bookAppointmentFormSchema } from "../schemas/book-appointment-form-schema";
-import { CustomInput } from "../ui/custom-input";
+import { CustomInput } from "../../../shared/ui/custom-input";
 // import { cn } from "@/lib/utils";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { createDoctorAppointment } from "../serveractions/appointment/create-appointment";

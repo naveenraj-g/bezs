@@ -41,7 +41,6 @@ const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
         getRoleOrgWiseApps(data?.userRBAC || [], data?.user.role) || [];
       setAppLists(rbacAppsLists || []);
       setApps(rbacAppsLists || []);
-      console.log(rbacAppsLists);
       if (rbacAppsLists.length === 0 || !rbacAppsLists) {
         setError("Failed to get apps data or no apps found to your role");
       } else {
