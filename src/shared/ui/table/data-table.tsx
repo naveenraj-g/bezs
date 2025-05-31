@@ -70,12 +70,13 @@ type DataTableAdditionalType = {
   isLoading?: boolean;
   error?: string | null;
   openModal?: () => void;
+  isBorder?: boolean;
 };
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  label = "Table Name",
+  label,
   dataSize = 0,
   isAddButton = true,
   addLabelName = "Add LabelName",
@@ -86,6 +87,7 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   error = null,
   openModal,
+  isBorder = true,
 }: DataTableProps<TData, TValue> & DataTableAdditionalType) {
   const [pageSize, setPageSize] = useState<number>(5);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -122,9 +124,11 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4 w-full">
       <div className="flex items-center gap-6 justify-between flex-wrap">
         <div className="flex gap-4 items-center">
-          <h1 className="text-lg font-semibold">
-            {label} ({dataSize})
-          </h1>
+          {label && (
+            <h1 className="text-lg font-semibold">
+              {label} ({dataSize})
+            </h1>
+          )}
           {isLoading && <Loader2 className="animate-spin w-5 h-5" />}
           {error && <p className="text-rose-600">{error}</p>}
         </div>
@@ -200,7 +204,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border w-full">
+      <div className={cn(isBorder && "rounded-md border", "w-full")}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => {

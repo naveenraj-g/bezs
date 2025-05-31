@@ -3,19 +3,8 @@
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { prismaFileNest } from "@/lib/prisma";
 import { ADMIN_ROLE } from "@/modules/filenest/utils/roles";
-import { z } from "zod";
 import { adminCreateCredentialsModalFormSchema } from "@/modules/filenest/schema/admin-credentials-modal-schema";
-import { createServerActionProcedure } from "zsa";
-
-const authProcedures = createServerActionProcedure().handler(async () => {
-  try {
-    const session = await getServerSession();
-
-    return session?.user?.id;
-  } catch {
-    throw new Error("Unauthorized");
-  }
-});
+import { authProcedures } from "@/shared/server-actions/server-action";
 
 export async function getAllCredentialsData() {
   const session = await getServerSession();
