@@ -72,6 +72,7 @@ export const AppMenuItemsListTable = ({
           openModal={() =>
             openModal({
               type: "addAppMenuItem",
+              appId,
             })
           }
         />

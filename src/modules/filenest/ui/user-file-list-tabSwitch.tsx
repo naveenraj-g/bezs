@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useFileNestUserModal } from "../stores/use-filenest-user-modal-store";
 
 type PropsDataType = {
-  fileType?: "document" | "image" | "video" | "others";
+  fileType?: "document" | "image" | "video" | "audio" | "others";
 };
 
 export const UserFileListTabSwitch = ({ fileType }: PropsDataType) => {
@@ -39,7 +39,7 @@ export const UserFileListTabSwitch = ({ fileType }: PropsDataType) => {
 
   return (
     <>
-      <Tabs defaultValue="table">
+      <Tabs defaultValue="grid">
         <div className="flex items-center gap-4">
           <TabsList>
             <TabsTrigger value="grid" className="cursor-pointer">
@@ -57,7 +57,7 @@ export const UserFileListTabSwitch = ({ fileType }: PropsDataType) => {
           </div>
         </div>
         <TabsContent value="grid">
-          <GridFileView />
+          <GridFileView data={userFilesData} />
         </TabsContent>
         <TabsContent value="table">
           <TableFileView data={userFilesData} />

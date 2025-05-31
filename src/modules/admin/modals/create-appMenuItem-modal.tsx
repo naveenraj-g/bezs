@@ -90,6 +90,7 @@ export const CreateAppMenuItemModal = () => {
     }
 
     if (!appId) return;
+    console.log("Submitted");
 
     try {
       await addAppMenuItem({ ...values, appId });
@@ -102,11 +103,16 @@ export const CreateAppMenuItemModal = () => {
     }
 
     incrementTriggerRefetch();
+    handleCloseModal();
+  }
+
+  function handleCloseModal() {
     closeModal();
+    form.reset();
   }
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={closeModal}>
+    <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
       <DialogContent className="p-8 ">
         <DialogHeader>
           <DialogTitle className="mb-6 text-2xl text-center">

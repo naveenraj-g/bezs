@@ -74,6 +74,14 @@ export const userFileViewColumn: ColumnDef<
     },
   },
   {
+    header: "Storage Type",
+    accessorKey: "filePathType",
+    cell: ({ row }) => {
+      const storageType: string = row.getValue("filePathType");
+      return <span className="capitalize">{storageType.toLowerCase()}</span>;
+    },
+  },
+  {
     header: "Actions",
     id: "action",
     cell: ({ row }) => {

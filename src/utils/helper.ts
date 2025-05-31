@@ -22,7 +22,7 @@ export function formatBytes(bytes: number): string {
 }
 
 export function getMimeTypeFilter(
-  type: "document" | "image" | "video" | "others" | undefined
+  type: "document" | "image" | "video" | "audio" | "others" | undefined
 ) {
   switch (type) {
     case "document":
@@ -34,6 +34,8 @@ export function getMimeTypeFilter(
       };
     case "image":
       return { fileType: { startsWith: "image/" } };
+    case "audio":
+      return { fileType: { startsWith: "audio/" } };
     case "video":
       return { fileType: { startsWith: "video/" } };
     case "others":

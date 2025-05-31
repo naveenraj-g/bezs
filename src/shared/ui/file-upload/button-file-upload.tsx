@@ -46,28 +46,40 @@ export default function ButtonFileUpload({
       setIsUploading(true);
 
       try {
-        // const res = await axios.post("/api/file/upload", formData, {
-        //   headers: {
-        //     "Content-Type": "multipart/form-data",
-        //   },
-        //   onUploadProgress(progressEvent) {
-        //     // if (progressEvent.total) {
-        //     const percent = Math.round(
-        //       (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
-        //     );
-        //     setUploadProgress(percent);
-        //     // }
-        //   },
-        // });
+        const res = await axios.post("/api/file/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress(progressEvent) {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
+            );
+            setUploadProgress(percent);
+          },
+        });
 
-        const signedURLResult = await getSignedURL();
+        /*
+        const signedURLResult = await getSignedURL(file.type, file.size);
 
         const url = signedURLResult.url;
 
+        const res = await axios.put(url, file, {
+          headers: {
+            "Content-Type": file.type,
+          },
+          onUploadProgress(progressEvent) {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
+            );
+            setUploadProgress(percent);
+          },
+        });
+
         console.log({ url });
+        */
 
         // toast.success(res.data?.message);
-        toast.success("Successful!");
+        toast.success("Upload successful!");
         triggerRefetch();
       } catch (err) {
         console.log(err);

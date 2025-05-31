@@ -8,7 +8,9 @@ import { getMimeTypeFilter } from "@/utils/helper";
 
 const InputSchema = z.object({
   pathname: z.string().min(1, { message: "pathname is required." }),
-  fileType: z.enum(["document", "image", "video", "others"]).optional(),
+  fileType: z
+    .enum(["document", "image", "video", "audio", "others"])
+    .optional(),
 });
 
 export const getAllUserFileData = authProcedures
