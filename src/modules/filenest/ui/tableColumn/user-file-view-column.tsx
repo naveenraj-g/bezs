@@ -68,8 +68,8 @@ export const userFileViewColumn: ColumnDef<
     },
     accessorKey: "fileSize",
     cell: ({ row }) => {
-      const fileSize: number = row.getValue("fileSize");
-      const formattedFileSize = formatBytes(fileSize);
+      const fileSize: bigint = row.getValue("fileSize");
+      const formattedFileSize = formatBytes(Number(fileSize));
       return formattedFileSize;
     },
   },

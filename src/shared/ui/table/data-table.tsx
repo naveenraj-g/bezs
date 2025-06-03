@@ -272,7 +272,7 @@ export function DataTable<TData, TValue>({
             </SelectContent>
           </Select>
         </div>
-        <p className="text-sm font-semibold">{`Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`}</p>
+        <p className="text-sm font-semibold">{`Page ${table.getPageCount() === 0 ? 0 : table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`}</p>
         <div className="space-x-2">
           <Button
             variant="outline"

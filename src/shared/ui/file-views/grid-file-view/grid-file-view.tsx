@@ -96,7 +96,7 @@ export const GridFileView = ({ data }: FileGridPropsTypes) => {
                 </DropdownMenu>
               </div>
             </CardHeader>
-            <CardContent className="p-4 pt-0 flex-1">
+            <CardContent className="px-4 flex-1">
               <div>
                 <p
                   className="font-medium text-sm truncate"
@@ -105,11 +105,11 @@ export const GridFileView = ({ data }: FileGridPropsTypes) => {
                   {file.fileName}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {formatBytes(file.fileSize)}
+                  {formatBytes(Number(file.fileSize))}
                 </p>
               </div>
             </CardContent>
-            <CardFooter className="p-4 pt-0">
+            <CardFooter className="px-4 pt-0">
               <div className="flex items-center text-xs text-muted-foreground w-full">
                 <span>{format(file.createdAt, "do 'of' MMM, yyyy")}</span>
                 <span className="ml-auto bg-secondary px-2 py-1 rounded-md text-xs">

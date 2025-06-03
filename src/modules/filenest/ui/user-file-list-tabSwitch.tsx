@@ -24,7 +24,7 @@ export const UserFileListTabSwitch = ({ fileType }: PropsDataType) => {
 
   const triggerRefetch = useFileNestUserModal((state) => state.trigger);
 
-  const { execute, isPending, reset, error } =
+  const { execute, isPending, reset, isError, error } =
     useServerAction(getAllUserFileData);
 
   useEffect(() => {
@@ -47,13 +47,13 @@ export const UserFileListTabSwitch = ({ fileType }: PropsDataType) => {
               Grid
             </TabsTrigger>
             <TabsTrigger value="table" className="cursor-pointer">
-              <Rows2 />
+              <Rows3 />
               Table
             </TabsTrigger>
           </TabsList>
           <div>
             {isPending && <Loader2 className="animate-spin w-6 h-6" />}
-            {error && <p className="text-rose-600">{error.message}</p>}
+            {isError && <p className="text-rose-600">{error.message}</p>}
           </div>
         </div>
         <TabsContent value="grid">

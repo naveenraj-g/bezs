@@ -14,8 +14,8 @@ export async function getAllCredentialsData() {
   }
 
   const credentialsData =
-    await prismaFileNest.cloudStorageCredentials.findMany();
-  const total = await prismaFileNest.cloudStorageCredentials.count();
+    await prismaFileNest.cloudStorageCredential.findMany();
+  const total = await prismaFileNest.cloudStorageCredential.count();
 
   return { credentialsData, total };
 }
@@ -24,7 +24,7 @@ export const createAdminCloudStorageCredentials = authProcedures
   .createServerAction()
   .input(adminCreateCredentialsModalFormSchema)
   .handler(async ({ input }) => {
-    await prismaFileNest.cloudStorageCredentials.create({
+    await prismaFileNest.cloudStorageCredential.create({
       data: {
         ...input,
       },

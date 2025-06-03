@@ -26,7 +26,7 @@ interface InputProps {
   type: "input" | "select" | "checkbox" | "switch" | "radio" | "textarea";
   control: Control<any>;
   name: string;
-  label?: string;
+  label?: string | React.ReactNode;
   placeholder?: string;
   inputType?: "text" | "email" | "password" | "date" | "number";
   selectList?: { label: any; value: string }[];

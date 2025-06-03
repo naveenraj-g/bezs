@@ -91,7 +91,7 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
       accessorKey: "maxFileSize",
       cell: ({ row }) => {
         const maxFileSize: number = row.getValue("maxFileSize");
-        const formatedFileSizeInMB = maxFileSize / 1024 / 1024;
+        const formatedFileSizeInMB = Number(maxFileSize) / 1024 / 1024;
 
         return <>{formatedFileSizeInMB} MB</>;
       },
@@ -123,6 +123,18 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
         );
       },
       accessorKey: "clientSecret",
+      cell: ({ row }) => {
+        const clientSecret: string = row.getValue("clientSecret");
+
+        return (
+          <p
+            className="truncate max-w-[150px] xl:max-w-[200px] 2xl:max-w-full"
+            title={clientSecret}
+          >
+            {clientSecret}
+          </p>
+        );
+      },
     },
     {
       header: ({ column }) => {

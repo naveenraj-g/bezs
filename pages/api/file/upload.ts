@@ -85,72 +85,63 @@ export default async function handler(
     const formattedPathSlug = splittedPath.slice(0, 3).join("/");
     const appName = splittedPath[2];
 
-    let orgName = "";
-    let orgId = "";
-    let appId = "";
+    const adminAppStoreSettings =
+      await prismaFileNest.appStorageSetting.findFirst({
+        where: {
+          appSlug: formattedPathSlug,
+        },
+      });
 
-    for (const rbac of session.userRBAC) {
-      for (const app of rbac.organization.appOrganization) {
-        if (app.app.slug === formattedPathSlug) {
-          orgName = rbac.organization.slug || "";
-          orgId = rbac.organization.id || "";
-          appId = app.appId;
-          break;
-        }
-      }
-      if (orgName) break;
+    if (!adminAppStoreSettings) {
+      return res.status(403).json({
+        error: `${appName} app doesn't have permission to store any files.`,
+      });
     }
 
-    if (!orgName || !appName || !userId) {
+    if (adminAppStoreSettings.type !== "LOCAL") {
+      return res.status(403).json({
+        error: `${appName} assigned to different type of file storage method, not local storage.`,
+      });
+    }
+
+    if (!adminAppStoreSettings.basePath || !adminAppStoreSettings.subFolder) {
       return res
-        .status(403)
-        .json({ error: "Missing orgName, appName, or userId" });
+        .status(500)
+        .json({ error: "Base path for storage is not configured." });
     }
 
     const uploadDir = path.join(
-      "D:/CODING/intern-codes/New folder/",
-      "bezs-uploads",
-      orgName,
-      appName,
-      userId
+      adminAppStoreSettings.basePath,
+      (adminAppStoreSettings.subFolder ?? "").split("/").pop() || ""
     );
     ensureDirectoryExists(uploadDir);
 
     const newFileName = `${Date.now()}-${file.originalFilename}`;
     const finalPath = path.join(uploadDir, newFileName);
-    const filePathForDB = path.join(
-      "D:/CODING/intern-codes/New folder/bezs-uploads",
-      orgName,
-      appName,
-      userId,
-      newFileName
-    );
+
+    await fs.promises.copyFile(file.filepath, finalPath);
+    await fs.promises.unlink(file.filepath);
 
     await prismaFileNest.userFile.create({
       data: {
         userId,
-        orgId,
-        orgName,
-        appId,
-        appName,
+        appId: adminAppStoreSettings.appId,
+        appName: adminAppStoreSettings.appName,
+        appSlug: adminAppStoreSettings.appSlug,
         fileId: newFileName,
         fileName: file.originalFilename || newFileName,
         fileType: file.mimetype || "application/octet-stream",
         fileSize: file.size,
         filePathType: "LOCAL",
-        filePath: filePathForDB,
+        filePath: finalPath,
         createdBy: userId,
         updatedBy: userId,
       },
     });
 
-    await fs.promises.copyFile(file.filepath, finalPath);
-    await fs.promises.unlink(file.filepath);
-
     return res.status(200).json({
       success: true,
       message: "Upload successful",
-      filePath: filePathForDB,
     });
   } catch (error) {
     console.error("Upload error:", error);
