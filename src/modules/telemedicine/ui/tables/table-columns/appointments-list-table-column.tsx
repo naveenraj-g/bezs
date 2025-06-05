@@ -142,7 +142,6 @@ export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] 
         const id: number = row.original.id;
         const rowData = row.original;
         const status: AppointmentStatus = row.getValue("status");
-        console.log({ rowData });
 
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const openModal = useTelemedicinePatientModal((state) => state.onOpen);

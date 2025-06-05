@@ -90,7 +90,6 @@ export const CreateAppMenuItemModal = () => {
     }
 
     if (!appId) return;
-    console.log("Submitted");
 
     try {
       await addAppMenuItem({ ...values, appId });

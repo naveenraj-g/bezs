@@ -65,7 +65,6 @@ export const MediaRoom = ({ chatId, video, audio, name }: MediaRoomProps) => {
                 roomName: chatId,
               });
               egreesId.current = resData.data.egressId;
-              console.log(resData.data);
               toast.success("Start Recording.");
             } catch (error) {
               console.error("Failed to start recording", error);

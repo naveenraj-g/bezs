@@ -22,21 +22,21 @@ export function formatBytes(bytes: number): string {
 }
 
 export function getMimeTypeFilter(
-  type: "document" | "image" | "video" | "audio" | "others" | undefined
+  type: "documents" | "images" | "videos" | "audios" | "others" | undefined
 ) {
   switch (type) {
-    case "document":
+    case "documents":
       return {
         OR: [
           { fileType: { startsWith: "application/" } },
           { fileType: { startsWith: "text/" } },
         ],
       };
-    case "image":
+    case "images":
       return { fileType: { startsWith: "image/" } };
-    case "audio":
+    case "audios":
       return { fileType: { startsWith: "audio/" } };
-    case "video":
+    case "videos":
       return { fileType: { startsWith: "video/" } };
     case "others":
       return {

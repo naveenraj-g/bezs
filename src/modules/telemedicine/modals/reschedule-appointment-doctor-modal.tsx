@@ -111,13 +111,6 @@ export const RescheduleAppointmentDoctorModal = () => {
     closeModal();
   }
 
-  console.log(appointmentData?.time);
-
-  // const formattedDate = appointmentData?.appointment_date
-  //   .toISOString()
-  //   .split("T")[0];
-  // console.log(formattedDate);
-
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const formattedDate = tomorrow.toISOString().split("T")[0];

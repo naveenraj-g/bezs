@@ -13,7 +13,6 @@ export const useSessionRBACFilteredData = create<RBACSessionFilteredDataStore>(
     rbacSessionData: [],
     setRBACSessionData(userRBACdata) {
       set({ rbacSessionData: userRBACdata });
-      console.log(userRBACdata);
     },
     getRolewiseAppMenuItems(roleName: string) {
       if (!roleName) return null;
@@ -41,8 +40,6 @@ export const useSessionRBACFilteredData = create<RBACSessionFilteredDataStore>(
           Array.from(uniqueApps).forEach((app: string) => {
             uniqueAppsMenuItems[app] = [];
           });
-
-          console.log({ uniqueApps, uniqueAppsMenuItems });
         },
         []
       );

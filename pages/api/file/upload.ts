@@ -63,6 +63,7 @@ export default async function handler(
     );
 
     const pathName = fields.pathName?.[0];
+    const referenceType = fields.referenceType?.[0];
     const file = files.file?.[0];
 
     if (!file) {
@@ -71,10 +72,6 @@ export default async function handler(
 
     if (Array.isArray(files.file) && files.file.length > 1) {
       return res.status(400).json({ error: "Only one file is allowed." });
-    }
-
-    if (file.size > 250 * 1024 * 1024) {
-      return res.status(413).json({ error: "File size exceeds 250MB limit." });
     }
 
     if (!pathName || !file) {
@@ -98,6 +95,12 @@ export default async function handler(
       });
     }
 
+    if (file.size > adminAppStoreSettings?.maxFileSize) {
+      return res.status(413).json({
+        error: `File size exceeds ${adminAppStoreSettings?.maxFileSize} limit.`,
+      });
+    }
+
     if (adminAppStoreSettings.type !== "LOCAL") {
       return res.status(403).json({
         error: `${appName} assigned to different type of file storage method, not local storage.`,
@@ -112,7 +115,8 @@ export default async function handler(
 
     const uploadDir = path.join(
       adminAppStoreSettings.basePath,
-      (adminAppStoreSettings.subFolder ?? "").split("/").pop() || ""
+      (adminAppStoreSettings.subFolder ?? "").split("/").pop() || "",
+      referenceType ? referenceType : ""
     );
     ensureDirectoryExists(uploadDir);
 
@@ -151,115 +155,3 @@ export default async function handler(
     });
   }
 }
-
-/*
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  });
-
-  if (!session) {
-    return res.status(403).json({ error: "Unauthorized" });
-  }
-
-  const userId = session.user.id;
-
-  const form = new IncomingForm({ keepExtensions: true });
-
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      console.error("Parse error:", err);
-      return res.status(500).json({ error: "File parse error" });
-    }
-
-    const pathName = fields.pathName?.[0];
-    const file = files.file?.[0];
-
-    if (!pathName || !file) {
-      return res.status(400).json({ error: "Missing file or pathName" });
-    }
-
-    const splittedPath = pathName.split("/");
-    const formattedPathSlug = splittedPath.slice(0, 3).join("/");
-    const appName = splittedPath[2];
-
-    let orgName = "";
-
-    for (const rbac of session.userRBAC) {
-      for (const app of rbac.organization.appOrganization) {
-        if (app.app.slug === formattedPathSlug) {
-          orgName = rbac.organization.slug || "";
-          break;
-        }
-      }
-      if (orgName) break;
-    }
-
-    if (!orgName || !appName || !userId) {
-      return res
-        .status(403)
-        .json({ error: "Missing orgName, appName, or userId" });
-    }
-
-    const uploadDir = path.join(
-      process.cwd(),
-      "uploads",
-      orgName,
-      appName,
-      userId
-    );
-    ensureDirectoryExists(uploadDir);
-
-    const newFileName = `${Date.now()}-${file.originalFilename}`;
-    const finalPath = path.join(uploadDir, newFileName);
-    const filePathForDB = path.join(
-      "/uploads",
-      orgName,
-      appName,
-      userId,
-      newFileName
-    );
-
-    console.log({ fileType: file.mimetype });
-
-    const tempPath = file.filepath;
-
-    // fs.renameSync(file.filepath, finalPath);
-
-    await fs.promises.copyFile(tempPath, finalPath);
-    await fs.promises.unlink(tempPath);
-    // fs.copyFileSync(tempPath, finalPath);
-    // fs.unlinkSync(tempPath);
-
-    // try {
-    //   const saved = await prismaMain.file.create({
-    //     data: {
-    //       fileId: newFileName,
-    //       fileName: file.originalFilename || newFileName,
-    //       fileType: file.mimetype || "application/octet-stream",
-    //       fileSize: file.size,
-    //       filePath: filePathForDB,
-    //       createdBy: userId,
-    //       updatedBy: userId,
-    //       orgName,
-    //       appName,
-    //     },
-    //   });
-
-    //   return res
-    //     .status(200)
-    //     .json({ message: "Upload successful", file: saved });
-    // } catch (dbErr) {
-    //   console.error("DB Error:", dbErr);
-    //   return res.status(500).json({ error: "Database error", dbErr });
-    // }
-  });
-}
-*/

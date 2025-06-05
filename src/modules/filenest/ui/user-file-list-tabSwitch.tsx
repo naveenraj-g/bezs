@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useFileNestUserModal } from "../stores/use-filenest-user-modal-store";
 
 type PropsDataType = {
-  fileType?: "document" | "image" | "video" | "audio" | "others";
+  fileType?: "documents" | "images" | "videos" | "audios" | "others";
 };
 
 export const UserFileListTabSwitch = ({ fileType }: PropsDataType) => {

@@ -25,6 +25,7 @@ import {
   updatePatientProfile,
 } from "../serveractions/patient/patient-profile-actions";
 import { toast } from "sonner";
+import ButtonFileUpload from "@/shared/ui/file-upload/button-file-upload";
 
 interface DataProps {
   data?: Patient;
@@ -75,8 +76,6 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
       medical_history: "",
     },
   });
-
-  console.log(form.getValues("gender"));
 
   useEffect(() => {
     if (type === "create") {
@@ -161,12 +160,20 @@ export const PatientProfile = ({ data, type, user }: DataProps) => {
       </CardHeader>
 
       <CardContent className="p-0">
+        <div className="space-y-5">
+          <h3 className="text-lg font-semibold">Personal Information</h3>
+          <p className="font-medium text-sm">Profile Image</p>
+          <ButtonFileUpload
+            uploadUiType="dragAndDrop"
+            uploadStorageType="LOCAL"
+            referenceType="patientProfile"
+          />
+        </div>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8 mt-5"
           >
-            <h3 className="text-lg font-semibold">Personal Information</h3>
             <>
               {/* PROFILE IMAGE */}
 

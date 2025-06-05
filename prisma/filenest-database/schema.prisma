@@ -53,19 +53,23 @@ model AppStorageSetting {
     updatedAt DateTime @updatedAt
 }
 
+enum ReferenceType {
+    patientProfile
+}
+
 model UserFile {
-    id            Int         @id @default(autoincrement())
-    userId        String
-    appId         String
-    appName       String
-    appSlug       String
+    id            Int            @id @default(autoincrement())
+    userId        String?
+    appId         String?
+    appName       String?
+    appSlug       String?
     fileId        String
     fileName      String
     fileType      String
     fileSize      BigInt
     filePathType  StorageType
     filePath      String
-    referenceType String?
+    referenceType ReferenceType?
     referenceId   String?
     createdBy     String
     updatedBy     String

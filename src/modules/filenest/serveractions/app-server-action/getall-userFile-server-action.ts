@@ -9,7 +9,7 @@ import { getMimeTypeFilter } from "@/utils/helper";
 const InputSchema = z.object({
   pathname: z.string().min(1, { message: "pathname is required." }),
   fileType: z
-    .enum(["document", "image", "video", "audio", "others"])
+    .enum(["documents", "images", "videos", "audios", "others"])
     .optional(),
 });
 

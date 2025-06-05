@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Session } from "./modules/auth/types/auth-types";
-import { formattedRBACSessionData } from "./lib/format-session-data";
+import { Session } from "@/modules/auth/types/auth-types";
+import { formattedRBACSessionData } from "@/lib/format-session-data";
 
 async function getMiddlewareSession(req: NextRequest): Promise<Session | null> {
   try {
@@ -49,7 +49,6 @@ const routesRoleNotRequiredStartWith = [
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const url = req.url;
-  console.log("Middleware start.");
 
   // Skip only for session API
   if (pathname === "/api/auth/get-session" || pathname === "/") {
@@ -84,21 +83,24 @@ export async function middleware(req: NextRequest) {
     routesRoleNotRequiredMatch.some((route) => pathname === route) ||
     routesRoleNotRequiredStartWith.some((route) => matchRoute(pathname, route))
   ) {
-    console.log("Role not require.");
     return NextResponse.next();
   }
 
   const userRole = session?.user?.role || "";
   const rbacData = formattedRBACSessionData(session);
   const roleBasedAllowedRoutes: string[] = rbacData[userRole] || [];
-  console.log({ roleBasedAllowedRoutes, rbacData });
+  // console.log({ roleBasedAllowedRoutes, rbacData });
 
   if (!roleBasedAllowedRoutes.some((route) => pathname === route)) {
     return NextResponse.redirect(new URL("/", url));
   }
 
-  console.log("Middleware end.");
-  return NextResponse.next();
+  // Set the current URL as a custom header for use in server components
+  const res = NextResponse.next();
+  res.headers.set("x-url", req.url);
+  return res;
+
+  // return NextResponse.next();
 }
 
 export const config = {
