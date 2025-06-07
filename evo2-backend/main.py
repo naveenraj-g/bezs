@@ -35,7 +35,7 @@ def run_brca1_analysis():
     import pandas as pd
     import os
     import seaborn as sns
-    from sklearn.metrics import roc_auc_score
+    from sklearn.metrics import roc_auc_score, roc_curve
     
     from evo2 import Evo2
     
@@ -120,6 +120,31 @@ def run_brca1_analysis():
     # Calculate AUROC of zero-shot predictions
     y_true = (brca1_subset['class'] == 'LOF')
     auroc = roc_auc_score(y_true, -brca1_subset['evo2_delta_score'])
+    
+    # ---- Calculate threshold START
+    y_true = (brca1_subset["class"] == "LOF")
+    
+    fpr, tpr, thresholds = roc_curve(y_true, -brca1_subset["evo2_delta_score"])
+    
+    optimal_idx = (tpr - fpr).argmax()
+    
+    optimal_threshold = -thresholds[optimal_idx]
+    
+    lof_scores = brca1_subset.loc[brca1_subset["class"] == "LOF", "evo2_delta_score"]
+    func_scores = brca1_subset.loc[brca1_subset["class"] == "FUNC/INT", "evo2_delta_score"]
+    
+    lof_std = lof_scores.std()
+    func_std = func_scores.std()
+    
+    confidence_params = {
+        "threshold": optimal_threshold,
+        "lof_stf": lof_std,
+        "func_std": func_std,
+    }
+    
+    print("Confidence params: ", confidence_params)
+    
+    # ---- Calculate threshold END
     
     plt.figure(figsize=(4, 2))
 
@@ -217,6 +242,31 @@ def get_genome_sequence(position, genome: str,chromosome: str, window_size=8192)
 
 def analyze_variant(relative_pos_in_window, reference, alternative, window_seq, model):
     var_seq = window_seq[:relative_pos_in_window] + alternative + window_seq[relative_pos_in_window+1:]
+    
+    ref_score = model.score_sequences([window_seq])[0]
+    var_score = model.score_sequences([var_seq])[0]
+    
+    delta_score = var_score - ref_score
+    
+    threshold = -0.0009178519
+    lof_std = 0.0015140239
+    func_std = 0.0009016589
+        
+    if delta_score < threshold:
+        prediction = "Likely pathogenic"
+        confidence = min(1.0, abs(delta_score - threshold) / lof_std)
+    else:
+        prediction = "Likely benign"    
+        confidence = min(1.0, abs(delta_score - threshold) / func_std)
+        
+    return {
+        "reference": reference,
+        "alternative": alternative,
+        "delta_score": float(delta_score),
+        "prediction": prediction,
+        "classification_confidence": float(confidence),
+    }    
+    # Thresholds: Confidence params:  {'threshold': np.float32(-0.0009178519), 'lof_stf': np.float32(0.0015140239), 'func_std': np.float32(0.0009016589)}
 
 @app.cls(gpu="H100", volumes={mount_path: volume}, max_containers=3, retries=2, scaledown_window=120)
 class Evo2Model:
@@ -224,11 +274,11 @@ class Evo2Model:
     def load_evo2_model(self):
         from evo2 import Evo2
         print("Loading evo2 model...")
-        model = Evo2("evo2_7b")
+        self.model = Evo2("evo2_7b")
         print("Evo2 model loaded.")
         
-    @modal.method()
-    # @modal.fastapi_endpoint(method="POST")
+    # @modal.method()
+    @modal.fastapi_endpoint(method="POST")
     def analyze_single_variant(self, variant_position: int, alternative: str, genome: str, chromosome: str):
         print("Genome: ", genome)
         print("Chromosome: ", chromosome)
@@ -252,12 +302,28 @@ class Evo2Model:
         if relative_pos < 0 or relative_pos >= len(window_seq):
             raise ValueError(f"Variant position {variant_position} is outside the fetched window (start={seq_start + 1}, end={seq_start + len(window_seq)})")
         
-        reference = window_seq(relative_pos)
+        reference = window_seq[relative_pos]
         print("Reference is: ", reference)
         
         # Analyze the variant
+        result = analyze_variant(
+            relative_pos_in_window=relative_pos,
+            reference=reference,
+            alternative=alternative,
+            window_seq=window_seq,
+            model=self.model
+        )
+        
+        result["position"] = variant_position
+        
+        return result
+        
 
 @app.local_entrypoint()
 def main():
-    evo2Model = Evo2Model();
-    evo2Model.analyze_single_variant.remote(variant_position=43119628, alternative="G", genome="hg38", chromosome="chr17");
+    # brca1_example.remote()
+    
+    evo2Model = Evo2Model()
+    result = evo2Model.analyze_single_variant.remote(variant_position=43119628, alternative="G", genome="hg38", chromosome="chr17")
+    
+    print(result)
