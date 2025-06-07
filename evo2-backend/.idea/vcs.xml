@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/evo2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/evo2/vortex" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/evo2/vortex/vortex/ops/cutlass" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/evo2/vortex/vortex/ops/transformer_engine" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/evo2/vortex/vortex/ops/transformer_engine/3rdparty/cudnn-frontend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/evo2/vortex/vortex/ops/transformer_engine/3rdparty/googletest" vcs="Git" />
+  </component>
+</project>

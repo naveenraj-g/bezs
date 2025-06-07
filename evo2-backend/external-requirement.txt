@@ -1,0 +1,4 @@
+pip install requests
+
+API'S - 
+1. https://genome.ucsc.edu/index.html, https://genome.ucsc.edu/goldenPath/help/api.html
