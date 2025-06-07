@@ -21,7 +21,7 @@ This backend provides GPU-accelerated inference using the Evo2 model (by Arc Ins
 |-----------------------------|-------------------------------------------------|
 | `main.py`                   | Modal app definition with web + GPU endpoints   |
 | `requirements.txt`          | All required Python dependencies                |
-| `evo2/` (runtime cloned)     | Evo2 model codebase (cloned inside image) just for reference |
+| `evo2/` (runtime cloned)     | Evo2 model codebase (cloned inside image) just for reference (https://github.com/ArcInstitute/evo2.git) |
 | `brca1_analysis_plot.png`   | Plot output for BRCA1 variant scoring (optional) |
 | `/notebooks/brca1/`         | BRCA1 reference dataset + genome FASTA          |
 
