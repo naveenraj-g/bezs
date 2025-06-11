@@ -25,6 +25,9 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "Bezs",
   description: "Bezs is a all in one platform for all your needs",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default async function RootLayout({
