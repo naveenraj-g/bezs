@@ -46,7 +46,6 @@ export const GenomeAssembly = () => {
   }
 
   const genomes = structuredGenomes["Human"];
-  console.log(selectedGenome);
 
   const handleGenomeChange = (value: string) => {
     setValue({ selectedGenome: value });

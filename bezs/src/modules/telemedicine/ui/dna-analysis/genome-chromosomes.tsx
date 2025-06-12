@@ -20,11 +20,6 @@ import {
 } from "@/components/ui/table";
 import { useDNAanalysisStore } from "../../stores/use-dna-analysis-store";
 
-type GenomeChromosomesPropsType = {
-  selectedChromosome: string;
-  setSelectedChromosome: React.Dispatch<React.SetStateAction<string>>;
-};
-
 type ModeType = "browse" | "search";
 
 export const GenomeChromosomes = () => {
@@ -33,6 +28,7 @@ export const GenomeChromosomes = () => {
     (state) => state.selectedChromosome
   );
   const setValue = useDNAanalysisStore((state) => state.setValue);
+  const setSelectedGene = useDNAanalysisStore((state) => state.setSelectedGene);
 
   const {
     data: chromosomeData,
@@ -51,9 +47,6 @@ export const GenomeChromosomes = () => {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<GeneFromSearchType[]>([]);
-  const [selectedGene, setSelectedGene] = useState<GeneFromSearchType | null>(
-    null
-  );
   const [mode, setMode] = useState<ModeType>("search");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -134,15 +127,15 @@ export const GenomeChromosomes = () => {
   useEffect(() => {
     if (selectedGenome) {
       setSearchResults([]);
-      setSelectedGene(null);
+      setSelectedGene({ selectedGene: null });
     }
-  }, [selectedGenome]);
+  }, [selectedGenome, setSelectedGene]);
 
   const switchMode = (newMode: ModeType) => {
     if (newMode === mode) return;
 
     setSearchResults([]);
-    setSelectedGene(null);
+    setSelectedGene({ selectedGene: null });
     setError(null);
 
     if (newMode === "browse" && selectedChromosome) {
@@ -169,8 +162,6 @@ export const GenomeChromosomes = () => {
     setSearchQuery("BRCA1");
     performGeneSearch("BRCA1", selectedGenome);
   };
-
-  console.log(selectedGene);
 
   return (
     <Card className="mb-6 py-0 block">
@@ -309,7 +300,7 @@ export const GenomeChromosomes = () => {
                       <TableRow
                         key={`${gene.symbol}-${index}`}
                         className="cursor-pointer border-b"
-                        onClick={() => setSelectedGene(gene)}
+                        onClick={() => setSelectedGene({ selectedGene: gene })}
                       >
                         <TableCell className="py-2 font-medium">
                           {gene.symbol}

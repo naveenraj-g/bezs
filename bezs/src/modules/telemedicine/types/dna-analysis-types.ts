@@ -15,5 +15,23 @@ export interface GeneFromSearchType {
   name: string;
   chrom: string;
   description: string;
-  gene_id: string;
+  gene_id?: string;
+}
+
+export interface GeneDetailsFromSearchType {
+  genomicinfo?: {
+    chrstart: number;
+    chrstop: number;
+    strand?: string;
+  }[];
+  summary: string;
+  organism?: {
+    scientificname: string;
+    commonname: string;
+  };
+}
+
+export interface GeneBoundsType {
+  min: number;
+  max: number;
 }
