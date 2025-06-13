@@ -7,7 +7,7 @@ import {
 } from "@/modules/telemedicine/api-fetch/genome-api";
 import { useDNAanalysisStore } from "@/modules/telemedicine/stores/use-dna-analysis-store";
 import {
-  GeneBounceType,
+  GeneBoundsType,
   GeneDetailsFromSearchType,
 } from "@/modules/telemedicine/types/dna-analysis-types";
 import { ArrowLeft } from "lucide-react";
@@ -26,7 +26,7 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
   const [geneSequence, setGeneSquence] = useState("");
   const [geneDetail, setGeneDetail] =
     useState<GeneDetailsFromSearchType | null>(null);
-  const [geneBounds, setGeneBounds] = useState<GeneBounceType | null>(null);
+  const [geneBounds, setGeneBounds] = useState<GeneBoundsType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +39,7 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
     end: number;
   } | null>(null);
 
-  const fetchGenneSequence = useCallback(
+  const fetchGeneSequence = useCallback(
     async (start: number, end: number) => {
       try {
         setIsLoadingSequence(true);
@@ -95,7 +95,7 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
           setEndPosition(String(fetchedRange.end));
 
           // Fetch gene sequence
-          await fetchGenneSequence(fetchedRange.start, fetchedRange.end);
+          await fetchGeneSequence(fetchedRange.start, fetchedRange.end);
         }
       } catch {
         setError("Failed to load gene information. Please try again.");
@@ -104,6 +104,39 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
       }
     })();
   }, [gene, genomeId]);
+
+  const handleLoadSequence = useCallback(() => {
+    const start = parseInt(startPosition);
+    const end = parseInt(endPosition);
+    let validationError: string | null = null;
+
+    if (isNaN(start) || isNaN(end)) {
+      validationError = "Please enter valid start and end position";
+    } else if (start > end) {
+      validationError = "Start position must be less than end position";
+    } else if (geneBounds) {
+      const minBound = Math.min(geneBounds.min, geneBounds.max);
+      const maxBound = Math.max(geneBounds.min, geneBounds.max);
+
+      if (start < minBound) {
+        validationError = `Start position (${start.toLocaleString()}) is below the minimum value (${minBound.toLocaleString()})`;
+      } else if (end > maxBound) {
+        validationError = `End position (${end.toLocaleString()}) exceeds the maximum value (${maxBound.toLocaleString()})`;
+      }
+
+      if (end - start > 10000) {
+        validationError = `Selected range exceeds maximum view range of 10,000 bp.`;
+      }
+    }
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setError(null);
+    fetchGeneSequence(start, end);
+  }, [endPosition, fetchGeneSequence, geneBounds, startPosition]);
 
   return (
     <div className="space-y-6">
@@ -128,7 +161,7 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
         sequenceRange={actualRange}
         isLoading={isLoadingSequence}
         error={error}
-        onSequenceLoadRequest={() => {}}
+        onSequenceLoadRequest={handleLoadSequence}
         onSequenceClick={() => {}}
         maxViewRange={10000}
       />
