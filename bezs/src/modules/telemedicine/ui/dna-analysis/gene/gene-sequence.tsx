@@ -1,11 +1,12 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   GeneBoundsType,
   GeneDetailsFromSearchType,
 } from "@/modules/telemedicine/types/dna-analysis-types";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type GeneSequencePropsType = {
   geneBounds: GeneBoundsType | null;
@@ -52,10 +53,126 @@ export function GeneSequence({
   const currentRangeSize = useMemo(() => {
     const start = parseInt(startPosition);
     const end = parseInt(endPosition);
-
     return isNaN(start) || isNaN(end) || end < start ? 0 : end - start;
   }, [startPosition, endPosition]);
-  // 6:20
+
+  useEffect(() => {
+    if (!geneBounds) return;
+
+    const minBound = Math.min(geneBounds.min, geneBounds.max);
+    const maxBound = Math.max(geneBounds.min, geneBounds.max);
+    const totalSize = maxBound - minBound;
+
+    const startNum = parseInt(startPosition);
+    const endNum = parseInt(endPosition);
+
+    if (isNaN(startNum) || isNaN(endNum) || totalSize <= 0) {
+      setSliderValues({ start: 0, end: 100 });
+      return;
+    }
+
+    const startPercent = ((startNum - minBound) / totalSize) * 100;
+    const endPercent = ((endNum - minBound) / totalSize) * 100;
+
+    setSliderValues({
+      start: Math.max(0, Math.min(startPercent, 100)),
+      end: Math.max(0, Math.min(endPercent, 100)),
+    });
+  }, [endPosition, geneBounds, startPosition]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingStart && !isDraggingEnd && !isDraggingRange) return;
+      if (!sliderRef.current || !geneBounds) return;
+
+      const sliderRect = sliderRef.current.getBoundingClientRect();
+      const relativeX = e.clientX - sliderRect.left;
+      const sliderWidth = sliderRect.width;
+      let newPercent = (relativeX / sliderWidth) * 100;
+      newPercent = Math.max(0, Math.min(newPercent, 100));
+
+      const minBound = Math.min(geneBounds.min, geneBounds.max);
+      const maxBound = Math.max(geneBounds.min, geneBounds.max);
+      const geneSize = maxBound - minBound;
+
+      const newPosition = Math.round(minBound + (geneSize * newPercent) / 100);
+      const currentStartNum = parseInt(startPosition);
+      const currentEndNum = parseInt(endPosition);
+
+      if (isDraggingStart) {
+        if (!isNaN(currentEndNum)) {
+          if (currentEndNum - newPosition + 1 > maxViewRange) {
+            onStartPositionChange(String(currentEndNum - maxViewRange + 1));
+          } else if (newPosition < currentEndNum) {
+            onStartPositionChange(String(newPosition));
+          }
+        }
+      } else if (isDraggingEnd) {
+        if (!isNaN(currentStartNum)) {
+          if (newPosition - currentStartNum + 1 > maxViewRange) {
+            onEndPositionChange(String(currentStartNum + maxViewRange - 1));
+          } else if (newPosition > currentStartNum) {
+            onEndPositionChange(String(newPosition));
+          }
+        }
+      } else if (isDraggingRange) {
+        if (!dragStartX.current) return;
+        const pixelsPerBase = sliderWidth / geneSize;
+        const dragDeltaPixels = relativeX - dragStartX.current.x;
+        const dragDeltaBases = Math.round(dragDeltaPixels / pixelsPerBase);
+
+        let newStart = dragStartX.current.startPos + dragDeltaBases;
+        let newEnd = dragStartX.current.endPos + dragDeltaBases;
+        const rangeSize =
+          dragStartX.current.endPos - dragStartX.current.startPos;
+
+        if (newStart < minBound) {
+          newStart = minBound;
+          newEnd = minBound + rangeSize;
+        }
+        if (newEnd > maxBound) {
+          newEnd = maxBound;
+          newStart = maxBound - rangeSize;
+        }
+
+        onStartPositionChange(String(newStart));
+        onEndPositionChange(String(newEnd));
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (
+        (isDraggingStart || isDraggingEnd || isDraggingRange) &&
+        startPosition &&
+        endPosition
+      ) {
+        onSequenceLoadRequest();
+      }
+      setIsDraggingStart(false);
+      setIsDraggingEnd(false);
+      setIsDraggingRange(false);
+      dragStartX.current = null;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [
+    endPosition,
+    geneBounds,
+    isDraggingEnd,
+    isDraggingRange,
+    isDraggingStart,
+    maxViewRange,
+    onEndPositionChange,
+    onSequenceLoadRequest,
+    onStartPositionChange,
+    startPosition,
+  ]);
+
   const handleMouseDown = useCallback(
     (e: React.MouseEvent, handle: "start" | "end") => {
       e.preventDefault();
@@ -63,6 +180,29 @@ export function GeneSequence({
       else setIsDraggingEnd(true);
     },
     []
+  );
+
+  const handleRangeMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+
+      if (!sliderRef.current) return;
+
+      const startNum = parseInt(startPosition);
+      const endNum = parseInt(endPosition);
+
+      if (isNaN(startNum) || isNaN(endNum)) return;
+
+      setIsDraggingRange(true);
+      const sliderRect = sliderRef.current.getBoundingClientRect();
+      const relativeX = e.clientX - sliderRect.left;
+      dragStartX.current = {
+        x: relativeX,
+        startPos: startNum,
+        endPos: endNum,
+      };
+    },
+    [startPosition, endPosition]
   );
 
   return (
@@ -98,7 +238,10 @@ export function GeneSequence({
             {/* Slider component */}
             <div className="space-y-4">
               <div className="relative">
-                <div className="relative h-6 w-full cursor-pointer">
+                <div
+                  ref={sliderRef}
+                  className="relative h-6 w-full cursor-pointer"
+                >
                   {/* Track background */}
                   <div className="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-zinc-200/60"></div>
 
@@ -109,6 +252,7 @@ export function GeneSequence({
                       left: `${sliderValues.start}%`,
                       width: `${sliderValues.end - sliderValues.start}%`,
                     }}
+                    onMouseDown={handleRangeMouseDown}
                   ></div>
 
                   {/* Start handle */}
@@ -130,6 +274,34 @@ export function GeneSequence({
                   </div>
                 </div>
               </div>
+
+              {/* Position controls */}
+              <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-300">
+                    Start:
+                  </span>
+                  <Input
+                    type="text"
+                    value={startPosition}
+                    onChange={(e) => onStartPositionChange(e.target.value)}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-300">
+                    End:
+                  </span>
+                  <Input
+                    type="text"
+                    value={endPosition}
+                    onChange={(e) => onEndPositionChange(e.target.value)}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -137,3 +309,4 @@ export function GeneSequence({
     </Card>
   );
 }
+// 6:44

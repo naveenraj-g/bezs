@@ -128,12 +128,8 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
         sequenceRange={actualRange}
         isLoading={isLoadingSequence}
         error={error}
-        onSequenceLoadRequest={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        onSequenceClick={function (position: number, nucleotide: string): void {
-          throw new Error("Function not implemented.");
-        }}
+        onSequenceLoadRequest={() => {}}
+        onSequenceClick={() => {}}
         maxViewRange={10000}
       />
       <GeneInformation
