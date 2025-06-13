@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import {
   fetchGeneDetails,
   fetchGeneSequence as apiFetchGeneSequence,
+  fetchClinvarVariants as apiFetchClinvarVariants,
 } from "@/modules/telemedicine/api-fetch/genome-api";
 import { useDNAanalysisStore } from "@/modules/telemedicine/stores/use-dna-analysis-store";
 import {
+  ClinvarVariantType,
   GeneBoundsType,
   GeneDetailsFromSearchType,
 } from "@/modules/telemedicine/types/dna-analysis-types";
@@ -14,6 +16,7 @@ import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
+import { KnownVariants } from "./known-variants";
 
 type GeneViewerPropsType = {
   onClose: () => void;
@@ -34,10 +37,28 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
   const [endPosition, setEndPosition] = useState<string>("");
   const [isLoadingSequence, setIsLoadingSequence] = useState(false);
 
+  const [clinvarVariants, setClinvarVariants] = useState<ClinvarVariantType[]>(
+    []
+  );
+  const [isLoadingClinvar, setIsLoadingClinvar] = useState(false);
+  const [clinvarError, setclinvarError] = useState<string | null>(null);
+
   const [actualRange, setActualRange] = useState<{
     start: number;
     end: number;
   } | null>(null);
+
+  const [comparisonVariant, setComparisonVariant] =
+    useState<ClinvarVariantType | null>(null);
+
+  const updateClinvarVariant = (
+    clinvar_id: string,
+    updateVariant: ClinvarVariantType
+  ) => {
+    setClinvarVariants((prevVariants) =>
+      prevVariants.map((v) => (v.clinvar_id === clinvar_id ? updateVariant : v))
+    );
+  };
 
   const fetchGeneSequence = useCallback(
     async (start: number, end: number) => {
@@ -138,6 +159,34 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
     fetchGeneSequence(start, end);
   }, [endPosition, fetchGeneSequence, geneBounds, startPosition]);
 
+  const fetchClinvarVariants = useCallback(async () => {
+    if (!gene.chrom || !geneBounds) return;
+
+    setIsLoadingClinvar(true);
+    setclinvarError(null);
+
+    try {
+      const variants = await apiFetchClinvarVariants(
+        gene.chrom,
+        geneBounds,
+        genomeId
+      );
+      setClinvarVariants(variants);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      setclinvarError("Failed to fetch ClinVar variants.");
+      setClinvarVariants([]);
+    } finally {
+      setIsLoadingClinvar(false);
+    }
+  }, [gene.chrom, geneBounds, genomeId]);
+
+  useEffect(() => {
+    if (geneBounds) {
+      fetchClinvarVariants();
+    }
+  }, [geneBounds, fetchClinvarVariants]);
+
   return (
     <div className="space-y-6">
       <Button
@@ -149,6 +198,17 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
         <ArrowLeft className="h-4 w-4" />
         Back to results
       </Button>
+
+      <KnownVariants
+        refereshVariants={fetchClinvarVariants}
+        showComparison={() => {}}
+        updateClinvarVariant={updateClinvarVariant}
+        clinvarVariant={clinvarVariants}
+        isLoadingClinvar={isLoadingClinvar}
+        clinvarError={clinvarError}
+        genomeId={genomeId}
+        gene={gene}
+      />
 
       <GeneSequence
         geneBounds={geneBounds}

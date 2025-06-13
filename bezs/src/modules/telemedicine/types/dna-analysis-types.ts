@@ -35,3 +35,29 @@ export interface GeneBoundsType {
   min: number;
   max: number;
 }
+
+export interface ClinvarVariantType {
+  clinvar_id: string;
+  title: string;
+  variation_type: string;
+  classification: string;
+  gene_sort: string;
+  chromosome: string;
+  location: string;
+  evo2Result?: {
+    prediction: string;
+    delta_score: number;
+    classification_confidence: number;
+  };
+  isAnalyzing?: boolean;
+  evo2Error?: string;
+}
+
+export interface AnalysisResultType {
+  position: number;
+  reference: string;
+  alternative: string;
+  delta_score: number;
+  prediction: string;
+  classification_confidence: number;
+}

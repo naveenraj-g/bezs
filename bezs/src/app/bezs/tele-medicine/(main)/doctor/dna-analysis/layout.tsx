@@ -1,4 +1,5 @@
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
+import { DNAanalysisModalProvider } from "@/modules/telemedicine/providers/dna-analysis-modal-provider";
 import { redirect } from "next/navigation";
 
 const DnaAnalysisLayout = async ({
@@ -10,7 +11,12 @@ const DnaAnalysisLayout = async ({
 
   if (!session) redirect("/");
 
-  return <>{children}</>;
+  return (
+    <>
+      <DNAanalysisModalProvider />
+      {children}
+    </>
+  );
 };
 
 export default DnaAnalysisLayout;
