@@ -14,6 +14,9 @@ evo2_image = (
         "CXX": "/usr/bin/g++",
     })
     .run_commands("git clone --recurse-submodules https://github.com/ArcInstitute/evo2.git && cd evo2 && pip install .")
+    .run_commands(
+        "sed -i 's/np.fromstring(text, dtype=np.uint8)/np.frombuffer(text.encode(), dtype=np.uint8)/' /evo2/vortex/vortex/model/tokenizer.py"
+    )
     .run_commands("pip uninstall -y transformer-engine transformer_engine")
     .run_commands("pip install 'transformer_engine[pytorch]==1.13' --no-build-isolation")
     .pip_install_from_requirements("requirements.txt")

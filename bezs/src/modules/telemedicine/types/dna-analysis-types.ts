@@ -61,3 +61,7 @@ export interface AnalysisResultType {
   prediction: string;
   classification_confidence: number;
 }
+
+export interface VariantAnalysisHandleType {
+  focusAlternativeInput: () => void;
+}

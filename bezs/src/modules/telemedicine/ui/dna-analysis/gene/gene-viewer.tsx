@@ -11,12 +11,14 @@ import {
   ClinvarVariantType,
   GeneBoundsType,
   GeneDetailsFromSearchType,
+  VariantAnalysisHandleType,
 } from "@/modules/telemedicine/types/dna-analysis-types";
-import { ArrowLeft } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
 import { KnownVariants } from "./known-variants";
+import { VariantAnalysis } from "./variant-analysis";
 
 type GeneViewerPropsType = {
   onClose: () => void;
@@ -50,6 +52,15 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
 
   const [comparisonVariant, setComparisonVariant] =
     useState<ClinvarVariantType | null>(null);
+
+  const [activeSequencePosition, setActiveSequencePosition] = useState<
+    number | null
+  >(null);
+  const [activeReferenceNucleotide, setActiveReferenceNucleotide] = useState<
+    string | null
+  >(null);
+
+  const variantAnalysisRef = useRef<VariantAnalysisHandleType>(null);
 
   const updateClinvarVariant = (
     clinvar_id: string,
@@ -126,6 +137,18 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
     })();
   }, [gene, genomeId]);
 
+  const handleSequenceClick = useCallback(
+    (position: number, nucleotide: string) => {
+      setActiveSequencePosition(position);
+      setActiveReferenceNucleotide(nucleotide);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (variantAnalysisRef.current) {
+        variantAnalysisRef.current.focusAlternativeInput();
+      }
+    },
+    []
+  );
+
   const handleLoadSequence = useCallback(() => {
     const start = parseInt(startPosition);
     const end = parseInt(endPosition);
@@ -187,6 +210,14 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
     }
   }, [geneBounds, fetchClinvarVariants]);
 
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="!w-8 !h-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Button
@@ -198,6 +229,17 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
         <ArrowLeft className="h-4 w-4" />
         Back to results
       </Button>
+
+      <VariantAnalysis
+        ref={variantAnalysisRef}
+        gene={gene}
+        genomeId={genomeId}
+        chromosome={gene.chrom}
+        clinvarVariants={clinvarVariants}
+        referenceSequence={activeReferenceNucleotide}
+        sequencePosition={activeSequencePosition}
+        geneBounds={geneBounds}
+      />
 
       <KnownVariants
         refereshVariants={fetchClinvarVariants}
@@ -222,7 +264,7 @@ export default function GeneViewer({ onClose }: GeneViewerPropsType) {
         isLoading={isLoadingSequence}
         error={error}
         onSequenceLoadRequest={handleLoadSequence}
-        onSequenceClick={() => {}}
+        onSequenceClick={handleSequenceClick}
         maxViewRange={10000}
       />
       <GeneInformation
