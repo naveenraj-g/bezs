@@ -52,7 +52,7 @@ const AppsList = ({ isNavItem }: { isNavItem?: boolean }) => {
   return (
     <>
       {isNavItem && (
-        <div className="w-[20rem] relative mx-auto mb-4">
+        <div className="max-w-[20rem] relative mx-auto mb-4">
           <Input
             placeholder="Find Bezs apps"
             className="bg-zinc-100 pl-8 border-0 border-b-2 outline-0 focus-visible:ring-0"

@@ -19,8 +19,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useDNAanalysisStore } from "../../stores/use-dna-analysis-store";
+import ButtonFileUpload from "@/shared/ui/file-upload/button-file-upload";
 
-type ModeType = "browse" | "search";
+type ModeType = "browse" | "search" | "patient-dna";
 
 export const GenomeChromosomes = () => {
   const selectedGenome = useDNAanalysisStore((state) => state.selectedGenome);
@@ -189,6 +190,9 @@ export const GenomeChromosomes = () => {
               <TabsTrigger value="browse" className="cursor-pointer">
                 Browse Chromosomes
               </TabsTrigger>
+              <TabsTrigger value="patient-dna" className="cursor-pointer">
+                Patient DNA Report
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="search" className="mt-2">
@@ -246,6 +250,17 @@ export const GenomeChromosomes = () => {
                     </Button>
                   ))}
                 </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="patient-dna" className="mt-2">
+              <div>
+                <h2 className="font-semibold mb-4">
+                  Patient DNA Report Upload
+                </h2>
+                <ButtonFileUpload
+                  uploadStorageType="LOCAL"
+                  uploadUiType="dragAndDrop"
+                />
               </div>
             </TabsContent>
           </Tabs>
@@ -319,18 +334,21 @@ export const GenomeChromosomes = () => {
             </div>
           )}
 
-          {!isLoading && !error && searchResults.length === 0 && (
-            <div className="flex flex-col items-center justify-center text-center h-36 text-gray-400">
-              <Search className="mb-4 h-10 w-10 text-gray-400" />
-              <p className="text-sm leading-relaxed">
-                {mode === "search"
-                  ? "Enter a gene or symbol and click search"
-                  : selectedChromosome
-                    ? "No genes found on this chromosome"
-                    : "Select a chromosome to view genes"}
-              </p>
-            </div>
-          )}
+          {!isLoading &&
+            !error &&
+            searchResults.length === 0 &&
+            mode !== "patient-dna" && (
+              <div className="flex flex-col items-center justify-center text-center h-36 text-gray-400">
+                <Search className="mb-4 h-10 w-10 text-gray-400" />
+                <p className="text-sm leading-relaxed">
+                  {mode === "search"
+                    ? "Enter a gene or symbol and click search"
+                    : selectedChromosome
+                      ? "No genes found on this chromosome"
+                      : "Select a chromosome to view genes"}
+                </p>
+              </div>
+            )}
         </CardContent>
       </CardHeader>
     </Card>

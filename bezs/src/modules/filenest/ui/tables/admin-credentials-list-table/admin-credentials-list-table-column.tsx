@@ -109,6 +109,17 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
         );
       },
       accessorKey: "clientId",
+      cell: ({ row }) => {
+        const clientId: string = row.getValue("clientId");
+
+        return (
+          <p
+          // title={clientSecret}
+          >
+            {"*".repeat(clientId.length)}
+          </p>
+        );
+      },
     },
     {
       header: ({ column }) => {
@@ -129,9 +140,9 @@ export const adminCredentialsListTableColumn: ColumnDef<CredentialDataType>[] =
         return (
           <p
             className="truncate max-w-[150px] xl:max-w-[200px] 2xl:max-w-full"
-            title={clientSecret}
+            // title={clientSecret}
           >
-            {clientSecret}
+            {"*".repeat(clientSecret.length)}
           </p>
         );
       },

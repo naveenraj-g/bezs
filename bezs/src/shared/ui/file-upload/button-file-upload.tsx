@@ -21,6 +21,7 @@ type PropsType = {
   uploadStorageType: StorageType | undefined;
   referenceType?: string | null;
   maxSize?: number | undefined;
+  testing?: boolean;
 };
 
 export default function ButtonFileUpload({
@@ -28,6 +29,7 @@ export default function ButtonFileUpload({
   uploadStorageType,
   referenceType = null,
   maxSize = undefined,
+  testing = false,
 }: PropsType) {
   const pathName = usePathname();
   const { resolvedTheme } = useTheme();
