@@ -4,11 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { redirect } from "next/navigation";
 
-const TeleMedicineMainLayout = async ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+const AiHubMainLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await getServerSession();
   if (!session) {
     redirect("/");
@@ -38,4 +34,4 @@ const TeleMedicineMainLayout = async ({
   );
 };
 
-export default TeleMedicineMainLayout;
+export default AiHubMainLayout;

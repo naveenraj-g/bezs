@@ -5,6 +5,10 @@ import { PromptInput } from "./prompt-input";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Copy, ThumbsDown, ThumbsUp, Trash } from "lucide-react";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
+import { useParams } from "next/navigation";
+import { useChatStore } from "../stores/useChatStore";
+import { TChatSession } from "../types/chat-types";
+import { useChatSession } from "../hooks/use-chat-session";
 
 type ChatType = {
   input: string;
@@ -15,10 +19,37 @@ const dummyText =
   "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut saepe magni autem, totam repellat atque ducimus sed dolor laborum nostrum. Perferendis explicabo consectetur, porro qui quia atque voluptates quam tempora.";
 
 export const AiChat = () => {
+  // const params = useParams();
+  // const sessionId = params?.sessionId;
+  // const lastStream = useChatStore(state => state.lastStream);
+  // const [currentSession, setCurrentSession] = useState<TChatSession | undefined>(undefined);
+  // const {getSessionById} = useChatSession();
+
   const endRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chat, setChat] = useState<ChatType[]>([]);
   const [isAtBottom, setIsAtBottom] = useState(true);
+
+  // const fetchSession = async () => {
+  //   if (!sessionId) return;
+
+  //   const session = await getSessionById(sessionId?.toString())
+  //   setCurrentSession(session);
+  // }
+
+  // useEffect(() => {
+  //   if (sessionId) {
+  //     fetchSession();
+  //   }
+  // }, [sessionId]);
+
+  // useEffect(() => {
+  //   if (!lastStream) {
+  //     fetchSession();
+  //   }
+  // }, [lastStream]);
+
+  // const isLastStreamBelongsToCurrentSession = lastStream?.sessionId === sessionId;
 
   const handleChat = (prompt: string) => {
     setChat((prevState) => [

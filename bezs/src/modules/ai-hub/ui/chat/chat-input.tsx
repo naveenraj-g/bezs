@@ -7,18 +7,14 @@ import { File, Mic, Send, Upload, X } from "lucide-react";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useChatStore } from "../stores/useChatStore";
-import { PromptType, RoleType } from "../types/chat-types";
+import { useChatStore } from "../../stores/useChatStore";
+import { PromptType, RoleType } from "../../types/chat-types";
 
 interface PromptInputPropsType {
   modelName?: string;
-  handleChat?: (prompt: string) => void;
 }
 
-export const PromptInput = ({
-  modelName,
-  handleChat,
-}: PromptInputPropsType) => {
+export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   const params = useParams();
   const sessionId = params?.sessionId;
   const runModel = useChatStore((state) => state.runModel);
@@ -45,10 +41,6 @@ export const PromptInput = ({
         },
         sessionId?.toString()
       );
-    }
-
-    if (handleChat) {
-      handleChat(prompt);
     }
 
     e.currentTarget.reset();

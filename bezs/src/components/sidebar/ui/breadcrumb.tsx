@@ -12,10 +12,18 @@ import { capitalizeString } from "@/utils/helper";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const isProbablyId = (segment: string): boolean => {
+  // You can adjust this regex based on your ID pattern
+  return /^[0-9a-fA-F-]{6,}$/.test(segment);
+};
+
 const BreadCrumb = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
 
-  const pathSegments = pathname.split("/").filter(Boolean);
+  const pathSegments = pathname
+    .split("/")
+    .filter(Boolean)
+    .filter((segment) => !isProbablyId(segment));
   const pathSegmentsLength = pathSegments.length;
 
   return (
@@ -52,11 +60,6 @@ const BreadCrumb = ({ className = "" }: { className?: string }) => {
             <BreadcrumbList key={pathSegment}>
               <BreadcrumbItem key={pathSegment}>
                 <Link
-                  // href={
-                  //   formattedPathSegment === "bezs"
-                  //     ? "/bezs"
-                  //     : `/bezs/${pathSegment}`
-                  // }
                   href={`/${formattedPathSegmentLink}`}
                   className="text-base hover:text-foreground"
                 >

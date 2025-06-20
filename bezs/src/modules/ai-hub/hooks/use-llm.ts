@@ -2,18 +2,19 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
-import {
-  ModelType,
-  PromptProps,
-  TChatMessage,
-  useChatSession,
-} from "./use-chat-session";
+import { useChatSession } from "./use-chat-session";
 import { ChatOpenAI } from "@langchain/openai";
 import { v4 } from "uuid";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { getInstruction, getRole } from "../lib/prompts";
+import {
+  ModelType,
+  PromptProps,
+  TChatMessage,
+  TUseLLM,
+} from "../types/chat-types";
 
-export const useLLM = () => {
+export const useLLM = ({ onStream, onStreamStart, onStreamEnd }: TUseLLM) => {
   const { getSessionById, addMessageToSession } = useChatSession();
 
   const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
@@ -74,7 +75,7 @@ export const useLLM = () => {
     const apiKey = "";
     const model = new ChatOpenAI({
       model: "gpt-3.5-turbo",
-      openAIApiKey: apiKey,
+      openAIApiKey: apiKey || process.env.PUBLIC_OPENAI_API_KEY,
     });
 
     const newMessageId = v4();
@@ -88,8 +89,11 @@ export const useLLM = () => {
 
     let streamedMessage = "";
 
+    onStreamStart();
+
     for await (const chunk of stream) {
       streamedMessage += chunk.content;
+      onStream({ props, sessionId, message: streamedMessage });
     }
 
     const chatMessage = {
@@ -102,7 +106,9 @@ export const useLLM = () => {
       props,
     };
 
-    addMessageToSession(sessionId, chatMessage);
+    addMessageToSession(sessionId, chatMessage).then(() => {
+      onStreamEnd();
+    });
   };
 
   return {

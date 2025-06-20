@@ -34,3 +34,14 @@ export function formattedRBACSessionData(session) {
 
   return filteredData;
 }
+
+export function matchDynamicRoute(pattern: string, pathname: string): boolean {
+  const regex = new RegExp(
+    "^" +
+      pattern
+        .replace(/:[^/]+/g, "[^/]+") // `:param` → dynamic match
+        .replace(/\*/g, ".*") + // `*` → wildcard
+      "$"
+  );
+  return regex.test(pathname);
+}

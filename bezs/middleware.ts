@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Session } from "@/modules/auth/types/auth-types";
-import { formattedRBACSessionData } from "@/lib/format-session-data";
+import {
+  formattedRBACSessionData,
+  matchDynamicRoute,
+} from "@/lib/format-session-data";
 
 async function getMiddlewareSession(req: NextRequest): Promise<Session | null> {
   try {
@@ -91,9 +94,17 @@ export async function middleware(req: NextRequest) {
   const roleBasedAllowedRoutes: string[] = rbacData[userRole] || [];
   // console.log({ roleBasedAllowedRoutes, rbacData });
 
-  if (!roleBasedAllowedRoutes.some((route) => pathname === route)) {
+  const isAllowed = roleBasedAllowedRoutes.some((routePattern) =>
+    matchDynamicRoute(routePattern, pathname)
+  );
+
+  if (!isAllowed) {
     return NextResponse.redirect(new URL("/", url));
   }
+
+  // if (!roleBasedAllowedRoutes.some((route) => pathname === route)) {
+  //   return NextResponse.redirect(new URL("/", url));
+  // }
 
   // Set the current URL as a custom header for use in server components
   const res = NextResponse.next();

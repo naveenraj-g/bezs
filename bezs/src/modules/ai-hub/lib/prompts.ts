@@ -1,4 +1,4 @@
-import { PromptType, RoleType } from "../hooks/use-chat-session";
+import { PromptType, RoleType } from "../types/chat-types";
 
 export const getRole = (type: RoleType) => {
   switch (type) {

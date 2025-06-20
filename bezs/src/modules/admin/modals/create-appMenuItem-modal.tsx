@@ -29,7 +29,7 @@ import { useEffect } from "react";
 import { addAppMenuItem } from "../serveractions/admin-actions";
 
 const createAppMenuItemSchema = z.object({
-  name: z.string().min(3, { message: "name must be atleast 3 characters." }),
+  name: z.string().min(1, { message: "name must be atleast 3 characters." }),
   slug: z
     .string()
     .min(3, { message: "slug is required." })
