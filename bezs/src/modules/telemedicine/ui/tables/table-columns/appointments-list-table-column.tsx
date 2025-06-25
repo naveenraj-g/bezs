@@ -108,7 +108,7 @@ export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] 
           <div className="flex items-center gap-2 2xl:gap-3 py-2">
             <ProfileAvatar imgUrl={doctorData.img} name={doctorData.name} />
             <div className="font-semibold">
-              <h3>{doctorData.name}</h3>
+              <h3 className="capitalize">{doctorData.name}</h3>
               <span className="text-xs md:text-sm font-light capitalize">
                 {doctorData.specialization}
               </span>
@@ -197,9 +197,18 @@ export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] 
               rowData.status === "SCHEDULED" && (
                 <Link
                   className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
-                  href={`/bezs/tele-medicine/patient/appointments/video?roomId=${rowData.livekit_room_id}`}
+                  href={`/bezs/tele-medicine/patient/appointments/online-consultation?roomId=${rowData.livekit_room_id}`}
                 >
-                  Video Chat
+                  Consult Online
+                </Link>
+              )}
+            {rowData.appointment_mode === "AI_CONSULT" &&
+              rowData.status === "PENDING" && (
+                <Link
+                  className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+                  href={`/bezs/tele-medicine/patient/appointments/online-consultation?appointmentId=${rowData.id}`}
+                >
+                  Consult with AI Doctor
                 </Link>
               )}
           </div>

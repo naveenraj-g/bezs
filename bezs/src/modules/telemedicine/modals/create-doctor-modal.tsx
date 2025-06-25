@@ -13,12 +13,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useTelemedicineAdminModal } from "../stores/use-telemedicine-admin-modal-store";
-import { createDoctorFormSchema } from "../schemas/create-doctor-form-schema";
+import {
+  createAIDoctorFormSchema,
+  createDoctorFormSchema,
+} from "../schemas/create-doctor-form-schema";
 import { CustomInput } from "../../../shared/ui/custom-input";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
+  createAIDoctor,
   createDoctor,
   getAllUsersWithTelemedicineDoctorRole,
 } from "../serveractions/admin/doctorActions";
@@ -27,7 +31,10 @@ import { UserWithDoctorRoleDataType } from "../types/data-types";
 import { Loader2, TriangleAlert } from "lucide-react";
 import { adminRole } from "../utils/roles";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 type CreateDoctorFormSchemaType = z.infer<typeof createDoctorFormSchema>;
+type TCreateAIDoctorFormSchema = z.infer<typeof createAIDoctorFormSchema>;
 
 export const CreateDoctorModal = () => {
   const session = useSession();
@@ -62,7 +69,7 @@ export const CreateDoctorModal = () => {
     }
   }, [isModalOpen]);
 
-  const form = useForm<CreateDoctorFormSchemaType>({
+  const HumanDoctorForm = useForm<CreateDoctorFormSchemaType>({
     resolver: zodResolver(createDoctorFormSchema),
     defaultValues: {
       userId: "",
@@ -73,11 +80,27 @@ export const CreateDoctorModal = () => {
     },
   });
 
-  const {
-    formState: { isSubmitting },
-  } = form;
+  const AIDoctorForm = useForm<TCreateAIDoctorFormSchema>({
+    resolver: zodResolver(createAIDoctorFormSchema),
+    defaultValues: {
+      name: "",
+      specialization: "",
+      description: "",
+      agentPrompt: "",
+      voiceId: "",
+      img: "",
+    },
+  });
 
-  async function onSubmit(values: CreateDoctorFormSchemaType) {
+  const {
+    formState: { isSubmitting: isHumanDOctorFormSubmitting },
+  } = HumanDoctorForm;
+
+  const {
+    formState: { isSubmitting: isAIDoctorFormSubmitting },
+  } = AIDoctorForm;
+
+  async function onHumanDoctorSubmit(values: CreateDoctorFormSchemaType) {
     if (session?.data?.user?.role !== adminRole) {
       toast("unauthorized.");
       return;
@@ -101,8 +124,28 @@ export const CreateDoctorModal = () => {
     }
   }
 
+  async function onAIDoctorSubmit(values: TCreateAIDoctorFormSchema) {
+    if (session?.data?.user?.role !== adminRole) {
+      toast("unauthorized.");
+      return;
+    }
+
+    try {
+      await createAIDoctor(values);
+      toast.success("AI Doctor created successfully!");
+      router.refresh();
+      handleCloseModal();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast.error("Something went wrong!", {
+        richColors: true,
+      });
+    }
+  }
+
   function handleCloseModal() {
-    form.reset();
+    HumanDoctorForm.reset();
+    AIDoctorForm.reset();
     setError(null);
     setIsLoading(false);
     setUserData([]);
@@ -134,77 +177,183 @@ export const CreateDoctorModal = () => {
             <span>{error}</span>
           </p>
         )}
-        <div className="mt-4">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="space-y-4">
-                <CustomInput
-                  type="select"
-                  name="userId"
-                  label="User"
-                  placeholder={
-                    userData.length === 0 ? "No user to select" : "Pick a user"
-                  }
-                  control={form.control}
-                  selectList={selectUserList}
-                  className="w-full"
-                  disable={
-                    isLoading ||
-                    Boolean(error) ||
-                    Boolean(userData.length === 0)
-                  }
-                />
-                <CustomInput
-                  type="input"
-                  name="license_number"
-                  label="License Number"
-                  placeholder="Enter license number"
-                  control={form.control}
-                  disable={isLoading || Boolean(error)}
-                />
-                <CustomInput
-                  type="input"
-                  name="specialization"
-                  label="Specialization"
-                  placeholder="Enter specialization"
-                  control={form.control}
-                  disable={isLoading || Boolean(error)}
-                />
-                <CustomInput
-                  type="input"
-                  name="phone"
-                  label="Phone"
-                  placeholder="Enter phone number"
-                  control={form.control}
-                  disable={isLoading || Boolean(error)}
-                />
-                <CustomInput
-                  type="textarea"
-                  name="address"
-                  label="Address"
-                  placeholder="Enter address"
-                  control={form.control}
-                  disable={isLoading || Boolean(error)}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isSubmitting || Boolean(error)}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center gap-2">
-                    <span className="animate-spin">⌛</span>
-                    Creating...
+        <Tabs>
+          <TabsList defaultValue="human-doctor">
+            <TabsTrigger
+              value="human-doctor"
+              className="cursor-pointer"
+              onClick={() => AIDoctorForm.reset()}
+            >
+              Human Doctor
+            </TabsTrigger>
+            <TabsTrigger
+              value="ai-doctor"
+              className="cursor-pointer"
+              onClick={() => HumanDoctorForm.reset()}
+            >
+              AI Doctor
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="human-doctor">
+            <div className="mt-4">
+              <Form {...HumanDoctorForm}>
+                <form
+                  onSubmit={HumanDoctorForm.handleSubmit(onHumanDoctorSubmit)}
+                  className="space-y-8"
+                >
+                  <div className="space-y-4">
+                    <CustomInput
+                      type="select"
+                      name="userId"
+                      label="User"
+                      placeholder={
+                        userData.length === 0
+                          ? "No user to select"
+                          : "Pick a user"
+                      }
+                      control={HumanDoctorForm.control}
+                      selectList={selectUserList}
+                      className="w-full"
+                      disable={
+                        isLoading ||
+                        Boolean(error) ||
+                        Boolean(userData.length === 0)
+                      }
+                    />
+                    <CustomInput
+                      type="input"
+                      name="license_number"
+                      label="License Number"
+                      placeholder="Enter license number"
+                      control={HumanDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                    <CustomInput
+                      type="input"
+                      name="specialization"
+                      label="Specialization"
+                      placeholder="Enter specialization"
+                      control={HumanDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                    <CustomInput
+                      type="input"
+                      name="phone"
+                      label="Phone"
+                      placeholder="Enter phone number"
+                      control={HumanDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                    <CustomInput
+                      type="textarea"
+                      name="address"
+                      label="Address"
+                      placeholder="Enter address"
+                      control={HumanDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
                   </div>
-                ) : (
-                  "Create Doctor"
-                )}
-              </Button>
-            </form>
-          </Form>
-        </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isHumanDOctorFormSubmitting || Boolean(error)}
+                  >
+                    {isHumanDOctorFormSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <span className="animate-spin">⌛</span>
+                        Creating...
+                      </div>
+                    ) : (
+                      "Create Doctor"
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </div>
+          </TabsContent>
+          <TabsContent value="ai-doctor">
+            <div className="mt-4">
+              <Form {...AIDoctorForm}>
+                <form
+                  onSubmit={AIDoctorForm.handleSubmit(onAIDoctorSubmit)}
+                  className="space-y-8"
+                >
+                  <div className="space-y-4">
+                    <CustomInput
+                      type="input"
+                      name="name"
+                      label="Name"
+                      placeholder="Enter a name"
+                      control={AIDoctorForm.control}
+                      className="w-full"
+                      disable={
+                        isLoading ||
+                        Boolean(error) ||
+                        Boolean(userData.length === 0)
+                      }
+                    />
+                    <CustomInput
+                      type="input"
+                      name="specialization"
+                      label="Specialization"
+                      placeholder="Enter specialization"
+                      control={AIDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                    <CustomInput
+                      type="textarea"
+                      name="description"
+                      label="Description"
+                      placeholder="AI Doctor description"
+                      control={AIDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                    <CustomInput
+                      type="textarea"
+                      name="agentPrompt"
+                      label="Agent Prompt"
+                      placeholder="AI Doctor prompt"
+                      control={AIDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                    <CustomInput
+                      type="input"
+                      name="voiceId"
+                      label="Voice Id"
+                      placeholder="Enter agent voice id"
+                      control={AIDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                    <CustomInput
+                      type="input"
+                      name="img"
+                      label="Image Path"
+                      placeholder="Enter image path"
+                      control={AIDoctorForm.control}
+                      disable={isLoading || Boolean(error)}
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isAIDoctorFormSubmitting || Boolean(error)}
+                  >
+                    {isAIDoctorFormSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <span className="animate-spin">⌛</span>
+                        Creating...
+                      </div>
+                    ) : (
+                      "Create AI Doctor"
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </div>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

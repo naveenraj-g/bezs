@@ -5,13 +5,15 @@ import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { bookAppointmentFormSchema } from "../../schemas/book-appointment-form-schema";
 import { nanoid } from "nanoid";
 import { Prisma } from "@prisma/client";
+import { AppointmentMode } from "../../../../../prisma/generated/telemedicine";
 
 type AppointmentDataType = {
-  date: Date;
+  date: Date | string;
   appointmentType: string;
   doctorId: string;
   time: string;
   note: string;
+  appointmentMode: AppointmentMode;
 };
 
 async function generateUniqueRoomId(prefix = "room_", length = 10) {
@@ -33,12 +35,25 @@ async function generateUniqueRoomId(prefix = "room_", length = 10) {
 
 export const createDoctorAppointment = async (
   appointmentData: AppointmentDataType,
-  { patientId }: { patientId: string }
+  { patientId, userId }: { patientId?: string; userId?: string }
 ) => {
   const session = await getServerSession();
 
   if (!session || session?.user?.role !== "telemedicine-patient") {
     throw new Error("Unauthorized");
+  }
+
+  if (userId) {
+    const patient = await prismaTeleMedicine.patient.findUnique({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    patientId = patient?.id;
   }
 
   const validateData = bookAppointmentFormSchema.safeParse(appointmentData);
@@ -47,10 +62,14 @@ export const createDoctorAppointment = async (
     throw new Error("Invalid data");
   }
 
+  if (!patientId) {
+    throw new Error("Can't find user");
+  }
+
   const isVideoAppointment = validateData.data.appointmentMode === "VIDEO";
 
   try {
-    await prismaTeleMedicine.appointment.create({
+    const data = await prismaTeleMedicine.appointment.create({
       data: {
         patient_id: patientId,
         doctor_id: validateData.data.doctorId,
@@ -64,6 +83,8 @@ export const createDoctorAppointment = async (
           : null,
       },
     });
+
+    return data.id;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {

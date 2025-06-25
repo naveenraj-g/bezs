@@ -5,8 +5,12 @@ import {
   Doctor,
   Patient,
   Appointment,
+  AppointmentMode,
 } from "../../../../prisma/generated/telemedicine";
-import { createDoctorFormSchema } from "../schemas/create-doctor-form-schema";
+import {
+  createAIDoctorFormSchema,
+  createDoctorFormSchema,
+} from "../schemas/create-doctor-form-schema";
 import { scheduleAppointmentFormSchema } from "../schemas/schedule-appointment-form-schema";
 
 export type AppointmentChartProps = {
@@ -56,7 +60,7 @@ export type AppointmentTableDataType = {
   appointment_date: Date;
   time: string;
   doctor: AppointmentTableDoctor;
-  appointment_mode: "VIDEO" | "INPERSON";
+  appointment_mode: AppointmentMode;
   livekit_room_id: string;
 };
 
@@ -81,6 +85,7 @@ export type AdminDoctorsDataType = {
 };
 
 export type CreateDoctorDataType = z.infer<typeof createDoctorFormSchema>;
+export type TCreateAIDoctorData = z.infer<typeof createAIDoctorFormSchema>;
 
 export type UserWithDoctorRoleDataType = {
   user: {

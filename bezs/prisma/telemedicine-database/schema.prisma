@@ -79,23 +79,32 @@ model Patient {
     updated_at DateTime @updatedAt
 }
 
+enum DoctorType {
+    AI_DOCTOR
+    HUMAN_DOCTOR
+}
+
 model Doctor {
     id                  String  @id @default(uuid())
     orgId               String
-    userId              String  @unique
-    role                String
-    email               String  @unique
+    userId              String? @unique
+    role                String?
+    email               String? @unique
     name                String
     specialization      String
-    license_number      String
-    phone               String
-    address             String
+    description         String?
+    agentPrompt         String?
+    voiceId             String?
+    license_number      String?
+    phone               String?
+    address             String?
     department          String?
     img                 String?
     colorCode           String?
     availability_status String?
 
     type         JobType       @default(FULL)
+    doctorType   DoctorType    @default(HUMAN_DOCTOR)
     working_days WorkingDays[]
     appointments Appointment[]
     ratings      Rating[]
@@ -140,6 +149,7 @@ model Staff {
 enum AppointmentMode {
     VIDEO
     INPERSON
+    AI_CONSULT
 }
 
 model Appointment {

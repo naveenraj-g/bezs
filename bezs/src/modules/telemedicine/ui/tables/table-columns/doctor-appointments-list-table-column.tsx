@@ -225,9 +225,9 @@ export const doctorAppointmentsListTableColumn: ColumnDef<DoctorAppointmentTable
               rowData.status === "SCHEDULED" && (
                 <Link
                   className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
-                  href={`/bezs/tele-medicine/doctor/appointments/video?roomId=${rowData.livekit_room_id}`}
+                  href={`/bezs/tele-medicine/doctor/appointments/online-consultation?roomId=${rowData.livekit_room_id}`}
                 >
-                  Video Chat
+                  Consult Online
                 </Link>
               )}
           </div>

@@ -3,7 +3,7 @@ import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { MediaRoom } from "@/modules/telemedicine/ui/video/media-room";
 import { redirect } from "next/navigation";
 
-const VideoPage = async ({
+const DoctorOnlineConsultationPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
@@ -55,4 +55,4 @@ const VideoPage = async ({
   );
 };
 
-export default VideoPage;
+export default DoctorOnlineConsultationPage;

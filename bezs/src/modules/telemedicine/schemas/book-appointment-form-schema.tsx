@@ -24,3 +24,17 @@ export const bookAppointmentFormSchema = z.object({
       message: "Note with in 150 characters long",
     }),
 });
+
+export const bookAIDoctorConsultFormSchema = z.object({
+  doctorId: z.string().min(2, {
+    message: "Please select a doctor",
+  }),
+  note: z
+    .string()
+    .min(5, {
+      message: "Note must atleast 10 characters long",
+    })
+    .max(300, {
+      message: "Note with in 150 characters long",
+    }),
+});

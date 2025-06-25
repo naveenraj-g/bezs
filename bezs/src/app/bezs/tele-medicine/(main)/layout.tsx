@@ -25,7 +25,7 @@ const TeleMedicineMainLayout = async ({
           }}
         >
           <CommonSideBar label="MENUS" />
-          <main className="h-[calc(100vh-53px)] overflow-y-auto w-full p-4 space-y-6">
+          <main className="h-[calc(100vh-53px)] overflow-y-auto w-full px-8 py-6 space-y-6">
             <div className="flex items-center">
               <SidebarTrigger className="cursor-pointer" />
               <BreadCrumb />
