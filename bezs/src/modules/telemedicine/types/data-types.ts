@@ -48,6 +48,7 @@ export type AppointmentTableDoctor = {
   img: string | null;
   colorCode: string | null;
   specialization: string;
+  doctorType: "AI_DOCTOR" | "HUMAN_DOCTOR";
 };
 
 export type AppointmentTableDataType = {
@@ -62,6 +63,8 @@ export type AppointmentTableDataType = {
   doctor: AppointmentTableDoctor;
   appointment_mode: AppointmentMode;
   livekit_room_id: string;
+  conversation?: any;
+  report?: any;
 };
 
 export type DoctorAppointmentTableDataType = Appointment & {

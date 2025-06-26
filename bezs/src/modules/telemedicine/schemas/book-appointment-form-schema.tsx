@@ -17,7 +17,7 @@ export const bookAppointmentFormSchema = z.object({
     }),
   note: z
     .string()
-    .min(10, {
+    .min(3, {
       message: "Note must atleast 10 characters long",
     })
     .max(150, {

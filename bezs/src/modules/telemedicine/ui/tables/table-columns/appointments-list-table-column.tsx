@@ -203,14 +203,29 @@ export const appointmentsListTableColumn: ColumnDef<AppointmentTableDataType>[] 
                 </Link>
               )}
             {rowData.appointment_mode === "AI_CONSULT" &&
-              rowData.status === "PENDING" && (
-                <Link
-                  className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
-                  href={`/bezs/tele-medicine/patient/appointments/online-consultation?appointmentId=${rowData.id}`}
+            rowData.status === "PENDING" ? (
+              <Link
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
+                href={`/bezs/tele-medicine/patient/appointments/online-consultation?appointmentId=${rowData.id}`}
+              >
+                Consult with AI Doctor
+              </Link>
+            ) : (
+              rowData.status === "COMPLETED" && (
+                <Button
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() =>
+                    openModal({
+                      type: "viewAppointmentReport",
+                      appointmentData: rowData,
+                    })
+                  }
                 >
-                  Consult with AI Doctor
-                </Link>
-              )}
+                  View Report
+                </Button>
+              )
+            )}
           </div>
         );
       },

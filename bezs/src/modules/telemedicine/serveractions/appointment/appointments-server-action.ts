@@ -69,6 +69,8 @@ export async function getPatientAppointments(patientId: string | undefined) {
       status: true,
       appointment_mode: true,
       livekit_room_id: true,
+      conversation: true,
+      report: true,
       patient: {
         select: {
           id: true,
@@ -87,6 +89,7 @@ export async function getPatientAppointments(patientId: string | undefined) {
           specialization: true,
           img: true,
           colorCode: true,
+          doctorType: true,
         },
       },
     },

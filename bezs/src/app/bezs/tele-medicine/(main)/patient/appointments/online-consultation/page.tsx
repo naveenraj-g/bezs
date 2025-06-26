@@ -1,6 +1,5 @@
 import { prismaTeleMedicine } from "@/lib/prisma";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
-import { TAIDoctorData } from "@/modules/telemedicine/types/online-consult-types";
 import { AiDoctorConsult } from "@/modules/telemedicine/ui/online-consultation/AiDoctorConsult";
 import { MediaRoom } from "@/modules/telemedicine/ui/video/media-room";
 import { redirect } from "next/navigation";

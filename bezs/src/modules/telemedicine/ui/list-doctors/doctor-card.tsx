@@ -31,9 +31,7 @@ export const DoctorCard = ({ doctor }: TDoctorCard) => {
         className="w-full h-[250px] object-cover"
       />
       <div className="px-2 pb-2">
-        <h2 className="font-bold text-lg mt-1 capitalize">
-          {doctor?.voiceId || doctor?.name}
-        </h2>
+        <h2 className="font-bold text-lg mt-1 capitalize">{doctor?.name}</h2>
         <h2 className="text-xs text-zinc-500 dark:text-zinc-300/90">
           {doctor?.specialization}
         </h2>
