@@ -57,7 +57,7 @@ export const useChatSession = () => {
       createdAt: new Date().toISOString(),
     };
 
-    const newSessions = [...sessions, newSession];
+    const newSessions = [newSession, ...sessions];
     await set("chat-sessions", newSessions);
     return newSessions;
   };

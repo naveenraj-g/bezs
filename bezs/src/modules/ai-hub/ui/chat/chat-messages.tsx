@@ -23,9 +23,10 @@ export const ChatMessages = () => {
   };
 
   useEffect(() => {
-    if (sessionId) {
-      fetchSession();
+    if (!sessionId) {
+      return;
     }
+    fetchSession();
   }, [sessionId]);
 
   useEffect(() => {
@@ -38,16 +39,18 @@ export const ChatMessages = () => {
     lastStream?.sessionId === sessionId;
 
   return (
-    <div>
+    <div className="flex-1 overflow-y-auto">
       {currentSession?.messages.map((message) => (
         <div className="p-2" key={message.id}>
           {message.rawHuman}
+          <br />
           {message.rawAI}
         </div>
       ))}
       {isLastStreamBelongsToCurrentSession && (
         <div className="p-2">
           {lastStream?.props?.query}
+          <br />
           {lastStream?.message}
         </div>
       )}

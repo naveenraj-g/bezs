@@ -9,14 +9,14 @@ export const Topbar = () => {
   const router = useRouter();
 
   return (
-    <div>
+    <div className="w-fit">
       <Button size="sm" onClick={() => createSession()}>
         New Session
       </Button>
       {sessions?.map((session) => (
         <div
           key={session.id}
-          className="p-2"
+          className="p-2 border mt-2"
           onClick={() => router.push(`/bezs/ai-hub/ask-ai/${session.id}`)}
         >
           {session.title}

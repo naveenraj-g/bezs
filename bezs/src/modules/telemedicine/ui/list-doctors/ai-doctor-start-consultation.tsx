@@ -2,8 +2,6 @@
 
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,15 +17,11 @@ import {
 import { ArrowRight, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { bookAIDoctorConsultFormSchema } from "../../schemas/book-appointment-form-schema";
-import { CustomInput } from "@/shared/ui/custom-input";
-import { ProfileAvatar } from "../profile-image";
-import { Form } from "@/components/ui/form";
 import { createDoctorAppointment } from "../../serveractions/appointment/create-appointment";
 import { toast } from "sonner";
 import { AppointmentMode } from "../../../../../prisma/generated/telemedicine";
 import { Textarea } from "@/components/ui/textarea";
 import { getDoctorSuggestion } from "../../serveractions/appointment/ai-doctor/ai-doctor-server-actions";
-import { DoctorCard } from "./doctor-card";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -51,13 +45,15 @@ type TDoctor = {
 type TAiDoctorStartConsultationProps = {
   isGeneralAiDoctorAppointment: boolean;
   allDoctorsData?: TDoctor[];
-  doctorData?: TDoctor;
+  className?: string;
+  doctorId?: string | number;
 };
 
 function AiDoctorStartConsultation({
   isGeneralAiDoctorAppointment,
   allDoctorsData,
-  doctorData,
+  doctorId,
+  className,
 }: TAiDoctorStartConsultationProps) {
   const session = useSession();
   const router = useRouter();
@@ -65,7 +61,7 @@ function AiDoctorStartConsultation({
   const [suggestedDoctorId, setSuggestedDoctorId] = useState<string[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [loading, setLoading] = useState(false);
-
+  console.log(suggestedDoctorId);
   const onClickNext = async () => {
     setLoading(true);
     try {
@@ -84,20 +80,6 @@ function AiDoctorStartConsultation({
       setLoading(false);
     }
   };
-
-  // const AIDoctorAppointmentForm = useForm<TCreateAIDoctorAppointmentFormSchema>(
-  //   {
-  //     resolver: zodResolver(bookAIDoctorConsultFormSchema),
-  //     defaultValues: {
-  //       doctorId: doctorData?.id.toString() || "",
-  //       note: "",
-  //     },
-  //   }
-  // );
-
-  // const {
-  //   formState: { isSubmitting },
-  // } = AIDoctorAppointmentForm;
 
   async function onSubmit(values: TCreateAIDoctorAppointmentFormSchema) {
     if (!session) {
@@ -131,7 +113,6 @@ function AiDoctorStartConsultation({
       toast.success("Success", {
         description: "Redirecting to consultation page",
       });
-      // AIDoctorAppointmentForm.reset();
       router.push(
         `/bezs/tele-medicine/patient/appointments/online-consultation?appointmentId=${appointmentId}`
       );
@@ -143,23 +124,7 @@ function AiDoctorStartConsultation({
     }
   }
 
-  // const selectDoctorList = allDoctorsData?.map((doctorData) => {
-  //   return {
-  //     label: (
-  //       <div className="flex items-center gap-2">
-  //         <ProfileAvatar name={doctorData.name} imgUrl={doctorData.img} />
-  //         <div className="flex flex-col items-start">
-  //           <span className="font-semibold capitalize">{doctorData.name}</span>
-  //           <span className="text-xs">{doctorData.specialization}</span>
-  //         </div>
-  //       </div>
-  //     ),
-  //     value: doctorData.id.toString(),
-  //   };
-  // });
-
   function handleClose() {
-    // AIDoctorAppointmentForm.reset();
     setSuggestedDoctorId([]);
     setSelectedDoctor("");
     setLoading(false);
@@ -168,8 +133,16 @@ function AiDoctorStartConsultation({
   return (
     <Dialog onOpenChange={handleClose}>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Plus /> Consult with AI Doctor
+        <Button size="sm" className={className}>
+          {isGeneralAiDoctorAppointment ? (
+            <>
+              <Plus /> Consult with AI Doctor
+            </>
+          ) : (
+            <>
+              Start Consultation <ArrowRight />
+            </>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -184,67 +157,6 @@ function AiDoctorStartConsultation({
                   onChange={(e) => setNote(e.target.value)}
                   className="mt-1.5 h-[100px]"
                 />
-
-                {/* <Form {...AIDoctorAppointmentForm}>
-                <form
-                  onSubmit={AIDoctorAppointmentForm.handleSubmit(onSubmit)}
-                  className="space-y-8 flex flex-col"
-                >
-                  <div className="space-y-4">
-                    {isGeneralAiDoctorAppointment && allDoctorsData ? (
-                      <>
-                        <CustomInput
-                          type="select"
-                          name="doctorId"
-                          label="Doctor"
-                          placeholder={
-                            allDoctorsData.length === 0
-                              ? "No doctor to select"
-                              : "Select a doctor"
-                          }
-                          control={AIDoctorAppointmentForm.control}
-                          selectList={selectDoctorList}
-                          className="w-full !h-10"
-                        />
-                      </>
-                    ) : null}
-
-                    <CustomInput
-                      type="textarea"
-                      name="note"
-                      label="Add Symptoms or Any Other Details"
-                      placeholder="Add detail here..."
-                      className="h-[100px]"
-                      control={AIDoctorAppointmentForm.control}
-                    />
-                  </div>
-
-                  <div className="self-end space-x-2">
-                    <DialogClose asChild>
-                      <Button size="sm" variant="outline">
-                        Cancel
-                      </Button>
-                    </DialogClose>
-                    <Button
-                      type="submit"
-                      className=""
-                      disabled={isSubmitting}
-                      size="sm"
-                    >
-                      {isSubmitting ? (
-                        <div className="flex items-center gap-2">
-                          <span className="animate-spin">⌛</span>
-                          Loading...
-                        </div>
-                      ) : isGeneralAiDoctorAppointment ? (
-                        "Consult Online"
-                      ) : (
-                        "Book Appointment"
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </Form> */}
               </div>
             ) : (
               <div className="mt-2">
@@ -296,7 +208,7 @@ function AiDoctorStartConsultation({
               Cancel
             </Button>
           </DialogClose>
-          {suggestedDoctorId.length === 0 ? (
+          {suggestedDoctorId.length === 0 && isGeneralAiDoctorAppointment ? (
             <Button disabled={!note || loading} onClick={onClickNext} size="sm">
               {loading ? (
                 <>
@@ -313,7 +225,9 @@ function AiDoctorStartConsultation({
             <Button
               size="sm"
               disabled={loading}
-              onClick={() => onSubmit({ doctorId: selectedDoctor, note: note })}
+              onClick={() =>
+                onSubmit({ doctorId: doctorId || selectedDoctor, note: note })
+              }
             >
               {loading ? (
                 <>

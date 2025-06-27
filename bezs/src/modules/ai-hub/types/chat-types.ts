@@ -5,6 +5,7 @@ export enum ModelType {
   GPT4 = "gpt-4",
   CLAUDE2 = "claude-2",
   CLAUDE3 = "claude-3",
+  LLAMA3_70b = "llama3-70b",
 }
 
 export enum PromptType {
@@ -20,7 +21,7 @@ export enum PromptType {
 
 export enum RoleType {
   assistant = "assistant",
-  writing_export = "writing_export",
+  writing_export = "writing_expert",
   social_media_expert = "social_media_expert",
 }
 

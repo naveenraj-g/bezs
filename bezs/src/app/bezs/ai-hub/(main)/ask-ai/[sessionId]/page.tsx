@@ -9,13 +9,11 @@ const ChatSessionPage = async ({
   const { sessionId } = await params;
 
   return (
-    <div>
-      <ChatInput />
+    <div className="flex-1 flex flex-col">
       <ChatMessages />
+      <ChatInput />
     </div>
   );
 };
 
 export default ChatSessionPage;
-
-// 1:35

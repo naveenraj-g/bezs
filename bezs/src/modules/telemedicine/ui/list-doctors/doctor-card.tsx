@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
+import AiDoctorStartConsultation from "./ai-doctor-start-consultation";
 
 type Doctor = {
   id: number | string;
@@ -38,9 +37,11 @@ export const DoctorCard = ({ doctor }: TDoctorCard) => {
         <p className="line-clamp-2 mt-1 text-sm text-zinc-500 dark:text-zinc-300/90">
           {doctor?.description}
         </p>
-        <Button size="sm" className="w-full mt-2">
-          Start Consultation <ArrowRight />
-        </Button>
+        <AiDoctorStartConsultation
+          isGeneralAiDoctorAppointment={false}
+          className="w-full mt-2"
+          doctorId={doctor?.id}
+        />
       </div>
     </Card>
   );

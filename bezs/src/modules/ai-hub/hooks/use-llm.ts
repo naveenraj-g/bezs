@@ -4,6 +4,8 @@ import {
 } from "@langchain/core/prompts";
 import { useChatSession } from "./use-chat-session";
 import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatGroqInput } from "@langchain/groq";
 import { v4 } from "uuid";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { getInstruction, getRole } from "../lib/prompts";
@@ -36,7 +38,7 @@ export const useLLM = ({ onStream, onStreamStart, onStreamEnd }: TUseLLM) => {
                   "You are {role} Answer user's question based on the following context: {context}",
                 ]
               : ["system", "You are {role}. {type}"],
-            ["user", "input"],
+            ["user", "{input}"],
           ]
     );
 
@@ -73,9 +75,22 @@ export const useLLM = ({ onStream, onStreamStart, onStreamEnd }: TUseLLM) => {
     }
 
     const apiKey = "";
+    // const model = new ChatOpenAI({
+    //   model: "gpt-3.5-turbo",
+    //   openAIApiKey: apiKey || process.env.OPENAI_API_KEY,
+    // });
+
+    // const model = new ChatGoogleGenerativeAI({
+    //   model: "gemini-pro",
+    //   apiKey: apiKey || process.env.GOOGLE_API_KEY,
+    // });
+
     const model = new ChatOpenAI({
-      model: "gpt-3.5-turbo",
-      openAIApiKey: apiKey || process.env.PUBLIC_OPENAI_API_KEY,
+      model: "llama3-70b-8192", // or "llama3-70b-8192", "gemma-7b-it"
+      openAIApiKey: apiKey || process.env.NEXT_PUBLIC_GROQ_API_KEY,
+      configuration: {
+        baseURL: "https://api.groq.com/openai/v1",
+      },
     });
 
     const newMessageId = v4();
@@ -98,7 +113,7 @@ export const useLLM = ({ onStream, onStreamStart, onStreamEnd }: TUseLLM) => {
 
     const chatMessage = {
       id: newMessageId,
-      model: ModelType.GPT3,
+      model: ModelType.LLAMA3_70b,
       human: new HumanMessage(props.query),
       ai: new AIMessage(streamedMessage),
       rawHuman: props.query,
