@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Markdown from "marked-react";
 import Link from "next/link";
 import type { JSX, ReactNode } from "react";
+import { CodeBlock } from "../ui/chat/codeblock";
 
 export const useMarkdown = () => {
   const renderMarkdown = (message: string): ReactNode => {
@@ -49,7 +50,7 @@ export const useMarkdown = () => {
           code: (code, lang) => {
             return (
               <div className="my-8">
-                <></>
+                <CodeBlock lang={lang} code={code?.toString()} />
               </div>
             );
           },

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { AppActionType } from "@prisma/client";
+import { AppActionType } from "../../../../prisma/generated/main";
 
 import {
   Form,

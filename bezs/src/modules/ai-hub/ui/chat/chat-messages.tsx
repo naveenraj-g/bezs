@@ -5,6 +5,7 @@ import { useChatStore } from "../../stores/useChatStore";
 import { useEffect, useState } from "react";
 import { TChatSession } from "../../types/chat-types";
 import { useChatSession } from "../../hooks/use-chat-session";
+import { useMarkdown } from "../../hooks/use-mdx";
 
 export const ChatMessages = () => {
   const params = useParams();
@@ -14,6 +15,7 @@ export const ChatMessages = () => {
     TChatSession | undefined
   >(undefined);
   const { getSessionById } = useChatSession();
+  const { renderMarkdown } = useMarkdown();
 
   const fetchSession = async () => {
     if (!sessionId) return;
@@ -44,14 +46,14 @@ export const ChatMessages = () => {
         <div className="p-2" key={message.id}>
           {message.rawHuman}
           <br />
-          {message.rawAI}
+          {renderMarkdown(message.rawAI)}
         </div>
       ))}
       {isLastStreamBelongsToCurrentSession && (
         <div className="p-2">
           {lastStream?.props?.query}
           <br />
-          {lastStream?.message}
+          {renderMarkdown(lastStream!.message)}
         </div>
       )}
     </div>
