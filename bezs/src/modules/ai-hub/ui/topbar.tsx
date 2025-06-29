@@ -10,9 +10,17 @@ export const Topbar = () => {
   const router = useRouter();
   const params = useParams();
 
+  async function handleCreateSession() {
+    const newSession = await createSession();
+
+    if (newSession[0]?.id) {
+      router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+    }
+  }
+
   return (
     <div className="w-fit">
-      <Button size="sm" onClick={() => createSession()}>
+      <Button size="sm" onClick={handleCreateSession}>
         New Session
       </Button>
       {sessions?.map((session) => (
