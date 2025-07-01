@@ -33,6 +33,13 @@ export const useChatSession = () => {
     const sessions = await getSessions();
     const newSessions = sessions.map((session: TChatSession) => {
       if (session.id === sessionId) {
+        if (session?.messages?.length === 0) {
+          return {
+            ...session,
+            messages: [...session.messages, chatMessage],
+            title: chatMessage.rawHuman,
+          };
+        }
         return { ...session, messages: [...session.messages, chatMessage] };
       }
 

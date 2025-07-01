@@ -1,6 +1,7 @@
 import { CommonSideBar } from "@/components/sidebar/common-sidebar";
 import BreadCrumb from "@/components/sidebar/ui/breadcrumb";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AskAIModalProvider } from "@/modules/ai-hub/providers/ask-ai-modal-provider";
 import { getServerSession } from "@/modules/auth/services/better-auth/action";
 import { redirect } from "next/navigation";
 
@@ -26,6 +27,7 @@ const AiHubMainLayout = async ({ children }: { children: React.ReactNode }) => {
               <SidebarTrigger className="cursor-pointer" />
               <BreadCrumb />
             </div>
+            <AskAIModalProvider />
             <>{children}</>
           </main>
         </SidebarProvider>

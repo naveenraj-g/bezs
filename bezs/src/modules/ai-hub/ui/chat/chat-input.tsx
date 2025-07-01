@@ -1,5 +1,5 @@
 "use client";
-// 2:21
+// 2:47
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -79,7 +79,28 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
 
   return (
     <div>
-      {isNewSession && <div>New Session</div>}
+      {isNewSession && (
+        <div className="grid grid-cols-2 gap-2 mb-4 max-w-[700px]">
+          {examples?.map((example, index) => (
+            <div
+              key={index}
+              className="flex flex-row items-center text-sm py-3 px-4 bg-black/10 dark:bg-white/20 border border-black/5 dark:border-white/30 w-full rounded-2xl hover:bg-black/20 dark:hover:bg-white/10 hover:scale-[101%] cursor-pointer"
+              onClick={() => {
+                runModel(
+                  {
+                    role: RoleType.assistant,
+                    type: PromptType.ask,
+                    query: example,
+                  },
+                  sessionId!.toString()
+                );
+              }}
+            >
+              {example}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="bg-zinc-300/30 dark:bg-zinc-700/80 rounded-3xl overflow-hidden p-2 border space-y-2">
         {files.length > 0 && (
           <div className="flex gap-2 rounded-xl p-1 overflow-x-auto">

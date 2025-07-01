@@ -43,6 +43,7 @@ export const useInitChatStore = () => {
   const createSession: TChatSession | any = async () => {
     const newSession = await createNewSession();
     fetchSession();
+    fetchSessions();
 
     return newSession;
   };
