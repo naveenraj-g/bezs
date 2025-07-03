@@ -76,7 +76,7 @@ export const AiChat = () => {
   }, [chat]);
 
   return (
-    <div className="h-[calc(100vh-149px)] flex flex-col relative">
+    <div className="flex flex-col relative">
       <div
         className="flex-1 overflow-y-auto pb-20 space-y-12 px-2"
         ref={chatContainerRef}

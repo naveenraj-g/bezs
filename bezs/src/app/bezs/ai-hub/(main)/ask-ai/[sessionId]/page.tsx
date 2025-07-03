@@ -9,7 +9,7 @@ const ChatSessionPage = async ({
   const { sessionId } = await params;
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-149px)] relative">
+    <div className="flex-1 flex flex-col h-full relative">
       <ChatMessages />
       <ChatInput />
     </div>

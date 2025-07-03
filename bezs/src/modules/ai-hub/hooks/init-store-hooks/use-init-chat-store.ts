@@ -27,6 +27,7 @@ export const useInitChatStore = () => {
 
   const { runModel } = useLLM({
     onStreamStart: () => {
+      set({ error: undefined });
       set({ lastStream: undefined });
       fetchSessions();
     },
@@ -37,6 +38,9 @@ export const useInitChatStore = () => {
       fetchSessions().then(() => {
         set({ lastStream: undefined });
       });
+    },
+    onError: (error) => {
+      set({ error: "An error occurred while running the model" });
     },
   });
 

@@ -61,4 +61,5 @@ export type TUseLLM = {
   onStreamStart: () => void;
   onStream: (props: TStreamProps) => Promise<void>;
   onStreamEnd: () => void;
+  onError: (error: any) => void;
 };

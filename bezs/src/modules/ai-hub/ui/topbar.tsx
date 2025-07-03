@@ -3,12 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { useChatStore } from "../stores/useChatStore";
 import { useParams, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { HistoryIcon, Plus, Settings, SquarePen } from "lucide-react";
+import { useSettingsStore } from "../stores/useSettingsStore";
+import { useFilterStore } from "../stores/useFilterStore";
 
 export const Topbar = () => {
   const { sessions, createSession } = useChatStore();
   const router = useRouter();
   const params = useParams();
+  const openSettings = useSettingsStore((state) => state.open);
+  const openChatHistory = useFilterStore((state) => state.open);
 
   async function handleCreateSession() {
     const newSession = await createSession();
@@ -19,22 +23,23 @@ export const Topbar = () => {
   }
 
   return (
-    <div className="w-fit">
-      <Button size="sm" onClick={handleCreateSession}>
-        New Session
-      </Button>
-      {sessions?.map((session) => (
-        <div
-          key={session.id}
-          className={cn(
-            "p-2 border mt-2 rounded-md cursor-pointer",
-            params?.sessionId === session.id && "bg-gray-400"
-          )}
-          onClick={() => router.push(`/bezs/ai-hub/ask-ai/${session.id}`)}
-        >
-          {session.title}
-        </div>
-      )) || "No sessions found"}
+    <div className="flex gap-2 items-center justify-between mb-4">
+      <div className="flex gap-2 items-center justify-between">
+        <Button size="sm" variant="outline" onClick={handleCreateSession}>
+          <SquarePen /> New Chat
+        </Button>
+        <Button size="sm" variant="outline" onClick={openSettings}>
+          <Settings className="w-4 h-4" /> Settings
+        </Button>
+      </div>
+      <div className="flex gap-2 items-center justify-between">
+        <Button size="sm" variant="outline" onClick={openChatHistory}>
+          <HistoryIcon className="w-4 h-4" /> History{" "}
+          <span className="bg-zinc-200 dark:bg-zinc-700 px-1 py-0.5 rounded-md text-xs">
+            Ctrl K
+          </span>
+        </Button>
+      </div>
     </div>
   );
 };

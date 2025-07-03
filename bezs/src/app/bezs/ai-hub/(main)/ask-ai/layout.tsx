@@ -15,10 +15,10 @@ const AiHubAskAiLayout = async ({
   }
 
   return (
-    <div className="flex flex-col gap-2 h-full">
+    <div className="h-[calc(100vh-141px)] overflow-y-auto">
       <StoreInitializerProvider />
       <Topbar />
-      {children}
+      <div className="h-[calc(100vh-189px)]">{children}</div>
     </div>
   );
 };

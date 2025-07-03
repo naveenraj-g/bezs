@@ -17,7 +17,7 @@ const AppListingLayout = async ({
     <>
       <AppNavbar session={session} />
       {/* <BreadCrumb /> */}
-      <main className="">{children}</main>
+      <main>{children}</main>
     </>
   );
 };

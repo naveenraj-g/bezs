@@ -34,17 +34,22 @@ export const CodeBlock = ({ code, lang }: TCodeBlockProps) => {
   }, [code, language]);
 
   return (
-    <div className="hljs-wrapper">
-      <div className="pl-4 pr-2 py-2 w-full flex justify-between items-center">
+    <div className="bg-black/10 dark:bg-white/10 rounded-2xl p-4">
+      <div className=" py-2 pb-4 w-full flex justify-between items-center capitalize">
         <p>{languageLabel}</p>
-        <Button size="sm" variant="default" onClick={() => code && copy(code)}>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => code && copy(code)}
+          className="bg-transparent"
+        >
           {showCopied ? <CheckIcon /> : <Copy />}
           {showCopied ? "copied" : "copy"}
         </Button>
       </div>
-      <pre className="hljs-pre w-full overflow-x-auto">
+      <pre>
         <code
-          className={`hljs language-${language} break-words whitespace-pre-wrap`}
+          className={`hljs language-${language} sm:break-words sm:whitespace-pre-wrap overflow-x-auto w-full inline-block pr-[100%] text-sm`}
           ref={ref}
         />
       </pre>

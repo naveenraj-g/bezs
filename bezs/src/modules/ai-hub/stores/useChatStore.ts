@@ -8,6 +8,7 @@ export type TChatStore = {
   createSession: () => Promise<TChatSession> | any;
   currentSession: TChatSession | undefined;
   lastStream?: TStreamProps;
+  error?: string | undefined;
   runModel: (props: PromptProps, sessionId: string) => Promise<void>;
 };
 

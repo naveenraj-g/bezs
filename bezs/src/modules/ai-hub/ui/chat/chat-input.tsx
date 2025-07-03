@@ -1,6 +1,6 @@
 "use client";
 // 2:47
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { File, Mic, Send, Upload, X } from "lucide-react";
@@ -9,6 +9,8 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useChatStore } from "../../stores/useChatStore";
 import { PromptType, RoleType } from "../../types/chat-types";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
+import { cn } from "@/lib/utils";
 
 interface PromptInputPropsType {
   modelName?: string;
@@ -33,6 +35,10 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   const isNewSession = currentSession?.messages?.length === 0;
 
   const [files, setFiles] = useState<File[]>([]);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -80,25 +86,13 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   return (
     <div>
       {isNewSession && (
-        <div className="grid grid-cols-2 gap-2 mb-4 max-w-[700px]">
-          {examples?.map((example, index) => (
-            <div
-              key={index}
-              className="flex flex-row items-center text-sm py-3 px-4 bg-black/10 dark:bg-white/20 border border-black/5 dark:border-white/30 w-full rounded-2xl hover:bg-black/20 dark:hover:bg-white/10 hover:scale-[101%] cursor-pointer"
-              onClick={() => {
-                runModel(
-                  {
-                    role: RoleType.assistant,
-                    type: PromptType.ask,
-                    query: example,
-                  },
-                  sessionId!.toString()
-                );
-              }}
-            >
-              {example}
-            </div>
-          ))}
+        <div className="flex flex-col items-center gap-2 mb-10">
+          <div className="text-xl w-14 h-14 border rounded-full bg-black/10 dark:bg-white/10 dark:border-black/10 flex items-center justify-center">
+            <SparkleIcon weight="bold" size={24} className="text-green-400" />
+          </div>
+          <h1 className="text-lg tracking-tight text-zinc-400">
+            How can i help you today?
+          </h1>
         </div>
       )}
       <div className="bg-zinc-300/30 dark:bg-zinc-700/80 rounded-3xl overflow-hidden p-2 border space-y-2">
@@ -211,6 +205,28 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
           </ActionTooltipProvider>
         </div>
       </div>
+      {isNewSession && (
+        <div className="grid grid-cols-2 gap-2 mb-4 max-w-[700px] mx-auto mt-4">
+          {examples?.map((example, index) => (
+            <div
+              key={index}
+              className="flex flex-row items-center text-sm py-3 px-4 bg-black/10 dark:bg-white/20 border border-black/5 dark:border-white/30 w-full rounded-2xl hover:bg-black/20 dark:hover:bg-white/10 hover:scale-[101%] cursor-pointer"
+              onClick={() => {
+                runModel(
+                  {
+                    role: RoleType.assistant,
+                    type: PromptType.ask,
+                    query: example,
+                  },
+                  sessionId!.toString()
+                );
+              }}
+            >
+              {example}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

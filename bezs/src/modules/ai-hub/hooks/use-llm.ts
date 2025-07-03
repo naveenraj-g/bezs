@@ -15,9 +15,16 @@ import {
   TChatMessage,
   TUseLLM,
 } from "../types/chat-types";
+import { usePreferences } from "./use-preferences";
 
-export const useLLM = ({ onStream, onStreamStart, onStreamEnd }: TUseLLM) => {
+export const useLLM = ({
+  onStream,
+  onStreamStart,
+  onStreamEnd,
+  onError,
+}: TUseLLM) => {
   const { getSessionById, addMessageToSession } = useChatSession();
+  const { getApiKey } = usePreferences();
 
   const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
     const messageHistory = history;
@@ -74,7 +81,7 @@ export const useLLM = ({ onStream, onStreamStart, onStreamEnd }: TUseLLM) => {
       return;
     }
 
-    const apiKey = "";
+    const apiKey = await getApiKey("groqllama3");
     // const model = new ChatOpenAI({
     //   model: "gpt-3.5-turbo",
     //   openAIApiKey: apiKey || process.env.OPENAI_API_KEY,
@@ -85,45 +92,49 @@ export const useLLM = ({ onStream, onStreamStart, onStreamEnd }: TUseLLM) => {
     //   apiKey: apiKey || process.env.GOOGLE_API_KEY,
     // });
 
-    const model = new ChatOpenAI({
-      model: "llama3-70b-8192", // or "llama3-70b-8192", "gemma-7b-it"
-      openAIApiKey: apiKey || process.env.NEXT_PUBLIC_GROQ_API_KEY,
-      configuration: {
-        baseURL: "https://api.groq.com/openai/v1",
-      },
-    });
+    try {
+      const model = new ChatOpenAI({
+        model: "llama3-70b-8192", // or "llama3-70b-8192", "gemma-7b-it"
+        openAIApiKey: apiKey,
+        configuration: {
+          baseURL: "https://api.groq.com/openai/v1",
+        },
+      });
 
-    const newMessageId = v4();
+      const newMessageId = v4();
 
-    const formattedChatPrompt = await preparePrompt(
-      props,
-      currentSession?.messages || []
-    );
+      const formattedChatPrompt = await preparePrompt(
+        props,
+        currentSession?.messages || []
+      );
 
-    const stream = await model.stream(formattedChatPrompt);
+      const stream = await model.stream(formattedChatPrompt);
 
-    let streamedMessage = "";
+      let streamedMessage = "";
 
-    onStreamStart();
+      onStreamStart();
 
-    for await (const chunk of stream) {
-      streamedMessage += chunk.content;
-      onStream({ props, sessionId, message: streamedMessage });
+      for await (const chunk of stream) {
+        streamedMessage += chunk.content;
+        onStream({ props, sessionId, message: streamedMessage });
+      }
+
+      const chatMessage = {
+        id: newMessageId,
+        model: ModelType.LLAMA3_70b,
+        human: new HumanMessage(props.query),
+        ai: new AIMessage(streamedMessage),
+        rawHuman: props.query,
+        rawAI: streamedMessage,
+        props,
+      };
+
+      addMessageToSession(sessionId, chatMessage).then(() => {
+        onStreamEnd();
+      });
+    } catch (e) {
+      onError(e);
     }
-
-    const chatMessage = {
-      id: newMessageId,
-      model: ModelType.LLAMA3_70b,
-      human: new HumanMessage(props.query),
-      ai: new AIMessage(streamedMessage),
-      rawHuman: props.query,
-      rawAI: streamedMessage,
-      props,
-    };
-
-    addMessageToSession(sessionId, chatMessage).then(() => {
-      onStreamEnd();
-    });
   };
 
   return {
