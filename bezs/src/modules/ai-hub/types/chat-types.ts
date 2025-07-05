@@ -1,4 +1,5 @@
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import { TModelKey } from "../hooks/use-model-list";
 
 export enum ModelType {
   GPT3 = "gpt-3",
@@ -35,7 +36,7 @@ export type PromptProps = {
 
 export type TChatMessage = {
   id: string;
-  model: ModelType;
+  model: TModelKey;
   human: HumanMessage;
   ai: AIMessage;
   rawHuman: string;
@@ -53,13 +54,17 @@ export type TChatSession = {
 
 export type TStreamProps = {
   props: PromptProps;
+  model: TModelKey;
   sessionId: string;
-  message: string;
+  message?: string;
+  loading?: boolean;
+  error?: string;
 };
 
 export type TUseLLM = {
-  onStreamStart: () => void;
+  onInit: (props: TStreamProps) => Promise<void>;
+  onStreamStart: (props: TStreamProps) => Promise<void>;
   onStream: (props: TStreamProps) => Promise<void>;
-  onStreamEnd: () => void;
-  onError: (error: any) => void;
+  onStreamEnd: (props: TStreamProps) => Promise<void>;
+  onError: (props: TStreamProps) => Promise<void>;
 };

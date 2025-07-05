@@ -33,7 +33,7 @@ export const SettingsModal = () => {
                 className="justify-start text-zinc-600 dark:text-zinc-300/80 h-7"
                 size="sm"
               >
-                {menu.name}
+                {menu.icon()} {menu.name}
               </Button>
             ))}
           </div>
@@ -47,7 +47,7 @@ export const SettingsModal = () => {
                 className="justify-start text-zinc-600 dark:text-zinc-300/80 h-7"
                 size="sm"
               >
-                {menu.name}
+                {menu.icon()} {menu.name}
               </Button>
             ))}
           </div>

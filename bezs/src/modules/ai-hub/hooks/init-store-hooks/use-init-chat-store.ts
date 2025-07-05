@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 
 export const useInitChatStore = () => {
   const set = useChatStore.setState;
+  const streamingMessage = useChatStore((props) => props.streamingMessage);
 
   const { getSessions, createNewSession, getSessionById } = useChatSession();
   const params = useParams();
@@ -20,27 +21,36 @@ export const useInitChatStore = () => {
   };
 
   const fetchSession = async () => {
+    if (!params?.sessionId) {
+      return;
+    }
+
     getSessionById(params?.sessionId as string).then((session) => {
       set({ currentSession: session });
     });
   };
 
   const { runModel } = useLLM({
-    onStreamStart: () => {
+    onInit: async (props) => {
+      set({ streamingMessage: props });
+    },
+    onStreamStart: async () => {
       set({ error: undefined });
-      set({ lastStream: undefined });
-      fetchSessions();
+      set({ streamingMessage: undefined });
     },
     onStream: async (props) => {
-      set({ lastStream: props });
+      set({ streamingMessage: props });
     },
-    onStreamEnd: () => {
+    onStreamEnd: async () => {
       fetchSessions().then(() => {
-        set({ lastStream: undefined });
+        set({ streamingMessage: undefined });
       });
     },
-    onError: (error) => {
-      set({ error: "An error occurred while running the model" });
+    onError: async (error) => {
+      set({
+        streamingMessage: error,
+        error: "An error occurred while running the model",
+      });
     },
   });
 
@@ -71,4 +81,10 @@ export const useInitChatStore = () => {
 
     fetchSessions();
   }, []);
+
+  useEffect(() => {
+    if (!streamingMessage) {
+      fetchSession();
+    }
+  }, [streamingMessage]);
 };

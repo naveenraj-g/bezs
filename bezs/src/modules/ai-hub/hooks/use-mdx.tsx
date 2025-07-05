@@ -5,12 +5,35 @@ import Markdown from "marked-react";
 import Link from "next/link";
 import type { JSX, ReactNode } from "react";
 import { CodeBlock } from "../ui/chat/codeblock";
+import { easeInOut } from "framer-motion";
+import { motion } from "framer-motion";
+
+const variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 3,
+      ease: easeInOut,
+      delay: 0.1,
+    },
+  },
+};
 
 export const useMarkdown = () => {
-  const renderMarkdown = (message: string): ReactNode => {
+  const renderMarkdown = (message: string, animate: boolean): ReactNode => {
     return (
       <Markdown
         renderer={{
+          text: (children) => (
+            <motion.span
+              variants={variants}
+              animate={"visible"}
+              initial={animate ? "hidden" : "visible"}
+            >
+              {children}
+            </motion.span>
+          ),
           paragraph: (children) => (
             <p className="text-sm leading-7">{children}</p>
           ),
@@ -33,32 +56,53 @@ export const useMarkdown = () => {
             </div>
           ),
           list: (children, ordered) => {
-            const List = ordered ? "ol" : "ul";
+            if (ordered) {
+              return (
+                <motion.ol
+                  className="list-decimal ml-8"
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {children}
+                </motion.ol>
+              );
+            }
+
             return (
-              <List
-                className={cn(ordered ? "list-decimal" : "list-disc", "ml-8")}
+              <motion.ul
+                className="list-disc ml-8"
+                initial="hidden"
+                animate="visible"
               >
                 {children}
-              </List>
+              </motion.ul>
             );
           },
           listItem: (children) => (
-            <li className="my-4">
+            <motion.li className="my-4" initial="hidden" animate="visible">
               <p className="text-sm leading-7">{children}</p>
-            </li>
+            </motion.li>
           ),
           code: (code, lang) => {
             return (
-              <div className="my-4">
+              <motion.div
+                className="my-4 w-full"
+                initial="hidden"
+                animate="visible"
+              >
                 <CodeBlock lang={lang} code={code?.toString()} />
-              </div>
+              </motion.div>
             );
           },
           codespan: (code, lang) => {
             return (
-              <span className="px-2 py-0.5 text-xs rounded-md text-purple-800 dark:text-purple-300 bg-purple-600/30">
+              <motion.span
+                className="px-2 py-0.5 text-xs rounded-md text-purple-800 dark:text-purple-300 bg-purple-600/30"
+                initial="hidden"
+                animate="visible"
+              >
                 {code}
-              </span>
+              </motion.span>
             );
           },
         }}

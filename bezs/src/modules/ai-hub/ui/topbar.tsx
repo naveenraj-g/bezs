@@ -23,8 +23,8 @@ export const Topbar = () => {
   }
 
   return (
-    <div className="flex gap-2 items-center justify-between mb-4">
-      <div className="flex gap-2 items-center justify-between">
+    <div className="flex flex-wrap gap-2 items-center justify-between mb-4">
+      <div className="flex flex-wrap gap-2 items-center justify-between">
         <Button size="sm" variant="outline" onClick={handleCreateSession}>
           <SquarePen /> New Chat
         </Button>

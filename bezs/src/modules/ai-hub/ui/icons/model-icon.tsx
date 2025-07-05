@@ -31,7 +31,7 @@ export const ModelIcon = ({ type, size }: TModelIcon) => {
       height={0}
       alt={type}
       className={cn(
-        "object-cover",
+        "object-cover invert dark:invert-0",
         size === "sm" && "min-w-4 h-4",
         size === "md" && "min-w-6 h-6",
         size === "lg" && "min-w-8 h-8"

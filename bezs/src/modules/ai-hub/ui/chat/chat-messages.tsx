@@ -8,18 +8,34 @@ import { useChatSession } from "../../hooks/use-chat-session";
 import { useMarkdown } from "../../hooks/use-mdx";
 import Avatar from "boring-avatars";
 import { cn } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { WarningIcon } from "@phosphor-icons/react";
+import { TModelKey } from "../../hooks/use-model-list";
+import { easeInOut, motion } from "framer-motion";
+import Spinner, { LinearSpinner } from "../loading-spinner";
+
+export type TRenderMessageProps = {
+  key: string;
+  humanMessage: string;
+  model: TModelKey;
+  aiMessage?: string;
+  loading?: boolean;
+};
 
 export const ChatMessages = () => {
   const params = useParams();
   const sessionId = params?.sessionId;
-  const lastStream = useChatStore((state) => state.lastStream);
+  const streamingMessage = useChatStore((state) => state.streamingMessage);
   const currentSession = useChatStore((state) => state.currentSession);
-  const error = useChatStore((state) => state.error);
   const { renderMarkdown } = useMarkdown();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const isNewSession = currentSession?.messages?.length === 0;
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentSession]);
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -29,26 +45,24 @@ export const ChatMessages = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [currentSession]);
-
-  useEffect(() => {
-    if (lastStream) {
+    if (streamingMessage) {
       scrollToBottom();
     }
-  }, [lastStream]);
+  }, [streamingMessage]);
 
   const isLastStreamBelongsToCurrentSession =
-    lastStream?.sessionId === currentSession?.id;
+    streamingMessage?.sessionId === currentSession?.id;
 
-  const renderMessage = (
-    key: string,
-    humanMessage: string,
-    aiMessage: string
-  ) => {
+  const renderMessage = (props: TRenderMessageProps) => {
+    const { key, humanMessage, aiMessage, loading, model } = props;
+
     return (
       <div className="flex flex-col gap-2 items-start w-full" key={key}>
-        <div className="dark:bg-white/5 rounded-2xl p-2 text-sm flex flex-row items-center gap-2 pr-4 border border-white/10">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
+          className="dark:bg-white/5 rounded-2xl p-2 text-sm flex flex-row items-center gap-2 pr-4 border border-white/10"
+        >
           {/* <div className="w-8 h-8 rounded-full relative">
             <Avatar
               size={32}
@@ -62,10 +76,26 @@ export const ChatMessages = () => {
           </div> */}
           <Avatar name="Chat" className="w-8 h-8" />
           <span>{humanMessage}</span>
-        </div>
-        <div className="rounded-2xl p-4 w-full border border-white/10">
-          {renderMarkdown(aiMessage)}
-        </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            transition: { duration: 1, ease: easeInOut },
+          }}
+          className="rounded-2xl p-4 w-full border border-white/10"
+        >
+          {aiMessage && renderMarkdown(aiMessage, key === "streaming")}
+          {loading && <LinearSpinner />}
+        </motion.div>
+        <motion.p
+          className={`text-xs py-1/2 px-2 ${loading && "pt-2"}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
+        >
+          {model}
+        </motion.p>
       </div>
     );
   };
@@ -73,22 +103,40 @@ export const ChatMessages = () => {
   return (
     <div
       ref={chatContainerRef}
-      className={cn("flex-1 overflow-y-auto pb-28", isNewSession && "flex-0")}
+      className={cn("flex-1 overflow-y-auto pb-28", isNewSession && "hidden")}
     >
-      <div className="flex flex-col gap-8">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
+        className="flex flex-col gap-8"
+      >
         {currentSession?.messages.map((message) =>
-          renderMessage(message.id, message.rawHuman, message.rawAI)
+          renderMessage({
+            key: message.id,
+            humanMessage: message.rawHuman,
+            model: message.model,
+            aiMessage: message.rawAI,
+          })
         )}
-      </div>
 
-      {isLastStreamBelongsToCurrentSession &&
-        lastStream?.props?.query &&
-        renderMessage("last", lastStream?.props.query, lastStream.message)}
-      {error && (
-        <div className="text-red-500">
-          {renderMessage("error", "Ahh!", error)}
-        </div>
-      )}
+        {isLastStreamBelongsToCurrentSession &&
+          streamingMessage?.props?.query &&
+          !streamingMessage?.error &&
+          renderMessage({
+            key: "streaming",
+            humanMessage: streamingMessage?.props?.query,
+            aiMessage: streamingMessage?.message,
+            model: streamingMessage?.model,
+            loading: streamingMessage?.loading,
+          })}
+        {streamingMessage?.error && (
+          <Alert variant="destructive" className="mt-4">
+            <WarningIcon size={20} weight="bold" />
+            <AlertTitle>Ahh! something went wrong!</AlertTitle>
+            <AlertDescription>{streamingMessage?.error}</AlertDescription>
+          </Alert>
+        )}
+      </motion.div>
     </div>
   );
 };

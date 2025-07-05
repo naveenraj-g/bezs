@@ -16,15 +16,18 @@ import {
   TUseLLM,
 } from "../types/chat-types";
 import { usePreferences } from "./use-preferences";
+import { useModelList } from "./use-model-list";
 
 export const useLLM = ({
+  onInit,
   onStream,
   onStreamStart,
   onStreamEnd,
   onError,
 }: TUseLLM) => {
   const { getSessionById, addMessageToSession } = useChatSession();
-  const { getApiKey } = usePreferences();
+  const { getApiKey, getPreferences } = usePreferences();
+  const { createInstance, getModelByKey } = useModelList();
 
   const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
     const messageHistory = history;
@@ -81,7 +84,30 @@ export const useLLM = ({
       return;
     }
 
-    const apiKey = await getApiKey("groqllama3");
+    const preferences = await getPreferences();
+    const modelKey = preferences.defaultModel;
+
+    onInit({ props, model: modelKey, sessionId, loading: true });
+
+    const selectedModel = getModelByKey(modelKey);
+
+    if (!selectedModel) {
+      throw new Error("Model not found.");
+    }
+
+    const apiKey = await getApiKey(selectedModel.baseModel);
+
+    if (!apiKey) {
+      onError({
+        props,
+        model: modelKey,
+        sessionId,
+        error: "No API key found.",
+        loading: false,
+      });
+    }
+
+    // const apiKey = await getApiKey("groqllama3");
     // const model = new ChatOpenAI({
     //   model: "gpt-3.5-turbo",
     //   openAIApiKey: apiKey || process.env.OPENAI_API_KEY,
@@ -93,35 +119,56 @@ export const useLLM = ({
     // });
 
     try {
-      const model = new ChatOpenAI({
-        model: "llama3-70b-8192", // or "llama3-70b-8192", "gemma-7b-it"
-        openAIApiKey: apiKey,
-        configuration: {
-          baseURL: "https://api.groq.com/openai/v1",
-        },
-      });
-
       const newMessageId = v4();
+      // const model = new ChatOpenAI({
+      //   model: "llama3-70b-8192", // or "llama3-70b-8192", "gemma-7b-it"
+      //   openAIApiKey: apiKey,
+      //   configuration: {
+      //     baseURL: "https://api.groq.com/openai/v1",
+      //   },
+      // });
+
+      const model = await createInstance(selectedModel, apiKey!);
 
       const formattedChatPrompt = await preparePrompt(
         props,
         currentSession?.messages || []
       );
 
-      const stream = await model.stream(formattedChatPrompt);
+      const stream = await model.stream(formattedChatPrompt, {
+        options: {
+          stream: true,
+        },
+      });
+
+      if (!stream) {
+        return;
+      }
 
       let streamedMessage = "";
 
-      onStreamStart();
+      onStreamStart({
+        props,
+        sessionId,
+        message: streamedMessage,
+        model: modelKey,
+        loading: true,
+      });
 
       for await (const chunk of stream) {
         streamedMessage += chunk.content;
-        onStream({ props, sessionId, message: streamedMessage });
+        onStream({
+          props,
+          sessionId,
+          message: streamedMessage,
+          model: modelKey,
+          loading: true,
+        });
       }
 
       const chatMessage = {
         id: newMessageId,
-        model: ModelType.LLAMA3_70b,
+        model: selectedModel.key,
         human: new HumanMessage(props.query),
         ai: new AIMessage(streamedMessage),
         rawHuman: props.query,
@@ -130,10 +177,22 @@ export const useLLM = ({
       };
 
       addMessageToSession(sessionId, chatMessage).then(() => {
-        onStreamEnd();
+        onStreamEnd({
+          props,
+          sessionId,
+          message: streamedMessage,
+          model: modelKey,
+          loading: false,
+        });
       });
-    } catch (e) {
-      onError(e);
+    } catch (e: any) {
+      onError({
+        props,
+        sessionId,
+        model: modelKey,
+        error: e?.error?.error?.message || e?.error?.message,
+        loading: false,
+      });
     }
   };
 

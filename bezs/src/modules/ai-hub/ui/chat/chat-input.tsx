@@ -11,10 +11,30 @@ import { useChatStore } from "../../stores/useChatStore";
 import { PromptType, RoleType } from "../../types/chat-types";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
+import { ModelSelect } from "../model-select";
+import { easeInOut, motion } from "framer-motion";
 
 interface PromptInputPropsType {
   modelName?: string;
 }
+
+const slideUpVariant = {
+  initial: { y: 50, opacity: 0 },
+  animate: {
+    y: 0,
+    opacity: 1,
+    transition: { duration: 0.5, ease: easeInOut },
+  },
+};
+
+const zoomVariant = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: {
+    scale: 1,
+    opacity: 1,
+    transition: { duration: 0.5, ease: easeInOut, delay: 1 },
+  },
+};
 
 const examples = [
   "What is quantum computing?",
@@ -28,11 +48,14 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   const sessionId = params?.sessionId;
   const runModel = useChatStore((state) => state.runModel);
   const currentSession = useChatStore((state) => state.currentSession);
+  const streamingMessage = useChatStore((state) => state.streamingMessage);
+  const error = useChatStore((state) => state.error);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isNewSession = currentSession?.messages?.length === 0;
+  const isNewSession =
+    currentSession?.messages?.length === 0 && !streamingMessage?.loading;
 
   const [files, setFiles] = useState<File[]>([]);
 
@@ -193,6 +216,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
                 {modelName}
               </Button>
             ) : null}
+            <ModelSelect />
           </div>
           <ActionTooltipProvider label="Dictate" align="center" side="bottom">
             <Button

@@ -7,7 +7,7 @@ export type TChatStore = {
   isSessionLoading: boolean;
   createSession: () => Promise<TChatSession> | any;
   currentSession: TChatSession | undefined;
-  lastStream?: TStreamProps;
+  streamingMessage?: TStreamProps;
   error?: string | undefined;
   runModel: (props: PromptProps, sessionId: string) => Promise<void>;
 };
@@ -16,7 +16,7 @@ export const useChatStore = create<TChatStore>(() => {
   return {
     sessions: [],
     isSessionLoading: false,
-    lastStream: undefined,
+    streamingMessage: undefined,
     currentSession: undefined,
     refetchSessions: () => {},
     createSession: () => {},

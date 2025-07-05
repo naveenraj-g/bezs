@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export const GroqLlama3Settings = () => {
+export const GeminiSettings = () => {
   const [key, setKey] = useState<string>("");
   const { getApiKey, setApiKey } = usePreferences();
 
   useEffect(() => {
-    getApiKey("groqllama3").then((key) => {
+    getApiKey("gemini").then((key) => {
       if (key) {
         setKey(key);
       }
@@ -23,19 +23,19 @@ export const GroqLlama3Settings = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ) {
     setKey(e.target.value);
-    await setApiKey("groqllama3", e.target.value);
+    await setApiKey("gemini", e.target.value);
   }
 
   return (
     <div className="px-4 flex flex-col items-start gap-2">
-      <p className="text-md font-medium pb-2">GroqLlama3 Settings</p>
+      <p className="text-md font-medium pb-2">Google Gemini Settings</p>
       <div className="flex flex-row items-end justify-between">
         <p className="text-xs text-zinc-500 dark:text-zinc-300/90">
-          Groq Llama3 API Key
+          Google Gemini API Key
         </p>
       </div>
       <Input
-        placeholder="gsk_xxxxxxxxxxxxxxxxxxxx"
+        placeholder="AI_xxxxxxxxxxxxxxxxxxxx"
         autoComplete="off"
         type="password"
         value={key}
@@ -44,7 +44,9 @@ export const GroqLlama3Settings = () => {
       <Button
         size="sm"
         variant="secondary"
-        onClick={() => window.open("https://console.groq.com/keys", "_blank")}
+        onClick={() =>
+          window.open("https://aistudio.google.com/app/apikey", "_blank")
+        }
       >
         Get your API key here <ArrowRight size={16} />
       </Button>
