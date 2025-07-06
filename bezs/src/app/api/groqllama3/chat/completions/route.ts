@@ -75,8 +75,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
 }
 */
 
-// 5:21
-
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -137,6 +135,9 @@ export async function POST(req: NextRequest) {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
+      // "Transfer-Encoding": "chunked",
+      // charset: "utf-8",
+      // "Content-Type": "text/plain",
     },
   });
 }

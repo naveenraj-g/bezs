@@ -28,6 +28,7 @@ export const AiChat = () => {
   const endRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chat, setChat] = useState<ChatType[]>([]);
+  const [response, setResponse] = useState();
   const [isAtBottom, setIsAtBottom] = useState(true);
 
   // const fetchSession = async () => {
@@ -146,6 +147,11 @@ export const AiChat = () => {
             </div>
           </div>
         ))}
+        {response && (
+          <div className="mt-4 p-3 border rounded bg-gray-100 dark:bg-zinc-800 whitespace-pre-wrap">
+            {response}
+          </div>
+        )}
         <div ref={endRef} />
         {!isAtBottom && (
           <Button
@@ -158,7 +164,11 @@ export const AiChat = () => {
           </Button>
         )}
       </div>
-      <PromptInput modelName="GPT 4o" handleChat={handleChat} />
+      <PromptInput
+        modelName="GPT 4o"
+        handleChat={handleChat}
+        setResponse={setResponse}
+      />
     </div>
   );
 };

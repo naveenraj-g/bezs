@@ -6,13 +6,14 @@ import { useEffect, useRef, useState } from "react";
 import { TChatSession } from "../../types/chat-types";
 import { useChatSession } from "../../hooks/use-chat-session";
 import { useMarkdown } from "../../hooks/use-mdx";
-import Avatar from "boring-avatars";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { WarningIcon } from "@phosphor-icons/react";
 import { TModelKey } from "../../hooks/use-model-list";
 import { easeInOut, motion } from "framer-motion";
 import Spinner, { LinearSpinner } from "../loading-spinner";
+import { ProfileAvatar } from "@/modules/telemedicine/ui/profile-image";
+import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 
 export type TRenderMessageProps = {
   key: string;
@@ -24,6 +25,7 @@ export type TRenderMessageProps = {
 
 export const ChatMessages = () => {
   const params = useParams();
+  const session = useSession();
   const sessionId = params?.sessionId;
   const streamingMessage = useChatStore((state) => state.streamingMessage);
   const currentSession = useChatStore((state) => state.currentSession);
@@ -61,7 +63,7 @@ export const ChatMessages = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
-          className="dark:bg-white/5 rounded-2xl p-2 text-sm flex flex-row items-center gap-2 pr-4 border border-white/10"
+          className="dark:bg-white/5 rounded-2xl p-1.5 text-sm flex flex-row items-center gap-2 pr-4 border border-black/10 dark:border-white/10"
         >
           {/* <div className="w-8 h-8 rounded-full relative">
             <Avatar
@@ -74,7 +76,10 @@ export const ChatMessages = () => {
               D
             </p>
           </div> */}
-          <Avatar name="Chat" className="w-8 h-8" />
+          <ProfileAvatar
+            name={session.data?.user.name}
+            imgUrl={session.data?.user.image}
+          />
           <span>{humanMessage}</span>
         </motion.div>
         <motion.div
@@ -84,7 +89,7 @@ export const ChatMessages = () => {
             y: 0,
             transition: { duration: 1, ease: easeInOut },
           }}
-          className="rounded-2xl p-4 w-full border border-white/10"
+          className="rounded-2xl p-3 w-full border border-black/10 dark:border-white/10"
         >
           {aiMessage && renderMarkdown(aiMessage, key === "streaming")}
           {loading && <LinearSpinner />}
@@ -99,6 +104,8 @@ export const ChatMessages = () => {
       </div>
     );
   };
+
+  // const messagesByDate = currentSession?.messages.reduce((acc: TMessage))
 
   return (
     <div
@@ -140,3 +147,5 @@ export const ChatMessages = () => {
     </div>
   );
 };
+
+// 6:28

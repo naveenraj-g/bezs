@@ -52,6 +52,7 @@ export const useModelList = () => {
           streaming: true,
           configuration: {
             baseURL: `${window.location.origin}/api/groqllama3`,
+            // baseURL: `https://api.groq.com/openai/v1`,
           },
         });
       default:

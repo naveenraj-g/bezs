@@ -49,7 +49,6 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   const runModel = useChatStore((state) => state.runModel);
   const currentSession = useChatStore((state) => state.currentSession);
   const streamingMessage = useChatStore((state) => state.streamingMessage);
-  const error = useChatStore((state) => state.error);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

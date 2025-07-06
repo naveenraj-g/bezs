@@ -9,15 +9,19 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useChatStore } from "../stores/useChatStore";
 import { PromptType, RoleType } from "../types/chat-types";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage } from "@langchain/core/messages";
 
 interface PromptInputPropsType {
   modelName?: string;
   handleChat?: (prompt: string) => void;
+  setResponse?: any;
 }
 
 export const PromptInput = ({
   modelName,
   handleChat,
+  setResponse,
 }: PromptInputPropsType) => {
   const params = useParams();
   const sessionId = params?.sessionId;
@@ -28,27 +32,46 @@ export const PromptInput = ({
 
   const [files, setFiles] = useState<File[]>([]);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!sessionId) return;
+    // if (!sessionId) return;
 
     const formData = new FormData(e.currentTarget);
     const prompt = formData.get("prompt") as string;
 
-    if (prompt !== "") {
-      runModel(
-        {
-          role: RoleType.assistant,
-          type: PromptType.ask,
-          query: prompt,
-        },
-        sessionId?.toString()
-      );
-    }
+    console.log(prompt);
 
-    if (handleChat) {
-      handleChat(prompt);
+    return;
+
+    // if (prompt !== "") {
+    //   runModel(
+    //     {
+    //       role: RoleType.assistant,
+    //       type: PromptType.ask,
+    //       query: prompt,
+    //     },
+    //     sessionId?.toString()
+    //   );
+    // }
+
+    // if (handleChat) {
+    //   handleChat(prompt);
+    // }
+
+    const chat = new ChatOpenAI({
+      apiKey: "",
+      model: "llama3-8b-8192",
+      streaming: true,
+      configuration: {
+        baseURL: `${window.location.origin}/api/groqllama3`, // this hits /chat/completions
+      },
+    });
+
+    const stream = await chat.stream(prompt);
+
+    for await (const chunk of stream) {
+      setResponse((prev: string) => prev + chunk.content);
     }
 
     e.currentTarget.reset();
