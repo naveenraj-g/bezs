@@ -9,7 +9,11 @@ export type TChatStore = {
   currentSession: TChatSession | undefined;
   streamingMessage?: TStreamProps;
   error?: string | undefined;
-  runModel: (props: PromptProps, sessionId: string) => Promise<void>;
+  runModel: (
+    props: PromptProps,
+    sessionId: string,
+    selectedModel: any
+  ) => Promise<void>;
 };
 
 export const useChatStore = create<TChatStore>(() => {

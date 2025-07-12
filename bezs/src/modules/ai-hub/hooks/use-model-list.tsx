@@ -17,15 +17,14 @@ export type TModelKey =
   | "gemini-1.5-pro-latest";
 
 export type TModel = {
-  name: string;
-  key: TModelKey;
-  icon: () => JSX.Element;
-  tokens: number;
-  baseModel: TBaseModel;
+  id: string;
+  displayName: string | null;
+  modelName: string | null;
 };
 
 export const useModelList = () => {
-  const createInstance = async (model: TModel, apiKey: string) => {
+  const createInstance = async (model: TModel) => {
+    /*
     switch (model.baseModel) {
       case "openai":
         return new ChatOpenAI({
@@ -48,7 +47,7 @@ export const useModelList = () => {
       case "groqllama3":
         return new ChatOpenAI({
           model: model.key,
-          apiKey,
+          apiKey: "dummy",
           streaming: true,
           configuration: {
             baseURL: `${window.location.origin}/api/groqllama3`,
@@ -58,6 +57,17 @@ export const useModelList = () => {
       default:
         throw new Error("Invalid model");
     }
+        */
+
+    return new ChatOpenAI({
+      model: model.modelName!,
+      apiKey: "dummy",
+      streaming: true,
+      configuration: {
+        baseURL: `${window.location.origin}/api/groqllama3`,
+        // baseURL: `https://api.groq.com/openai/v1`,
+      },
+    });
   };
 
   const models: TModel[] = [

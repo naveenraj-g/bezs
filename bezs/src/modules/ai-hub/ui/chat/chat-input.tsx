@@ -13,6 +13,7 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { ModelSelect } from "../model-select";
 import { easeInOut, motion } from "framer-motion";
+import { useSelectedModelStore } from "../../stores/useSelectedModelStore";
 
 interface PromptInputPropsType {
   modelName?: string;
@@ -49,6 +50,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   const runModel = useChatStore((state) => state.runModel);
   const currentSession = useChatStore((state) => state.currentSession);
   const streamingMessage = useChatStore((state) => state.streamingMessage);
+  const selectedModel = useSelectedModelStore((state) => state.selectedModel);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,7 +79,8 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
           type: PromptType.ask,
           query: prompt,
         },
-        sessionId?.toString()
+        sessionId?.toString(),
+        selectedModel
       );
     }
 

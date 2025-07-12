@@ -9,7 +9,8 @@
     "lint": "next lint",
     "telemedicine-studio": "bunx prisma studio --schema ./prisma/telemedicine-database/schema.prisma",
     "main-studio": "bunx prisma studio --schema ./prisma/main-database/schema.prisma",
-    "filenest-studio": "bunx prisma studio --schema ./prisma/filenest-database/schema.prisma"
+    "filenest-studio": "bunx prisma studio --schema ./prisma/filenest-database/schema.prisma",
+    "aihub-studio": "bunx prisma studio --schema ./prisma/aihub-database/schema.prisma"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.821.0",

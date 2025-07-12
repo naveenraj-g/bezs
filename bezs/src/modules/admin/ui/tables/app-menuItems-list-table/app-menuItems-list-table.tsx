@@ -48,11 +48,7 @@ export const AppMenuItemsListTable = ({
 
   return (
     <>
-      <div className="space-y-8 mx-auto w-full">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">Manage Apps</h1>
-          <p className="text-sm">Manage Apps and its functionality.</p>
-        </div>
+      <div>
         <DataTable
           columns={appMenuItemsListColumn}
           data={appMenuItemsTableData.data}

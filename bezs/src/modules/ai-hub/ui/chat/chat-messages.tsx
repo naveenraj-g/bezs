@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useChatStore } from "../../stores/useChatStore";
 import { useEffect, useRef, useState } from "react";
-import { TChatSession } from "../../types/chat-types";
+import { TChatMessage, TChatSession } from "../../types/chat-types";
 import { useChatSession } from "../../hooks/use-chat-session";
 import { useMarkdown } from "../../hooks/use-mdx";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ import { easeInOut, motion } from "framer-motion";
 import Spinner, { LinearSpinner } from "../loading-spinner";
 import { ProfileAvatar } from "@/modules/telemedicine/ui/profile-image";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
+import moment from "moment";
+import { getRelativeDate } from "@/utils/helper";
 
 export type TRenderMessageProps = {
   key: string;
@@ -22,6 +24,8 @@ export type TRenderMessageProps = {
   aiMessage?: string;
   loading?: boolean;
 };
+
+export type TMessageListByDate = Record<string, TChatMessage[]>;
 
 export const ChatMessages = () => {
   const params = useParams();
@@ -105,7 +109,19 @@ export const ChatMessages = () => {
     );
   };
 
-  // const messagesByDate = currentSession?.messages.reduce((acc: TMessage))
+  const messagesByDate = currentSession?.messages.reduce(
+    (acc: TMessageListByDate, message) => {
+      const date = moment(message.createdAt)?.format("YYYY-MM-DD");
+
+      if (!acc?.[date]) {
+        acc[date] = [message];
+      } else {
+        acc[date] = [...acc[date], message];
+      }
+      return acc;
+    },
+    {}
+  );
 
   return (
     <div
@@ -117,14 +133,30 @@ export const ChatMessages = () => {
         animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
         className="flex flex-col gap-8"
       >
-        {currentSession?.messages.map((message) =>
-          renderMessage({
-            key: message.id,
-            humanMessage: message.rawHuman,
-            model: message.model,
-            aiMessage: message.rawAI,
-          })
-        )}
+        {messagesByDate &&
+          Object.keys(messagesByDate).map((date, i) => {
+            return (
+              <div key={i} className="flex flex-col">
+                <div className="flex flex-row items-center pb-4 pt-8">
+                  <div className="w-full h-[1px] bg-black/5 dark:bg-white/10"></div>
+                  <p className="text-xs text-zinc-400 px-2 flex shrink-0">
+                    {getRelativeDate(date)}
+                  </p>
+                  <div className="w-full h-[1px] bg-black/5 dark:bg-white/10"></div>
+                </div>
+                <div className="flex flex-col gap-10 w-full items-start">
+                  {messagesByDate[date].map((message) =>
+                    renderMessage({
+                      key: message.id,
+                      humanMessage: message.rawHuman,
+                      model: message.model,
+                      aiMessage: message.rawAI,
+                    })
+                  )}
+                </div>
+              </div>
+            );
+          })}
 
         {isLastStreamBelongsToCurrentSession &&
           streamingMessage?.props?.query &&
@@ -148,4 +180,4 @@ export const ChatMessages = () => {
   );
 };
 
-// 6:28
+// 6:35

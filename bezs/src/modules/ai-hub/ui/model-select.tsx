@@ -1,5 +1,6 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { TModelKey, useModelList } from "../hooks/use-model-list";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,22 +8,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { usePreferences } from "../hooks/use-preferences";
+import { useServerAction } from "zsa-react";
+import { getModelsName } from "../serveractions/model-server-actions";
+import {
+  selectedModel,
+  useSelectedModelStore,
+} from "../stores/useSelectedModelStore";
+import { AlertCircleIcon, Check, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const ModelSelect = () => {
-  const { models, getModelByKey } = useModelList();
-  const { getPreferences, setPreferences } = usePreferences();
+  const setSelectedModel = useSelectedModelStore(
+    (state) => state.setSelectedModel
+  );
+  const selectedModel = useSelectedModelStore((state) => state.selectedModel);
+  const [allModels, setAllModels] = useState<selectedModel[]>([]);
 
-  const [selectedModel, setSelectedModel] =
-    useState<TModelKey>("llama3-70b-8192");
-
-  const activeModel = getModelByKey(selectedModel);
+  const { execute, isPending, isError } = useServerAction(getModelsName);
 
   useEffect(() => {
-    getPreferences().then((preferences) => {
-      setSelectedModel(preferences.defaultModel);
-    });
-  }, [getPreferences]);
+    (async () => {
+      const [data] = await execute();
+
+      if (data) {
+        setAllModels(data || []);
+        setSelectedModel(data[0]);
+      }
+    })();
+  }, [execute]);
 
   return (
     <DropdownMenu>
@@ -30,25 +43,43 @@ export const ModelSelect = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="p-1.5 text-xs border border-zinc-400"
+          className={cn(
+            "px-2 py-1 text-xs border border-zinc-400",
+            isError && "text-red-500 hover:text-red-500",
+            !selectedModel && "text-yellow-500 hover:text-yellow-500"
+          )}
         >
-          {activeModel?.icon()} {activeModel?.name}
+          {isPending ? (
+            <>
+              <Loader2 className="animate-spin" />
+              Loading
+            </>
+          ) : isError ? (
+            <>
+              <AlertCircleIcon /> Error Occurred
+            </>
+          ) : !selectedModel ? (
+            "No Model"
+          ) : (
+            selectedModel?.displayName
+          )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="max-h-56 overflow-y-auto">
-        {models.map((model) => (
-          <DropdownMenuItem
-            key={model.key}
-            onClick={() => {
-              setPreferences({ defaultModel: model.key }).then(() => {
-                setSelectedModel(model.key);
-              });
-            }}
-          >
-            {model.icon()} {model.name}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
+      {!isPending && !isError && (
+        <DropdownMenuContent className="max-h-56 overflow-y-auto">
+          {allModels.map((model) => (
+            <DropdownMenuItem
+              key={model.id}
+              onClick={() => {
+                setSelectedModel(model);
+              }}
+            >
+              {model.displayName}
+              {selectedModel?.displayName === model.displayName && <Check />}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      )}
     </DropdownMenu>
   );
 };

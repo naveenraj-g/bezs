@@ -25,7 +25,7 @@ const AiHubHomePage = async () => {
             <div className="flex flex-wrap items-center gap-2">
               {session?.user?.role === "application-admin" && (
                 <Link
-                  href="/bezs/ai-hub/settings"
+                  href="/bezs/ai-hub/admin"
                   className={cn(buttonVariants({ size: "sm" }))}
                 >
                   Go To Admin

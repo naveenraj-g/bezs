@@ -17,6 +17,7 @@ import {
 } from "../types/chat-types";
 import { usePreferences } from "./use-preferences";
 import { useModelList } from "./use-model-list";
+import { useSelectedModelStore } from "../stores/useSelectedModelStore";
 
 export const useLLM = ({
   onInit,
@@ -28,6 +29,7 @@ export const useLLM = ({
   const { getSessionById, addMessageToSession } = useChatSession();
   const { getApiKey, getPreferences } = usePreferences();
   const { createInstance, getModelByKey } = useModelList();
+  const selectedModel = useSelectedModelStore((state) => state.selectedModel);
 
   const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
     const messageHistory = history;
@@ -77,7 +79,11 @@ export const useLLM = ({
     );
   };
 
-  const runModel = async (props: PromptProps, sessionId: string) => {
+  const runModel = async (
+    props: PromptProps,
+    sessionId: string,
+    selectedModel: any
+  ) => {
     const currentSession = await getSessionById(sessionId);
 
     if (!props?.query) {
@@ -89,23 +95,17 @@ export const useLLM = ({
 
     onInit({ props, model: modelKey, sessionId, loading: true });
 
-    const selectedModel = getModelByKey(modelKey);
+    // const selectedModel = getModelByKey(modelKey);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
 
     if (!selectedModel) {
       throw new Error("Model not found.");
     }
 
-    const apiKey = await getApiKey(selectedModel.baseModel);
+    console.log(selectedModel);
 
-    if (!apiKey) {
-      onError({
-        props,
-        model: modelKey,
-        sessionId,
-        error: "No API key found.",
-        loading: false,
-      });
-    }
+    // const apiKey = await getApiKey(selectedModel.baseModel);
 
     // const apiKey = await getApiKey("groqllama3");
     // const model = new ChatOpenAI({
@@ -128,7 +128,7 @@ export const useLLM = ({
       //   },
       // });
 
-      const model = await createInstance(selectedModel, apiKey!);
+      const model = await createInstance(selectedModel);
 
       const formattedChatPrompt = await preparePrompt(
         props,
@@ -168,7 +168,7 @@ export const useLLM = ({
 
       const chatMessage = {
         id: newMessageId,
-        model: selectedModel.key,
+        model: selectedModel.modelName,
         human: new HumanMessage(props.query),
         ai: new AIMessage(streamedMessage),
         rawHuman: props.query,

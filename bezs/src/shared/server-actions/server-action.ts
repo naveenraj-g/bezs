@@ -6,6 +6,10 @@ export const authProcedures = createServerActionProcedure().handler(
     try {
       const session = await getServerSession();
 
+      if (!session) {
+        throw new Error("Unauthorized");
+      }
+
       return session?.user?.id;
     } catch {
       throw new Error("Unauthorized");

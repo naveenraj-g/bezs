@@ -1,0 +1,29 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/ai-hub"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL_AI_HUB")
+}
+
+enum AiModelType {
+    PRE_AVAILABLE
+    CUSTOM
+}
+
+model AiModel {
+    id          String      @id @default(uuid())
+    displayName String?     @unique
+    modelName   String?
+    tokens      String?
+    type        AiModelType
+    secretKey   String?     @unique
+    modelUrl    String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([id])
+}
