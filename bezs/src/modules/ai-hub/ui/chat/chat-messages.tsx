@@ -16,6 +16,7 @@ import { ProfileAvatar } from "@/modules/telemedicine/ui/profile-image";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import moment from "moment";
 import { getRelativeDate } from "@/utils/helper";
+import { AIMessageBubble } from "../ai-bubble";
 
 export type TRenderMessageProps = {
   key: string;
@@ -86,7 +87,7 @@ export const ChatMessages = () => {
           />
           <span>{humanMessage}</span>
         </motion.div>
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{
             opacity: 1,
@@ -104,7 +105,8 @@ export const ChatMessages = () => {
           animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
         >
           {model}
-        </motion.p>
+        </motion.p> */}
+        <AIMessageBubble {...props} />
       </div>
     );
   };

@@ -1,6 +1,7 @@
 import { get, set } from "idb-keyval";
 import { TChatMessage, TChatSession } from "../types/chat-types";
 import { v4 } from "uuid";
+import moment from "moment";
 
 export const useChatSession = () => {
   const getSessions = async (): Promise<TChatSession[]> => {
@@ -38,9 +39,14 @@ export const useChatSession = () => {
             ...session,
             messages: [...session.messages, chatMessage],
             title: chatMessage.rawHuman,
+            updatedAt: moment().toISOString(),
           };
         }
-        return { ...session, messages: [...session.messages, chatMessage] };
+        return {
+          ...session,
+          messages: [...session.messages, chatMessage],
+          updatedAt: moment().toISOString(),
+        };
       }
 
       return session;
@@ -50,10 +56,10 @@ export const useChatSession = () => {
   };
 
   const createNewSession = async () => {
-    const sessions = await getSessions();
+    const sessions = (await getSessions()) || [];
 
-    const latestSession = sessions?.[0];
-    if (latestSession?.messages?.length === 0) {
+    const latestSession = sortSessions(sessions, "createdAt")?.[0];
+    if (latestSession && latestSession?.messages?.length === 0) {
       return latestSession;
     }
 
@@ -61,7 +67,7 @@ export const useChatSession = () => {
       id: v4(),
       messages: [],
       title: "Untitled",
-      createdAt: new Date().toISOString(),
+      createdAt: moment().toISOString(),
     };
 
     const newSessions = [newSession, ...sessions];
@@ -88,6 +94,17 @@ export const useChatSession = () => {
     await set("chat-sessions", newSessions);
   };
 
+  const clearSessions = async () => {
+    await set("chat-sessions", []);
+  };
+
+  const sortSessions = (
+    sessions: TChatSession[],
+    sortBy: "createdAt" | "updatedAt"
+  ) => {
+    return sessions.sort((a, b) => moment(b[sortBy]).diff(moment(a[sortBy])));
+  };
+
   return {
     getSessions,
     setSession,
@@ -96,5 +113,9 @@ export const useChatSession = () => {
     addMessageToSession,
     updateSession,
     createNewSession,
+    clearSessions,
+    sortSessions,
   };
 };
+
+// 6:57

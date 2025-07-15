@@ -13,7 +13,8 @@ import { useChatStore } from "../stores/useChatStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { TChatSession } from "../types/chat-types";
-import { ChatIcon, PlusIcon } from "@phosphor-icons/react";
+import { ChatIcon, EraserIcon, PlusIcon } from "@phosphor-icons/react";
+import { useChatSession } from "../hooks/use-chat-session";
 
 // 2:32
 export const FilterModal = () => {
@@ -24,6 +25,9 @@ export const FilterModal = () => {
   const filterClose = useFilterStore((state) => state.dismiss);
   const sessions = useChatStore((state) => state.sessions);
   const createSession = useChatStore((state) => state.createSession);
+  const clearChatSessions = useChatStore((state) => state.clearChatSessions);
+
+  const { sortSessions } = useChatSession();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -59,8 +63,28 @@ export const FilterModal = () => {
             New Chat
           </CommandItem>
         </CommandGroup>
+
+        <CommandGroup>
+          <CommandItem
+            className="gap-3"
+            value="clear history"
+            onSelect={async (value) => {
+              await clearChatSessions!();
+              const newSession = await createSession();
+
+              if (newSession[0]?.id) {
+                router.push(`/bezs/ai-hub/ask-ai/${newSession.id}`);
+                filterClose();
+              }
+            }}
+          >
+            <EraserIcon size={14} weight="bold" />
+            Clear History
+          </CommandItem>
+        </CommandGroup>
+
         <CommandGroup heading="Chat History">
-          {sessions.map((session) => (
+          {sortSessions(sessions, "updatedAt").map((session) => (
             <CommandItem
               key={session.id}
               value={`${session.id}/${session.title}`}

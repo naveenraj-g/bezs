@@ -43,6 +43,7 @@ export type TChatMessage = {
   rawAI: string;
   props?: PromptProps;
   createdAt?: string;
+  updatedAt?: string;
 };
 
 export type TChatSession = {
@@ -50,6 +51,7 @@ export type TChatSession = {
   title?: string;
   id: string;
   createdAt: string;
+  updatedAt?: string;
 };
 
 export type TStreamProps = {

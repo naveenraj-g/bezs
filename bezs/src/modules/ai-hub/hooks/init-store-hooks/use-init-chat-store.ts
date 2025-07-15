@@ -11,7 +11,8 @@ export const useInitChatStore = () => {
   const set = useChatStore.setState;
   const streamingMessage = useChatStore((props) => props.streamingMessage);
 
-  const { getSessions, createNewSession, getSessionById } = useChatSession();
+  const { getSessions, createNewSession, getSessionById, clearSessions } =
+    useChatSession();
   const params = useParams();
 
   const fetchSessions = async () => {
@@ -59,7 +60,14 @@ export const useInitChatStore = () => {
     fetchSession();
     fetchSessions();
 
+    console.log(newSession);
     return newSession;
+  };
+
+  const clearChatSessions = async () => {
+    clearSessions().then(() => {
+      set({ sessions: [] });
+    });
   };
 
   useEffect(() => {
@@ -77,6 +85,7 @@ export const useInitChatStore = () => {
       refetchSessions: fetchSessions,
       createSession,
       runModel,
+      clearChatSessions,
     });
 
     fetchSessions();

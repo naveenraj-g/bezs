@@ -6,6 +6,7 @@ export type TChatStore = {
   refetchSessions: () => void;
   isSessionLoading: boolean;
   createSession: () => Promise<TChatSession> | any;
+  clearChatSessions?: () => Promise<void>;
   currentSession: TChatSession | undefined;
   streamingMessage?: TStreamProps;
   error?: string | undefined;

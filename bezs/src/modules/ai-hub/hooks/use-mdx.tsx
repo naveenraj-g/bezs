@@ -83,6 +83,15 @@ export const useMarkdown = () => {
               <p className="text-sm leading-7">{children}</p>
             </motion.li>
           ),
+          strong: (children) => (
+            <motion.strong
+              initial="hidden"
+              animate="visible"
+              className="font-semibold"
+            >
+              {children}
+            </motion.strong>
+          ),
           code: (code, lang) => {
             return (
               <motion.div

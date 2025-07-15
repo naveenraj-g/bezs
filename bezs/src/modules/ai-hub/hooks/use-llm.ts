@@ -18,6 +18,7 @@ import {
 import { usePreferences } from "./use-preferences";
 import { useModelList } from "./use-model-list";
 import { useSelectedModelStore } from "../stores/useSelectedModelStore";
+import moment from "moment";
 
 export const useLLM = ({
   onInit,
@@ -103,8 +104,6 @@ export const useLLM = ({
       throw new Error("Model not found.");
     }
 
-    console.log(selectedModel);
-
     // const apiKey = await getApiKey(selectedModel.baseModel);
 
     // const apiKey = await getApiKey("groqllama3");
@@ -166,7 +165,7 @@ export const useLLM = ({
         });
       }
 
-      const chatMessage = {
+      const chatMessage: TChatMessage = {
         id: newMessageId,
         model: selectedModel.modelName,
         human: new HumanMessage(props.query),
@@ -174,6 +173,7 @@ export const useLLM = ({
         rawHuman: props.query,
         rawAI: streamedMessage,
         props,
+        createdAt: moment().toISOString(),
       };
 
       addMessageToSession(sessionId, chatMessage).then(() => {
