@@ -54,7 +54,7 @@ export const GeminiSettings = () => {
         <Info className="h-4 w-4" />
         <AlertTitle>Attention!</AlertTitle>
         <AlertDescription>
-          Your API Key is stored locally on your browser and never semt anywhere
+          Your API Key is stored locally on your browser and never sent anywhere
         </AlertDescription>
       </Alert>
     </div>

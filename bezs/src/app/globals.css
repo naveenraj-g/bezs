@@ -652,6 +652,17 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Hide scrollbar from Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+  }
+  /* Hide scrollbar from IEm Edge and Firefox */
+  .no-scrollbar {
+    /* IE and Edge */
+    -ms-overflow-style: none !important;
+    /* Firefox */
+    scrollbar-width: none !important;
+  }
 }
 
 /* Scroll bar */

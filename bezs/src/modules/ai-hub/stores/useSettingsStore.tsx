@@ -1,9 +1,14 @@
 import { create } from "zustand";
 import { TSettingsMenuItem } from "../types/settings-type";
 import { GroqLlama3Settings } from "../ui/settings/groq-llama3";
-import { ChatCenteredIcon, GearSixIcon } from "@phosphor-icons/react";
+import {
+  ChatCenteredIcon,
+  GearSixIcon,
+  UserCircleIcon,
+} from "@phosphor-icons/react";
 import { ModelIcon } from "../ui/icons/model-icon";
 import { GeminiSettings } from "../ui/settings/gemini";
+import { CommonSettings } from "../ui/settings/common";
 
 export type TSettingsStore = {
   isSettingOpen: boolean;
@@ -25,7 +30,7 @@ export const useSettingsStore = create<TSettingsStore>((set, get) => {
         name: "Common",
         key: "common",
         icon: () => <GearSixIcon size={16} weight="bold" />,
-        component: <div>Common</div>,
+        component: <CommonSettings />,
       },
       {
         name: "Prompts",
@@ -36,7 +41,7 @@ export const useSettingsStore = create<TSettingsStore>((set, get) => {
       {
         name: "Roles",
         key: "roles",
-        icon: () => <GearSixIcon size={16} weight="bold" />,
+        icon: () => <UserCircleIcon size={16} weight="bold" />,
         component: <div>Roles</div>,
       },
     ],

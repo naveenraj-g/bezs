@@ -8,8 +8,11 @@ export type TChatStore = {
   createSession: () => Promise<TChatSession> | any;
   clearChatSessions?: () => Promise<void>;
   currentSession: TChatSession | undefined;
+  removeSession: (sessionId: string) => Promise<void>;
+  stopGeneration: () => void;
   streamingMessage?: TStreamProps;
   error?: string | undefined;
+  removeMessage: (messageId: string) => void;
   runModel: (
     props: PromptProps,
     sessionId: string,
@@ -26,5 +29,8 @@ export const useChatStore = create<TChatStore>(() => {
     refetchSessions: () => {},
     createSession: () => {},
     runModel: async () => {},
+    removeSession: async () => {},
+    stopGeneration: () => {},
+    removeMessage: () => {},
   };
 });

@@ -1,4 +1,5 @@
 import {
+  BaseMessagePromptTemplateLike,
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
@@ -19,6 +20,8 @@ import { usePreferences } from "./use-preferences";
 import { useModelList } from "./use-model-list";
 import { useSelectedModelStore } from "../stores/useSelectedModelStore";
 import moment from "moment";
+import type { Serialized } from "@langchain/core/load/serializable";
+import { LLMResult } from "@langchain/core/outputs";
 
 export const useLLM = ({
   onInit,
@@ -27,57 +30,75 @@ export const useLLM = ({
   onStreamEnd,
   onError,
 }: TUseLLM) => {
-  const { getSessionById, addMessageToSession } = useChatSession();
+  const { getSessionById, addMessageToSession, sortMessages } =
+    useChatSession();
   const { getApiKey, getPreferences } = usePreferences();
   const { createInstance, getModelByKey } = useModelList();
-  const selectedModel = useSelectedModelStore((state) => state.selectedModel);
+  const modelPreferences = useSelectedModelStore(
+    (state) => state.modelPreferences
+  );
+  const abortController = new AbortController();
+
+  const stopGeneration = () => {
+    abortController?.abort();
+  };
 
   const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
-    const messageHistory = history;
-    const prompt = ChatPromptTemplate.fromMessages(
-      messageHistory?.length > 0
+    const messageLimit = modelPreferences.messageLimit;
+    const hasPreviousMessages = history?.length > 0;
+    const systemPrompt = modelPreferences.systemPrompt;
+
+    const system: BaseMessagePromptTemplateLike = [
+      "system",
+      `${systemPrompt}.`,
+    ];
+
+    const messageHolders = new MessagesPlaceholder("chat_history");
+
+    const userContext = `{input} ${
+      props?.context
+        ? `Answer user's question based on the following context: """{context}"""`
+        : ""
+    } ${hasPreviousMessages ? `You can also refer this pervious conversations if needed.` : ""}`;
+
+    const user: BaseMessagePromptTemplateLike = [
+      "user",
+      props?.image
         ? [
-            [
-              "system",
-              "You are {role}. Answer user's question based on the following context:",
-            ],
-            new MessagesPlaceholder("chat_history"),
-            ["user", "{input}"],
+            {
+              type: "text",
+              text: userContext,
+            },
+            {
+              type: "image_url",
+              image_url: props.image,
+            },
           ]
-        : [
-            props?.context
-              ? [
-                  "system",
-                  "You are {role} Answer user's question based on the following context: {context}",
-                ]
-              : ["system", "You are {role}. {type}"],
-            ["user", "{input}"],
-          ]
-    );
+        : userContext,
+    ];
 
-    const previousMessageHistory = messageHistory.reduce(
-      (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman }) => [
-        ...acc,
-        new HumanMessage(rawHuman),
-        new AIMessage(rawAI),
-      ],
-      []
-    );
+    const prompt = ChatPromptTemplate.fromMessages([
+      system,
+      messageHolders,
+      user,
+    ]);
 
-    return await prompt.formatMessages(
-      messageHistory?.length > 0
-        ? {
-            role: getRole(props.role),
-            chat_history: previousMessageHistory,
-            input: props.query,
-          }
-        : {
-            role: getRole(props.role),
-            type: getInstruction(props.type),
-            context: props.context,
-            input: props.query,
-          }
-    );
+    const previousMessageHistory = sortMessages(history, "createdAt")
+      .slice(0, messageLimit === "all" ? history.length : messageLimit)
+      .reduce(
+        (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman, image }) => [
+          ...acc,
+          new HumanMessage(rawHuman),
+          new AIMessage(rawAI),
+        ],
+        []
+      );
+
+    return await prompt.formatMessages({
+      chat_history: previousMessageHistory || [],
+      context: props.context,
+      input: props.query,
+    });
   };
 
   const runModel = async (
@@ -137,7 +158,22 @@ export const useLLM = ({
       const stream = await model.stream(formattedChatPrompt, {
         options: {
           stream: true,
+          signal: abortController.signal,
         },
+        callbacks: [
+          {
+            handleLLMStart: async (llm: Serialized, prompts: string[]) => {
+              console.log(JSON.stringify(llm, null, 2));
+              console.log(JSON.stringify(prompts, null, 2));
+            },
+            handleLLMEnd: async (output: LLMResult) => {
+              console.log(JSON.stringify(output, null, 2));
+            },
+            handleLLMError: async (err: Error) => {
+              console.error(err);
+            },
+          },
+        ],
       });
 
       if (!stream) {
@@ -168,7 +204,20 @@ export const useLLM = ({
       const chatMessage: TChatMessage = {
         id: newMessageId,
         model: selectedModel.modelName,
-        human: new HumanMessage(props.query),
+        human: props.image
+          ? new HumanMessage({
+              content: [
+                {
+                  type: "text",
+                  text: props.query,
+                },
+                {
+                  type: "image_url",
+                  image_url: props.image,
+                },
+              ],
+            })
+          : new HumanMessage(props.query),
         ai: new AIMessage(streamedMessage),
         rawHuman: props.query,
         rawAI: streamedMessage,
@@ -198,5 +247,6 @@ export const useLLM = ({
 
   return {
     runModel,
+    stopGeneration,
   };
 };

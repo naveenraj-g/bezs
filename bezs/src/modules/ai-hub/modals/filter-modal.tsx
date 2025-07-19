@@ -13,8 +13,22 @@ import { useChatStore } from "../stores/useChatStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { TChatSession } from "../types/chat-types";
-import { ChatIcon, EraserIcon, PlusIcon } from "@phosphor-icons/react";
+import {
+  ChatIcon,
+  EraserIcon,
+  PlusIcon,
+  TrashSimpleIcon,
+} from "@phosphor-icons/react";
 import { useChatSession } from "../hooks/use-chat-session";
+import moment from "moment";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EllipsisVertical, Trash2 } from "lucide-react";
 
 // 2:32
 export const FilterModal = () => {
@@ -26,6 +40,7 @@ export const FilterModal = () => {
   const sessions = useChatStore((state) => state.sessions);
   const createSession = useChatStore((state) => state.createSession);
   const clearChatSessions = useChatStore((state) => state.clearChatSessions);
+  const removeSession = useChatStore((state) => state.removeSession);
 
   const { sortSessions } = useChatSession();
 
@@ -94,8 +109,33 @@ export const FilterModal = () => {
                 filterClose();
               }}
             >
-              <ChatIcon size={14} weight="fill" className="shrink-0" />{" "}
-              <span>{session.title}</span>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <ChatIcon size={14} weight="fill" className="shrink-0" />{" "}
+                  <span>{session.title}</span>
+                  <span className="pl-4 text-xs dark:text-zinc-400">
+                    {moment(session.createdAt).fromNow(true)}
+                  </span>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <EllipsisVertical className="shrink-0" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      className="text-red-500"
+                      onClick={async () => {
+                        await removeSession(session.id);
+                        router.push("/bezs/ai-hub/ask-ai");
+                      }}
+                    >
+                      <Trash2 className="text-red-500" /> Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </CommandItem>
           ))}
         </CommandGroup>

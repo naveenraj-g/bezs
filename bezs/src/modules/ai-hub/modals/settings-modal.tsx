@@ -20,7 +20,7 @@ export const SettingsModal = () => {
   }
   return (
     <Dialog open={isSettingOpen} onOpenChange={handleModalClose}>
-      <DialogContent className="flex flex-row p-0">
+      <DialogContent className="flex flex-row p-0 h-[90vh]">
         <DialogTitle className="!hidden" />
         <div className="flex flex-col p-4">
           <p className="px-2 py-2 text-xs font-semibold">GENERAL</p>
@@ -52,11 +52,10 @@ export const SettingsModal = () => {
             ))}
           </div>
         </div>
-        <div className="p-4 bg-zinc-200/70 dark:bg-zinc-900 w-full">
+        <div className="p-4 bg-zinc-200/70 dark:bg-zinc-900 w-full overflow-y-auto no-scrollbar">
           {selectedMenuItem?.component}
         </div>
       </DialogContent>
     </Dialog>
   );
 };
-//4:00

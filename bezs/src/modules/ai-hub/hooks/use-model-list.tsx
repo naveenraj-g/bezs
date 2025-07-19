@@ -2,6 +2,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { JSX } from "react";
 import { ModelIcon } from "../ui/icons/model-icon";
+import { useSelectedModelStore } from "../stores/useSelectedModelStore";
 
 export type TBaseModel = "openai" | "anthropic" | "gemini" | "groqllama3";
 
@@ -23,6 +24,10 @@ export type TModel = {
 };
 
 export const useModelList = () => {
+  const modelPreferences = useSelectedModelStore(
+    (state) => state.modelPreferences
+  );
+
   const createInstance = async (model: TModel) => {
     /*
     switch (model.baseModel) {
@@ -67,6 +72,9 @@ export const useModelList = () => {
         baseURL: `${window.location.origin}/api/groqllama3`,
         // baseURL: `https://api.groq.com/openai/v1`,
       },
+      temperature: modelPreferences.temperature,
+      topP: modelPreferences.topP,
+      maxTokens: modelPreferences.maxTokens,
     });
   };
 

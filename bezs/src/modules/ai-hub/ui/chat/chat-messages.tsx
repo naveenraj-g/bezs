@@ -2,13 +2,17 @@
 
 import { useParams } from "next/navigation";
 import { useChatStore } from "../../stores/useChatStore";
-import { useEffect, useRef, useState } from "react";
-import { TChatMessage, TChatSession } from "../../types/chat-types";
+import { useEffect, useRef } from "react";
+import {
+  PromptProps,
+  TChatMessage,
+  TChatSession,
+} from "../../types/chat-types";
 import { useChatSession } from "../../hooks/use-chat-session";
 import { useMarkdown } from "../../hooks/use-mdx";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { WarningIcon } from "@phosphor-icons/react";
+import { QuotesIcon, WarningIcon } from "@phosphor-icons/react";
 import { TModelKey } from "../../hooks/use-model-list";
 import { easeInOut, motion } from "framer-motion";
 import Spinner, { LinearSpinner } from "../loading-spinner";
@@ -17,10 +21,13 @@ import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import moment from "moment";
 import { getRelativeDate } from "@/utils/helper";
 import { AIMessageBubble } from "../ai-bubble";
+import Image from "next/image";
 
 export type TRenderMessageProps = {
-  key: string;
+  id: string;
   humanMessage: string;
+  props?: PromptProps;
+  image?: string;
   model: TModelKey;
   aiMessage?: string;
   loading?: boolean;
@@ -61,51 +68,48 @@ export const ChatMessages = () => {
     streamingMessage?.sessionId === currentSession?.id;
 
   const renderMessage = (props: TRenderMessageProps) => {
-    const { key, humanMessage, aiMessage, loading, model } = props;
+    const { id, humanMessage, aiMessage, loading, model } = props;
 
     return (
-      <div className="flex flex-col gap-2 items-start w-full" key={key}>
+      <div className="flex flex-col gap-2 items-start w-full" key={id}>
+        {props.props?.context && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: 1,
+              transition: {
+                duration: 1,
+                ease: easeInOut,
+              },
+            }}
+            className="rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border border-white/5"
+          >
+            <QuotesIcon size={16} weight="fill" className="shrink-0 mt-2" />
+            <span className="pt-[0.35em] pb-[0.25em] leading-6">
+              {props.props?.context}
+            </span>
+          </motion.div>
+        )}
+        {props?.props?.image && (
+          <Image
+            src={props?.props?.image}
+            alt="uploaded image"
+            width={0}
+            height={0}
+            className="rounded-2xl min-w-[120px] h-[120px] border border-white/5 shadow-md object-cover"
+          />
+        )}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
           className="dark:bg-white/5 rounded-2xl p-1.5 text-sm flex flex-row items-center gap-2 pr-4 border border-black/10 dark:border-white/10"
         >
-          {/* <div className="w-8 h-8 rounded-full relative">
-            <Avatar
-              size={32}
-              name={humanMessage}
-              variant="marble"
-              color={"#FFFFFF"}
-            />
-            <p className="absolute font-bold inset-0 flex items-center justify-center">
-              D
-            </p>
-          </div> */}
           <ProfileAvatar
             name={session.data?.user.name}
             imgUrl={session.data?.user.image}
           />
           <span>{humanMessage}</span>
         </motion.div>
-        {/* <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            transition: { duration: 1, ease: easeInOut },
-          }}
-          className="rounded-2xl p-3 w-full border border-black/10 dark:border-white/10"
-        >
-          {aiMessage && renderMarkdown(aiMessage, key === "streaming")}
-          {loading && <LinearSpinner />}
-        </motion.div>
-        <motion.p
-          className={`text-xs py-1/2 px-2 ${loading && "pt-2"}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
-        >
-          {model}
-        </motion.p> */}
         <AIMessageBubble {...props} />
       </div>
     );
@@ -128,7 +132,11 @@ export const ChatMessages = () => {
   return (
     <div
       ref={chatContainerRef}
-      className={cn("flex-1 overflow-y-auto pb-28", isNewSession && "hidden")}
+      id="chat-container"
+      className={cn(
+        "flex-1 overflow-y-auto pb-28 pr-2",
+        isNewSession && "hidden"
+      )}
     >
       <motion.div
         initial={{ opacity: 0 }}
@@ -136,9 +144,9 @@ export const ChatMessages = () => {
         className="flex flex-col gap-8"
       >
         {messagesByDate &&
-          Object.keys(messagesByDate).map((date, i) => {
+          Object.keys(messagesByDate).map((date) => {
             return (
-              <div key={i} className="flex flex-col">
+              <div key={date} className="flex flex-col">
                 <div className="flex flex-row items-center pb-4 pt-8">
                   <div className="w-full h-[1px] bg-black/5 dark:bg-white/10"></div>
                   <p className="text-xs text-zinc-400 px-2 flex shrink-0">
@@ -149,9 +157,11 @@ export const ChatMessages = () => {
                 <div className="flex flex-col gap-10 w-full items-start">
                   {messagesByDate[date].map((message) =>
                     renderMessage({
-                      key: message.id,
+                      id: message.id,
                       humanMessage: message.rawHuman,
                       model: message.model,
+                      image: message?.image,
+                      props: message.props,
                       aiMessage: message.rawAI,
                     })
                   )}
@@ -164,9 +174,10 @@ export const ChatMessages = () => {
           streamingMessage?.props?.query &&
           !streamingMessage?.error &&
           renderMessage({
-            key: "streaming",
+            id: "streaming",
             humanMessage: streamingMessage?.props?.query,
             aiMessage: streamingMessage?.message,
+            image: streamingMessage?.props?.image,
             model: streamingMessage?.model,
             loading: streamingMessage?.loading,
           })}
@@ -182,4 +193,4 @@ export const ChatMessages = () => {
   );
 };
 
-// 6:35
+// 9:47

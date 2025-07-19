@@ -31,6 +31,7 @@ export type PromptProps = {
   context?: string;
   role: RoleType;
   query?: string;
+  image?: string;
   regenerate?: boolean;
 };
 
@@ -42,6 +43,7 @@ export type TChatMessage = {
   rawHuman: string;
   rawAI: string;
   props?: PromptProps;
+  image?: string;
   createdAt?: string;
   updatedAt?: string;
 };

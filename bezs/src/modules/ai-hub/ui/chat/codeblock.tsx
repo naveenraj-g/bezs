@@ -3,6 +3,7 @@ import hljs from "highlight.js";
 import { Button } from "@/components/ui/button";
 import { useClipboard } from "../../hooks/use-clipboard";
 import { CheckIcon, Copy } from "lucide-react";
+import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 
 export type TCodeBlockProps = {
   lang?: string;
@@ -34,18 +35,20 @@ export const CodeBlock = ({ code, lang }: TCodeBlockProps) => {
   }, [code, language]);
 
   return (
-    <div className="bg-black/10 dark:bg-white/10 rounded-2xl p-4 w-full">
+    <div className="bg-black/10 dark:bg-white/10 rounded-2xl p-4 w-full shrink-0">
       <div className=" py-2 pb-4 w-full flex justify-between items-center capitalize">
         <p>{languageLabel}</p>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => code && copy(code)}
-          className="bg-transparent"
-        >
-          {showCopied ? <CheckIcon /> : <Copy />}
-          {showCopied ? "copied" : "copy"}
-        </Button>
+        <ActionTooltipProvider label={showCopied ? "copied" : "copy"}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => code && copy(code)}
+            className="bg-transparent"
+          >
+            {showCopied ? <CheckIcon /> : <Copy />}
+            {showCopied ? "copied" : "copy"}
+          </Button>
+        </ActionTooltipProvider>
       </div>
       <pre className="w-full">
         <code

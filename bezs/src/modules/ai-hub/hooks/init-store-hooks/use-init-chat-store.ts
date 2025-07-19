@@ -11,8 +11,14 @@ export const useInitChatStore = () => {
   const set = useChatStore.setState;
   const streamingMessage = useChatStore((props) => props.streamingMessage);
 
-  const { getSessions, createNewSession, getSessionById, clearSessions } =
-    useChatSession();
+  const {
+    getSessions,
+    createNewSession,
+    getSessionById,
+    clearSessions,
+    removeSessionById,
+    removeMessageById,
+  } = useChatSession();
   const params = useParams();
 
   const fetchSessions = async () => {
@@ -31,7 +37,7 @@ export const useInitChatStore = () => {
     });
   };
 
-  const { runModel } = useLLM({
+  const { runModel, stopGeneration } = useLLM({
     onInit: async (props) => {
       set({ streamingMessage: props });
     },
@@ -70,6 +76,21 @@ export const useInitChatStore = () => {
     });
   };
 
+  const removeSession = async (sessionId: string) => {
+    const sessions = await removeSessionById(sessionId);
+    await fetchSessions();
+  };
+
+  const removeMessage = (messageId: string) => {
+    if (!params?.sessionId) {
+      return;
+    }
+
+    removeMessageById(params?.sessionId as string, messageId).then(async () => {
+      fetchSession();
+    });
+  };
+
   useEffect(() => {
     (() => {
       if (!params?.sessionId) {
@@ -86,6 +107,9 @@ export const useInitChatStore = () => {
       createSession,
       runModel,
       clearChatSessions,
+      removeSession,
+      stopGeneration,
+      removeMessage,
     });
 
     fetchSessions();
