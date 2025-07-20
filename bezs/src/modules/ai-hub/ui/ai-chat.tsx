@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowDown, Copy, ThumbsDown, ThumbsUp, Trash } from "lucide-react";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import { useParams } from "next/navigation";
-import { useChatStore } from "../stores/useChatStore";
+// import { useChatStore } from "../stores/useChatStore";
 import { TChatSession } from "../types/chat-types";
 import { useChatSession } from "../hooks/use-chat-session";
 

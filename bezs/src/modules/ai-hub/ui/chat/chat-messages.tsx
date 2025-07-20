@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useChatStore } from "../../stores/useChatStore";
+// import { useChatStore } from "../../stores/useChatStore";
 import { useEffect, useRef } from "react";
 import {
   PromptProps,
@@ -22,6 +22,7 @@ import moment from "moment";
 import { getRelativeDate } from "@/utils/helper";
 import { AIMessageBubble } from "../ai-bubble";
 import Image from "next/image";
+import { useChatContext } from "../../context/chat/context";
 
 export type TRenderMessageProps = {
   id: string;
@@ -39,9 +40,11 @@ export const ChatMessages = () => {
   const params = useParams();
   const session = useSession();
   const sessionId = params?.sessionId;
-  const streamingMessage = useChatStore((state) => state.streamingMessage);
-  const currentSession = useChatStore((state) => state.currentSession);
+  // const streamingMessage = useChatStore((state) => state.streamingMessage);
+  // const currentSession = useChatStore((state) => state.currentSession);
   const { renderMarkdown } = useMarkdown();
+
+  const { streamingMessage, currentSession } = useChatContext();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 

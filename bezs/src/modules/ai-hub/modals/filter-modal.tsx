@@ -9,7 +9,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useFilterStore } from "../stores/useFilterStore";
-import { useChatStore } from "../stores/useChatStore";
+// import { useChatStore } from "../stores/useChatStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { TChatSession } from "../types/chat-types";
@@ -29,18 +29,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical, Trash2 } from "lucide-react";
+import { useChatContext } from "../context/chat/context";
 
-// 2:32
 export const FilterModal = () => {
   const router = useRouter();
 
   const isFilterOpen = useFilterStore((state) => state.isFilterOpen);
   const toggleFilter = useFilterStore((state) => state.toggleFilter);
   const filterClose = useFilterStore((state) => state.dismiss);
-  const sessions = useChatStore((state) => state.sessions);
-  const createSession = useChatStore((state) => state.createSession);
-  const clearChatSessions = useChatStore((state) => state.clearChatSessions);
-  const removeSession = useChatStore((state) => state.removeSession);
+  // const sessions = useChatStore((state) => state.sessions);
+  // const createSession = useChatStore((state) => state.createSession);
+  // const clearChatSessions = useChatStore((state) => state.clearChatSessions);
+  // const removeSession = useChatStore((state) => state.removeSession);
+
+  const { sessions, createSession, clearChatSessions, removeSession } =
+    useChatContext();
 
   const { sortSessions } = useChatSession();
 

@@ -52,7 +52,7 @@ export const SettingsModal = () => {
             ))}
           </div>
         </div>
-        <div className="p-4 bg-zinc-200/70 dark:bg-zinc-900 w-full overflow-y-auto no-scrollbar">
+        <div className="p-4 bg-zinc-100/80 dark:bg-zinc-900 w-full overflow-y-auto no-scrollbar">
           {selectedMenuItem?.component}
         </div>
       </DialogContent>

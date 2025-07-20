@@ -11,6 +11,7 @@ import { useChatStore } from "../stores/useChatStore";
 import { PromptType, RoleType } from "../types/chat-types";
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage } from "@langchain/core/messages";
+import { useChatContext } from "../context/chat/context";
 
 interface PromptInputPropsType {
   modelName?: string;

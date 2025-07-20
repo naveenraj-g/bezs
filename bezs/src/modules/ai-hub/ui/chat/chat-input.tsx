@@ -7,7 +7,7 @@ import { CircleStop, File, Mic, Send, Upload, X } from "lucide-react";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useChatStore } from "../../stores/useChatStore";
+// import { useChatStore } from "../../stores/useChatStore";
 import { PromptType, RoleType } from "../../types/chat-types";
 import { SparkleIcon, StopIcon } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,15 @@ import { ArrowDownIcon, QuotesIcon, XIcon } from "@phosphor-icons/react";
 import { useTextSelection } from "../../hooks/use-text-selection";
 import { ChatExamples } from "./chat-examples";
 import { toast } from "sonner";
+import { useChatContext } from "../../context/chat/context";
+import { Popover, PopoverContent } from "@/components/ui/popover";
+import {
+  Command as CMDKCommand,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 export type TAttachment = {
   file?: File;
@@ -59,13 +68,16 @@ const examples = [
 export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   const params = useParams();
   const sessionId = params?.sessionId;
-  const runModel = useChatStore((state) => state.runModel);
-  const currentSession = useChatStore((state) => state.currentSession);
-  const streamingMessage = useChatStore((state) => state.streamingMessage);
-  const stopGeneration = useChatStore((state) => state.stopGeneration);
+  // const runModel = useChatStore((state) => state.runModel);
+  // const currentSession = useChatStore((state) => state.currentSession);
+  // const streamingMessage = useChatStore((state) => state.streamingMessage);
+  // const stopGeneration = useChatStore((state) => state.stopGeneration);
   const selectedModel = useSelectedModelStore((state) => state.selectedModel);
   const { scrollToBottom, showButton } = useScrollToBottom();
   const { selectedText, showPopup, handleClearSelection } = useTextSelection();
+
+  const { runModel, currentSession, streamingMessage, stopGeneration } =
+    useChatContext();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -84,6 +96,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
 
   const [attachment, setAttachment] = useState<TAttachment>();
   const [files, setFiles] = useState<File[]>([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     textareaRef.current?.focus();
@@ -152,7 +165,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
           context: contextValue,
         },
         sessionId?.toString(),
-        selectedModel
+        selectedModel?.modelName
       );
       setAttachment(undefined);
       setContextValue("");
@@ -316,6 +329,24 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
             </button>
           </div>
         )}
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverContent className="w-[700px] p-0 rounded-2xl overflow-hidden">
+            <CMDKCommand>
+              <CommandInput placeholder="Search prompts..." className="h-9" />
+              <CommandEmpty>No prompt found.</CommandEmpty>
+              <CommandList className="p-1">
+                {examples.map((example, index) => (
+                  <CommandItem
+                    key={index}
+                    onSelect={() => (textareaRef.current!.value = example)}
+                  >
+                    {example}
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </CMDKCommand>
+          </PopoverContent>
+        </Popover>
         <form onSubmit={handleSubmit}>
           <div className="flex items-center gap-2">
             <Textarea
@@ -324,6 +355,11 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
               placeholder="Type or Ask anything..."
               required
               onKeyDown={handleKeyDown}
+              onChange={(e) => {
+                if (e.target.value === "/") {
+                  setOpen(true);
+                }
+              }}
               defaultValue={text}
               className="!bg-transparent border-none focus-visible:!border-0 focus-visible:ring-0 shadow-none min-h-9 max-h-24 resize-none"
             />
@@ -419,7 +455,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
                 query: prompt,
               },
               sessionId!.toString(),
-              selectedModel
+              selectedModel?.modelName
             );
           }}
         />
@@ -427,3 +463,5 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
     </div>
   );
 };
+
+// 2:01:40

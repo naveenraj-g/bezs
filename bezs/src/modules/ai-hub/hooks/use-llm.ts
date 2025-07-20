@@ -115,8 +115,6 @@ export const useLLM = ({
     const preferences = await getPreferences();
     const modelKey = preferences.defaultModel;
 
-    onInit({ props, model: modelKey, sessionId, loading: true });
-
     // const selectedModel = getModelByKey(modelKey);
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -124,6 +122,7 @@ export const useLLM = ({
     if (!selectedModel) {
       throw new Error("Model not found.");
     }
+    onInit({ props, model: selectedModel, sessionId, loading: true });
 
     // const apiKey = await getApiKey(selectedModel.baseModel);
 
@@ -148,6 +147,7 @@ export const useLLM = ({
       //   },
       // });
 
+      console.log(selectedModel);
       const model = await createInstance(selectedModel);
 
       const formattedChatPrompt = await preparePrompt(
@@ -186,7 +186,7 @@ export const useLLM = ({
         props,
         sessionId,
         message: streamedMessage,
-        model: modelKey,
+        model: selectedModel,
         loading: true,
       });
 
@@ -196,14 +196,14 @@ export const useLLM = ({
           props,
           sessionId,
           message: streamedMessage,
-          model: modelKey,
+          model: selectedModel,
           loading: true,
         });
       }
 
       const chatMessage: TChatMessage = {
         id: newMessageId,
-        model: selectedModel.modelName,
+        model: selectedModel,
         human: props.image
           ? new HumanMessage({
               content: [
@@ -230,7 +230,7 @@ export const useLLM = ({
           props,
           sessionId,
           message: streamedMessage,
-          model: modelKey,
+          model: selectedModel,
           loading: false,
         });
       });
@@ -238,7 +238,7 @@ export const useLLM = ({
       onError({
         props,
         sessionId,
-        model: modelKey,
+        model: selectedModel,
         error: e?.error?.error?.message || e?.error?.message,
         loading: false,
       });

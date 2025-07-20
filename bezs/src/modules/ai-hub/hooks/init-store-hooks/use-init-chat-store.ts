@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useChatStore } from "../../stores/useChatStore";
 import { useChatSession } from "../use-chat-session";
 import { useLLM } from "../use-llm";
@@ -116,7 +116,7 @@ export const useInitChatStore = () => {
   }, []);
 
   useEffect(() => {
-    if (!streamingMessage) {
+    if (!streamingMessage && useChatStore.getState().currentSession?.messages) {
       fetchSession();
     }
   }, [streamingMessage]);

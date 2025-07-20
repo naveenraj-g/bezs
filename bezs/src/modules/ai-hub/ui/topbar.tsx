@@ -1,14 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useChatStore } from "../stores/useChatStore";
+// import { useChatStore } from "../stores/useChatStore";
 import { useParams, useRouter } from "next/navigation";
 import { HistoryIcon, Plus, Settings, SquarePen } from "lucide-react";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { useFilterStore } from "../stores/useFilterStore";
+import { useChatContext } from "../context/chat/context";
 
 export const Topbar = () => {
-  const { sessions, createSession } = useChatStore();
+  // const { sessions, createSession } = useChatStore();
+  const { createSession } = useChatContext();
   const router = useRouter();
   const params = useParams();
   const openSettings = useSettingsStore((state) => state.open);

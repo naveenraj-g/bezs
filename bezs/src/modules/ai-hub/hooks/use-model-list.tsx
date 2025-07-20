@@ -28,7 +28,7 @@ export const useModelList = () => {
     (state) => state.modelPreferences
   );
 
-  const createInstance = async (model: TModel) => {
+  const createInstance = async (model: string) => {
     /*
     switch (model.baseModel) {
       case "openai":
@@ -65,7 +65,7 @@ export const useModelList = () => {
         */
 
     return new ChatOpenAI({
-      model: model.modelName!,
+      model: model,
       apiKey: "dummy",
       streaming: true,
       configuration: {

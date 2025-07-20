@@ -1,17 +1,32 @@
+"use client";
+
+import { useChatContext } from "@/modules/ai-hub/context/chat/context";
 import { ChatInput } from "@/modules/ai-hub/ui/chat/chat-input";
 import { ChatMessages } from "@/modules/ai-hub/ui/chat/chat-messages";
+import Spinner from "@/modules/ai-hub/ui/loading-spinner";
 
-const ChatSessionPage = async ({
-  params,
-}: {
-  params: { sessionId: string };
-}) => {
-  const { sessionId } = await params;
+const ChatSessionPage = () => {
+  const { isCurrentSessionLoading, isAllSessionLoading } = useChatContext();
+
+  const renderLoader = () => {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
+  };
+
+  const isLoading = isCurrentSessionLoading || isAllSessionLoading;
 
   return (
     <div className="flex-1 flex flex-col h-full relative justify-center">
-      <ChatMessages />
-      <ChatInput />
+      {isLoading && renderLoader()}
+      {!isLoading && (
+        <>
+          <ChatMessages />
+          <ChatInput />
+        </>
+      )}
     </div>
   );
 };
