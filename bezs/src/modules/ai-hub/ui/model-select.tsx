@@ -35,7 +35,7 @@ export const ModelSelect = () => {
         setSelectedModel(data[0]);
       }
     })();
-  }, [execute]);
+  }, [execute, setSelectedModel]);
 
   return (
     <DropdownMenu>
@@ -83,5 +83,3 @@ export const ModelSelect = () => {
     </DropdownMenu>
   );
 };
-
-// 4:32

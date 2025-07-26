@@ -7,6 +7,7 @@ import type { JSX, ReactNode } from "react";
 import { CodeBlock } from "../ui/chat/codeblock";
 import { easeInOut } from "framer-motion";
 import { motion } from "framer-motion";
+import { LinkBlock } from "../ui/link-block";
 
 const variants = {
   hidden: { opacity: 0 },
@@ -30,6 +31,7 @@ export const useMarkdown = () => {
               variants={variants}
               animate={"visible"}
               initial={animate ? "hidden" : "visible"}
+              className="tracking-[0.01em]"
             >
               {children}
             </motion.span>
@@ -45,9 +47,10 @@ export const useMarkdown = () => {
           },
           link: (href, text) => {
             return (
-              <Link href={href} target="_blank">
-                {text}
-              </Link>
+              // <Link href={href} target="_blank">
+              //   {text}
+              // </Link>
+              <LinkBlock url={href} />
             );
           },
           blockquote: (children) => (

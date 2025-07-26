@@ -44,7 +44,7 @@ export const ChatMessages = () => {
   // const currentSession = useChatStore((state) => state.currentSession);
   const { renderMarkdown } = useMarkdown();
 
-  const { streamingMessage, currentSession } = useChatContext();
+  const { currentSession } = useChatContext();
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -61,21 +61,19 @@ export const ChatMessages = () => {
     }
   };
 
-  useEffect(() => {
-    if (streamingMessage) {
-      scrollToBottom();
-    }
-  }, [streamingMessage]);
+  // useEffect(() => {
+  //   if (streamingMessage) {
+  //     scrollToBottom();
+  //   }
+  // }, [streamingMessage]);
 
-  const isLastStreamBelongsToCurrentSession =
-    streamingMessage?.sessionId === currentSession?.id;
+  // const isLastStreamBelongsToCurrentSession =
+  //   streamingMessage?.sessionId === currentSession?.id;
 
-  const renderMessage = (props: TRenderMessageProps) => {
-    const { id, humanMessage, aiMessage, loading, model } = props;
-
+  const renderMessage = (message: TChatMessage, isLast: boolean) => {
     return (
-      <div className="flex flex-col gap-2 items-start w-full" key={id}>
-        {props.props?.context && (
+      <div className="flex flex-col gap-2 items-start w-full" key={message.id}>
+        {message.props?.context && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{
@@ -89,13 +87,13 @@ export const ChatMessages = () => {
           >
             <QuotesIcon size={16} weight="fill" className="shrink-0 mt-2" />
             <span className="pt-[0.35em] pb-[0.25em] leading-6">
-              {props.props?.context}
+              {message.props?.context}
             </span>
           </motion.div>
         )}
-        {props?.props?.image && (
+        {message?.props?.image && (
           <Image
-            src={props?.props?.image}
+            src={message?.props?.image}
             alt="uploaded image"
             width={0}
             height={0}
@@ -105,15 +103,15 @@ export const ChatMessages = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
-          className="dark:bg-white/5 rounded-2xl p-1.5 text-sm flex flex-row items-center gap-2 pr-4 border border-black/10 dark:border-white/10"
+          className="dark:bg-white/10 bg-black/5 rounded-2xl p-1.5 text-sm flex flex-row items-center gap-2 pr-4 border border-black/10 dark:border-white/10 self-end max-w-[60%] max-h-[300px] overflow-y-auto"
         >
           <ProfileAvatar
             name={session.data?.user.name}
             imgUrl={session.data?.user.image}
           />
-          <span>{humanMessage}</span>
+          <span>{message.rawHuman}</span>
         </motion.div>
-        <AIMessageBubble {...props} />
+        <AIMessageBubble chatMessage={message} isLast={isLast} />
       </div>
     );
   };
@@ -146,7 +144,7 @@ export const ChatMessages = () => {
         animate={{ opacity: 1, transition: { duration: 1, ease: easeInOut } }}
         className="flex flex-col gap-8"
       >
-        {messagesByDate &&
+        {/* {messagesByDate &&
           Object.keys(messagesByDate).map((date) => {
             return (
               <div key={date} className="flex flex-col">
@@ -171,9 +169,18 @@ export const ChatMessages = () => {
                 </div>
               </div>
             );
-          })}
+          })} */}
 
-        {isLastStreamBelongsToCurrentSession &&
+        <div className="flex flex-col gap-10 w-full items-start">
+          {currentSession?.messages?.map((message, index) =>
+            renderMessage(
+              message,
+              currentSession?.messages?.length - 1 === index
+            )
+          )}
+        </div>
+
+        {/* {isLastStreamBelongsToCurrentSession &&
           streamingMessage?.props?.query &&
           !streamingMessage?.error &&
           renderMessage({
@@ -190,10 +197,10 @@ export const ChatMessages = () => {
             <AlertTitle>Ahh! something went wrong!</AlertTitle>
             <AlertDescription>{streamingMessage?.error}</AlertDescription>
           </Alert>
-        )}
+        )} */}
       </motion.div>
     </div>
   );
 };
 
-// 9:47
+// 4:33

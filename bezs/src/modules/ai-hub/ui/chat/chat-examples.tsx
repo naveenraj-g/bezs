@@ -1,7 +1,10 @@
 "use client";
 
 export type TChatExample = {
-  examples: string[];
+  examples: {
+    title: string;
+    prompt: string;
+  }[];
   onExampleClick: (prompt: string) => void;
 };
 
@@ -13,10 +16,10 @@ export const ChatExamples = ({ examples, onExampleClick }: TChatExample) => {
           key={index}
           className="flex flex-row items-center text-sm py-3 px-4 bg-black/10 dark:bg-white/20 border border-black/5 dark:border-white/30 w-full rounded-2xl hover:bg-black/20 dark:hover:bg-white/10 hover:scale-[101%] cursor-pointer"
           onClick={() => {
-            onExampleClick(example);
+            onExampleClick(example.prompt);
           }}
         >
-          {example}
+          {example.title}
         </div>
       ))}
     </div>

@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical, Trash2 } from "lucide-react";
 import { useChatContext } from "../context/chat/context";
+import { cn } from "@/lib/utils";
 
 export const FilterModal = () => {
   const router = useRouter();
@@ -42,8 +43,13 @@ export const FilterModal = () => {
   // const clearChatSessions = useChatStore((state) => state.clearChatSessions);
   // const removeSession = useChatStore((state) => state.removeSession);
 
-  const { sessions, createSession, clearChatSessions, removeSession } =
-    useChatContext();
+  const {
+    sessions,
+    createSession,
+    clearChatSessions,
+    removeSession,
+    currentSession,
+  } = useChatContext();
 
   const { sortSessions } = useChatSession();
 
@@ -68,7 +74,7 @@ export const FilterModal = () => {
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Actions">
           <CommandItem
-            className="gap-3"
+            className="gap-3 rounded-lg h-10"
             value="new"
             onSelect={(value) => {
               createSession().then((session: TChatSession) => {
@@ -84,7 +90,7 @@ export const FilterModal = () => {
 
         <CommandGroup>
           <CommandItem
-            className="gap-3"
+            className="gap-3 rounded-lg h-10"
             value="clear history"
             onSelect={async (value) => {
               await clearChatSessions!();
@@ -106,7 +112,12 @@ export const FilterModal = () => {
             <CommandItem
               key={session.id}
               value={`${session.id}/${session.title}`}
-              className="w-full"
+              className={cn(
+                "w-full h-10 rounded-lg",
+                currentSession?.id === session.id
+                  ? "bg-black/10 dark:bg-white/10"
+                  : undefined
+              )}
               onSelect={(value) => {
                 router.push(`/bezs/ai-hub/ask-ai/${session.id}`);
                 filterClose();

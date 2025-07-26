@@ -32,16 +32,17 @@ export type PromptProps = {
   role: RoleType;
   query?: string;
   image?: string;
-  regenerate?: boolean;
 };
 
 export type TChatMessage = {
   id: string;
-  model: TModelKey;
-  human: HumanMessage;
-  ai: AIMessage;
-  rawHuman: string;
-  rawAI: string;
+  model?: string;
+  rawHuman?: string;
+  rawAI?: string;
+  sessionId: string;
+  isLoading: boolean;
+  hasError: boolean;
+  errorMessage?: string;
   props?: PromptProps;
   image?: string;
   createdAt?: string;
@@ -56,19 +57,17 @@ export type TChatSession = {
   updatedAt?: string;
 };
 
-export type TStreamProps = {
-  props: PromptProps;
-  model: TModelKey;
-  sessionId: string;
-  message?: string;
-  loading?: boolean;
-  error?: string;
+export type TUseLLM = {
+  onInit: (props: TChatMessage) => Promise<void>;
+  onStreamStart: (props: TChatMessage) => Promise<void>;
+  onStream: (props: TChatMessage) => Promise<void>;
+  onStreamEnd: (props: TChatMessage) => Promise<void>;
+  onError: (props: TChatMessage) => Promise<void>;
 };
 
-export type TUseLLM = {
-  onInit: (props: TStreamProps) => Promise<void>;
-  onStreamStart: (props: TStreamProps) => Promise<void>;
-  onStream: (props: TStreamProps) => Promise<void>;
-  onStreamEnd: (props: TStreamProps) => Promise<void>;
-  onError: (props: TStreamProps) => Promise<void>;
+export type TRunModel = {
+  props: PromptProps;
+  sessionId: string;
+  messageId?: string;
+  selectedModel?: string;
 };

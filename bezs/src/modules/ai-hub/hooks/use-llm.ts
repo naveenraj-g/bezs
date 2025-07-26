@@ -11,9 +11,9 @@ import { v4 } from "uuid";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { getInstruction, getRole } from "../lib/prompts";
 import {
-  ModelType,
   PromptProps,
   TChatMessage,
+  TRunModel,
   TUseLLM,
 } from "../types/chat-types";
 import { usePreferences } from "./use-preferences";
@@ -36,6 +36,10 @@ export const useLLM = ({
   const { createInstance, getModelByKey } = useModelList();
   const modelPreferences = useSelectedModelStore(
     (state) => state.modelPreferences
+  );
+
+  const defaultModelPreferences = useSelectedModelStore(
+    (state) => state.defaultModelPreferences
   );
   const abortController = new AbortController();
 
@@ -86,43 +90,83 @@ export const useLLM = ({
     const previousMessageHistory = sortMessages(history, "createdAt")
       .slice(0, messageLimit === "all" ? history.length : messageLimit)
       .reduce(
-        (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman, image }) => [
-          ...acc,
-          new HumanMessage(rawHuman),
-          new AIMessage(rawAI),
-        ],
+        (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman, image }) => {
+          if (rawAI && rawHuman) {
+            return [...acc, new HumanMessage(rawHuman), new AIMessage(rawAI)];
+          } else {
+            return [...acc];
+          }
+        },
         []
       );
 
-    return await prompt.formatMessages({
-      chat_history: previousMessageHistory || [],
-      context: props.context,
-      input: props.query,
-    });
+    // prompt.format({
+    //   chat_history: previousMessageHistory || [],
+    //   context: props.context,
+    //   input: props.query,
+    // });
+
+    // const formattedChatPrompt = await prompt.formatMessages({
+    //   chat_history: previousMessageHistory || [],
+    //   context: props.context,
+    //   input: props.query,
+    // });
+
+    return prompt;
   };
 
-  const runModel = async (
-    props: PromptProps,
-    sessionId: string,
-    selectedModel: any
-  ) => {
+  const runModel = async ({
+    props,
+    sessionId,
+    messageId,
+    selectedModel,
+  }: TRunModel) => {
     const currentSession = await getSessionById(sessionId);
 
     if (!props?.query) {
       return;
     }
 
-    const preferences = await getPreferences();
-    const modelKey = preferences.defaultModel;
+    const newMessageId = messageId || v4();
+    // const preferences = await getPreferences();
+    // const modelKey = preferences.defaultModel;
 
     // const selectedModel = getModelByKey(modelKey);
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
 
     if (!selectedModel) {
-      throw new Error("Model not found.");
+      onError({
+        id: newMessageId,
+        props,
+        model: selectedModel ?? undefined,
+        sessionId,
+        rawHuman: props.query,
+        hasError: true,
+        isLoading: false,
+        errorMessage: "AI Model not found.",
+        createdAt: moment().toISOString(),
+      });
+
+      return;
     }
-    onInit({ props, model: selectedModel, sessionId, loading: true });
+
+    const allPreviousMessages =
+      currentSession?.messages?.filter((m) => m.id !== messageId) || [];
+    const chatHistory = sortMessages(allPreviousMessages, "createdAt");
+    const messageLimit =
+      modelPreferences.messageLimit || defaultModelPreferences.messageLimit;
+
+    onInit({
+      id: newMessageId,
+      props,
+      model: selectedModel,
+      sessionId,
+      rawHuman: props.query,
+      createdAt: moment().toISOString(),
+      hasError: false,
+      isLoading: true,
+    });
 
     // const apiKey = await getApiKey(selectedModel.baseModel);
 
@@ -138,7 +182,6 @@ export const useLLM = ({
     // });
 
     try {
-      const newMessageId = v4();
       // const model = new ChatOpenAI({
       //   model: "llama3-70b-8192", // or "llama3-70b-8192", "gemma-7b-it"
       //   openAIApiKey: apiKey,
@@ -147,9 +190,8 @@ export const useLLM = ({
       //   },
       // });
 
-      console.log(selectedModel);
       const model = await createInstance(selectedModel);
-
+      model.bind({ signal: abortController.signal });
       const formattedChatPrompt = await preparePrompt(
         props,
         currentSession?.messages || []
@@ -183,64 +225,60 @@ export const useLLM = ({
       let streamedMessage = "";
 
       onStreamStart({
+        id: newMessageId,
         props,
         sessionId,
-        message: streamedMessage,
+        rawHuman: props.query,
+        rawAI: streamedMessage,
         model: selectedModel,
-        loading: true,
+        isLoading: true,
+        hasError: false,
+        createdAt: moment().toISOString(),
       });
 
       for await (const chunk of stream) {
         streamedMessage += chunk.content;
         onStream({
+          id: newMessageId,
           props,
           sessionId,
-          message: streamedMessage,
+          rawHuman: props.query,
+          rawAI: streamedMessage,
           model: selectedModel,
-          loading: true,
+          isLoading: true,
+          hasError: false,
+          errorMessage: undefined,
+          createdAt: moment().toISOString(),
         });
       }
 
       const chatMessage: TChatMessage = {
         id: newMessageId,
-        model: selectedModel,
-        human: props.image
-          ? new HumanMessage({
-              content: [
-                {
-                  type: "text",
-                  text: props.query,
-                },
-                {
-                  type: "image_url",
-                  image_url: props.image,
-                },
-              ],
-            })
-          : new HumanMessage(props.query),
-        ai: new AIMessage(streamedMessage),
+        sessionId,
         rawHuman: props.query,
         rawAI: streamedMessage,
         props,
+        model: selectedModel,
+        isLoading: false,
+        hasError: false,
         createdAt: moment().toISOString(),
       };
 
       addMessageToSession(sessionId, chatMessage).then(() => {
-        onStreamEnd({
-          props,
-          sessionId,
-          message: streamedMessage,
-          model: selectedModel,
-          loading: false,
-        });
+        onStreamEnd(chatMessage);
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e: any) {
       onError({
+        id: newMessageId,
         props,
+        model: selectedModel ?? undefined,
         sessionId,
-        model: selectedModel,
-        error: e?.error?.error?.message || e?.error?.message,
-        loading: false,
+        rawHuman: props.query,
+        hasError: true,
+        isLoading: false,
+        errorMessage: "Something went wrong on generating response.",
+        createdAt: moment().toISOString(),
       });
     }
   };
@@ -250,3 +288,5 @@ export const useLLM = ({
     stopGeneration,
   };
 };
+
+// 3:05

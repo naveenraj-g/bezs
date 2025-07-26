@@ -1,28 +1,20 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import {
-  PromptProps,
-  TChatSession,
-  TStreamProps,
-} from "../../types/chat-types";
+import { TChatSession, TRunModel } from "../../types/chat-types";
 
 export type TChatContext = {
   sessions: TChatSession[];
   refetchSessions: () => void;
+  streaming: boolean;
   isAllSessionLoading: boolean;
   isCurrentSessionLoading: boolean;
   currentSession: TChatSession | undefined;
   createSession: () => Promise<TChatSession> | any;
   removeSession: (sessionId: string) => Promise<void>;
   clearChatSessions: () => Promise<void>;
-  streamingMessage?: TStreamProps;
   stopGeneration: () => void;
-  runModel: (
-    props: PromptProps,
-    sessionId: string,
-    selectedModel: any
-  ) => Promise<void>;
+  runModel: (props: TRunModel) => Promise<void>;
   removeMessage: (messageId: string) => void;
   error?: string | undefined;
 };

@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import hljs from "highlight.js";
 import { Button } from "@/components/ui/button";
 import { useClipboard } from "../../hooks/use-clipboard";
-import { CheckIcon, Copy } from "lucide-react";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
+import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
 
 export type TCodeBlockProps = {
   lang?: string;
@@ -12,7 +12,7 @@ export type TCodeBlockProps = {
 
 export const CodeBlock = ({ code, lang }: TCodeBlockProps) => {
   const ref = useRef<HTMLElement>(null);
-  const { copiedText, copy, showCopied } = useClipboard();
+  const { copy, showCopied } = useClipboard();
 
   // const language = lang && hljs.getLanguage(lang) ? lang : "plaintext";
   const language =
@@ -35,7 +35,7 @@ export const CodeBlock = ({ code, lang }: TCodeBlockProps) => {
   }, [code, language]);
 
   return (
-    <div className="bg-black/10 dark:bg-white/10 rounded-2xl p-4 w-full shrink-0">
+    <div className="bg-black/2 dark:bg-white/10 rounded-2xl p-4 w-full shrink-0">
       <div className=" py-2 pb-4 w-full flex justify-between items-center capitalize">
         <p>{languageLabel}</p>
         <ActionTooltipProvider label={showCopied ? "copied" : "copy"}>
@@ -45,14 +45,17 @@ export const CodeBlock = ({ code, lang }: TCodeBlockProps) => {
             onClick={() => code && copy(code)}
             className="bg-transparent"
           >
-            {showCopied ? <CheckIcon /> : <Copy />}
-            {showCopied ? "copied" : "copy"}
+            {showCopied ? (
+              <CheckIcon size={16} weight="bold" />
+            ) : (
+              <CopyIcon size={16} weight="bold" />
+            )}
           </Button>
         </ActionTooltipProvider>
       </div>
       <pre className="w-full">
         <code
-          className={`hljs language-${language} sm:break-words sm:whitespace-pre-wrap overflow-x-auto w-full inline-block pr-[100%] text-sm`}
+          className={`hljs language-${language} tracking-wide sm:break-words sm:whitespace-pre-wrap overflow-x-auto w-full inline-block pr-[100%] text-sm`}
           ref={ref}
         />
       </pre>

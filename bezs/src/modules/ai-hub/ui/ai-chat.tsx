@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 // import { useChatStore } from "../stores/useChatStore";
 import { TChatSession } from "../types/chat-types";
 import { useChatSession } from "../hooks/use-chat-session";
+import { ChatInput } from "./chat/chat-input";
 
 type ChatType = {
   input: string;
@@ -169,6 +170,7 @@ export const AiChat = () => {
         handleChat={handleChat}
         setResponse={setResponse}
       />
+      <ChatInput />
     </div>
   );
 };

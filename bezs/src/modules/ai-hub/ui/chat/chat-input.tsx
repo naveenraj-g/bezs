@@ -22,7 +22,11 @@ import { useTextSelection } from "../../hooks/use-text-selection";
 import { ChatExamples } from "./chat-examples";
 import { toast } from "sonner";
 import { useChatContext } from "../../context/chat/context";
-import { Popover, PopoverContent } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from "@/components/ui/popover";
 import {
   Command as CMDKCommand,
   CommandEmpty,
@@ -30,15 +34,22 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { examplePrompts, roles } from "../../lib/prompts";
+
+import Document from "@tiptap/extension-document";
+import Highlight from "@tiptap/extension-highlight";
+import Paragraph from "@tiptap/extension-paragraph";
+import Placeholder from "@tiptap/extension-placeholder";
+import Text from "@tiptap/extension-text";
+
+import { EditorContent, Extension, Mark, useEditor } from "@tiptap/react";
+import moment from "moment";
+import { ChatGreeting } from "./chat-greeting";
 
 export type TAttachment = {
   file?: File;
   base64?: string;
 };
-
-interface PromptInputPropsType {
-  modelName?: string;
-}
 
 const slideUpVariant = {
   initial: { y: 50, opacity: 0 },
@@ -58,14 +69,7 @@ const zoomVariant = {
   },
 };
 
-const examples = [
-  "What is quantum computing?",
-  "What are qubits?",
-  "What is GDP of USA?",
-  "What is multi planetary ideology?",
-];
-
-export const ChatInput = ({ modelName }: PromptInputPropsType) => {
+export const ChatInput = () => {
   const params = useParams();
   const sessionId = params?.sessionId;
   // const runModel = useChatStore((state) => state.runModel);
@@ -76,12 +80,14 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   const { scrollToBottom, showButton } = useScrollToBottom();
   const { selectedText, showPopup, handleClearSelection } = useTextSelection();
 
-  const { runModel, currentSession, streamingMessage, stopGeneration } =
+  const { runModel, currentSession, streaming, stopGeneration } =
     useChatContext();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [contextValue, setContextValue] = useState<string>("");
+
+  const selectedModelRef = useRef<string | null>(null);
 
   const {
     text,
@@ -91,16 +97,42 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
     stopListening,
   } = useSpeechRecognition();
 
-  const isNewSession =
-    currentSession?.messages?.length === 0 && !streamingMessage?.loading;
+  const isNewSession = currentSession?.messages?.length === 0;
 
   const [attachment, setAttachment] = useState<TAttachment>();
   const [files, setFiles] = useState<File[]>([]);
   const [open, setOpen] = useState(false);
+  const [selectedPrompt, setSelectedPrompt] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     textareaRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    if (selectedModel) {
+      selectedModelRef.current = selectedModel.modelName;
+    }
+  }, [selectedModel]);
+
+  const handleRunModel = (query?: string, clear?: () => void) => {
+    if (!query) return;
+    runModel({
+      props: {
+        role: RoleType.assistant,
+        type: PromptType.ask,
+        image: attachment?.base64,
+        query,
+        context: contextValue,
+      },
+      sessionId: sessionId!.toString(),
+      selectedModel: selectedModelRef.current || undefined,
+    });
+    setAttachment(undefined);
+    setContextValue("");
+    clear?.();
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -132,20 +164,112 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
     }
   };
 
-  // const handleRunModel = () => {
-  //   runModel(
-  //     {
-  //       role: RoleType.assistant,
-  //       type: PromptType.ask,
-  //       query: prompt,
-  //       context: contextValue,
-  //     },
-  //     sessionId?.toString(),
-  //     selectedModel
-  //   );
+  const shiftEnter = Extension.create({
+    addKeyboardShortcuts() {
+      return {
+        "Shift+Enter": (_) => {
+          return _.editor.commands.enter();
+        },
+      };
+    },
+  });
 
-  //   setContextValue("");
-  // };
+  const Enter = Extension.create({
+    addKeyboardShortcuts() {
+      return {
+        Enter: (_) => {
+          if (_.editor.getText()?.length > 0) {
+            handleRunModel(_.editor.getText(), () => {
+              _.editor.commands.clearContent();
+            });
+          }
+          return true;
+        },
+      };
+    },
+  });
+
+  const inputRegex = /\{\{(.*?)\}\}/g;
+
+  const CustomMark = Mark.create({
+    name: "customMark",
+  });
+
+  const editor = useEditor({
+    extensions: [
+      Document,
+      Paragraph,
+      Text,
+      Placeholder.configure({
+        placeholder: "Type or Ask anything...",
+      }),
+      Enter,
+      shiftEnter,
+      Highlight.configure({
+        HTMLAttributes: {
+          class: "prompt-highlight",
+        },
+      }),
+    ],
+    content: ``,
+    onTransaction(props) {
+      const { editor } = props;
+      const text = editor.getText();
+      const html = editor.getHTML();
+
+      if (text === "/") {
+        setOpen(true);
+      } else {
+        console.log(text);
+        const newHTML = html.replace(
+          // /{{{{(.*?)}}}}/g,
+          // ` <mark class="prompt-highlight">$1 </mark> `
+          /{{{{\s*(.*?)\s*}}}}/g,
+          (_, match) =>
+            `&nbsp;<mark class="prompt-highlight">${match}</mark>&nbsp;`
+        );
+
+        if (newHTML !== html) {
+          editor.commands.setContent(newHTML, {
+            emitUpdate: true,
+            parseOptions: { preserveWhitespace: true },
+          });
+        }
+        setOpen(false);
+      }
+    },
+    editorProps: {
+      attributes: {
+        class: "focus:outline-none",
+      },
+    },
+    /**
+     * ✅ The key fix:
+     */
+    autofocus: true,
+    injectCSS: false,
+    editable: true,
+    parseOptions: {
+      preserveWhitespace: true,
+    },
+    /**
+     * ✅ Avoid immediate render for SSR hydration safety
+     */
+    immediatelyRender: false,
+  });
+
+  useEffect(() => {
+    if (text) {
+      editor?.commands.setContent(text);
+    }
+  }, [text]);
+
+  // editor?.commands.setContent(text)
+
+  const focusToInput = () => {
+    editor?.commands.clearContent();
+    editor?.commands.focus("end");
+  };
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -156,19 +280,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
     const prompt = formData.get("prompt") as string;
 
     if (prompt !== "") {
-      runModel(
-        {
-          role: RoleType.assistant,
-          type: PromptType.ask,
-          image: attachment?.base64,
-          query: prompt,
-          context: contextValue,
-        },
-        sessionId?.toString(),
-        selectedModel?.modelName
-      );
-      setAttachment(undefined);
-      setContextValue("");
+      handleRunModel(prompt);
       e.currentTarget.reset();
       setFiles([]);
     }
@@ -196,7 +308,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   };
 
   const renderStopButton = () => {
-    if (streamingMessage?.loading) {
+    if (streaming) {
       return (
         <span>
           <Button
@@ -214,16 +326,7 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
 
   return (
     <div className="relative">
-      {isNewSession && (
-        <div className="flex flex-col items-center gap-2 mb-10">
-          <div className="text-xl w-14 h-14 border rounded-full bg-black/10 dark:bg-white/10 dark:border-black/10 flex items-center justify-center">
-            <SparkleIcon weight="bold" size={24} className="text-green-400" />
-          </div>
-          <h1 className="text-lg tracking-tight text-zinc-400">
-            How can i help you today?
-          </h1>
-        </div>
-      )}
+      {isNewSession && <ChatGreeting />}
       {showButton && !showPopup && (
         <Button
           onClick={scrollToBottom}
@@ -330,53 +433,91 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
           </div>
         )}
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverContent className="w-[700px] p-0 rounded-2xl overflow-hidden">
+          <PopoverAnchor className="w-full">
+            {selectedPrompt && (
+              <div className="mb-2 px-2 w-full dark:bg-zinc-600 bg-zinc-300 rounded-2xl">
+                <div className="flex items-center justify-between py-1">
+                  <p className="text-sm">{selectedPrompt}</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedPrompt(undefined);
+                      textareaRef.current?.focus();
+                    }}
+                    className="shrink-0 ml-4 hover:bg-transparent dark:hover:bg-transparent"
+                  >
+                    <XIcon size={16} weight="bold" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            <form onSubmit={handleSubmit}>
+              <div className="flex items-center gap-2">
+                {/* <Textarea
+                  ref={textareaRef}
+                  name="prompt"
+                  placeholder="Type or Ask anything..."
+                  required
+                  onKeyDown={handleKeyDown}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  onChange={(e) => {
+                    if (e.target.value === "/") {
+                      setOpen(true);
+                    }
+                  }}
+                  defaultValue={text}
+                  className="!bg-transparent border-none focus-visible:!border-0 focus-visible:ring-0 shadow-none min-h-9 max-h-24 resize-none"
+                /> */}
+                <EditorContent
+                  editor={editor}
+                  className="w-full min-h-9 max-h-24 overflow-y-auto outline-none text-sm focus:outline-none p-2 cursor-text [&>*]:leading-6 [&>*]:outline-none wysiwyg"
+                />
+                {streaming ? (
+                  renderStopButton()
+                ) : (
+                  <Button
+                    type="submit"
+                    size="icon"
+                    variant="ghost"
+                    className="bg-transparent dark:hover:!bg-zinc-600/50 rounded-full"
+                  >
+                    <Send className="dark:text-white !w-[1.15rem] !h-[1.15rem]" />
+                  </Button>
+                )}
+              </div>
+            </form>
+          </PopoverAnchor>
+          <PopoverContent
+            align="start"
+            className="max-w-[400px] mb-2 p-0 rounded-2xl overflow-hidden"
+          >
             <CMDKCommand>
-              <CommandInput placeholder="Search prompts..." className="h-9" />
+              <CommandInput placeholder="Search..." className="h-9" />
               <CommandEmpty>No prompt found.</CommandEmpty>
-              <CommandList className="p-1">
-                {examples.map((example, index) => (
+              <CommandList className="p-1 max-h-[140px]">
+                {roles.map((role, index) => (
                   <CommandItem
                     key={index}
-                    onSelect={() => (textareaRef.current!.value = example)}
+                    onSelect={() => {
+                      editor?.commands.setContent(role.description);
+                      editor?.commands.insertContent("");
+                      editor?.commands.focus("end");
+                      // textareaRef.current!.value = role.description;
+                      setSelectedPrompt(role.name);
+                      // textareaRef.current?.focus();
+                      setOpen(false);
+                    }}
                   >
-                    {example}
+                    {index + 1}. {role.name}
                   </CommandItem>
                 ))}
               </CommandList>
             </CMDKCommand>
           </PopoverContent>
         </Popover>
-        <form onSubmit={handleSubmit}>
-          <div className="flex items-center gap-2">
-            <Textarea
-              ref={textareaRef}
-              name="prompt"
-              placeholder="Type or Ask anything..."
-              required
-              onKeyDown={handleKeyDown}
-              onChange={(e) => {
-                if (e.target.value === "/") {
-                  setOpen(true);
-                }
-              }}
-              defaultValue={text}
-              className="!bg-transparent border-none focus-visible:!border-0 focus-visible:ring-0 shadow-none min-h-9 max-h-24 resize-none"
-            />
-            {streamingMessage?.loading ? (
-              renderStopButton()
-            ) : (
-              <Button
-                type="submit"
-                size="icon"
-                variant="ghost"
-                className="bg-transparent dark:hover:!bg-zinc-600/50 rounded-full"
-              >
-                <Send className="dark:text-white !w-[1.15rem] !h-[1.15rem]" />
-              </Button>
-            )}
-          </div>
-        </form>
+
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <ActionTooltipProvider
@@ -401,15 +542,6 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
                 </Button>
               </div>
             </ActionTooltipProvider>
-            {modelName ? (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="bg-transparent dark:hover:!bg-zinc-600/50 border border-zinc-400"
-              >
-                {modelName}
-              </Button>
-            ) : null}
             <ModelSelect />
           </div>
           {!isListening ? (
@@ -446,17 +578,9 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
       </div>
       {isNewSession && (
         <ChatExamples
-          examples={examples}
+          examples={examplePrompts}
           onExampleClick={(prompt) => {
-            runModel(
-              {
-                role: RoleType.assistant,
-                type: PromptType.ask,
-                query: prompt,
-              },
-              sessionId!.toString(),
-              selectedModel?.modelName
-            );
+            handleRunModel(prompt);
           }}
         />
       )}
@@ -464,4 +588,4 @@ export const ChatInput = ({ modelName }: PromptInputPropsType) => {
   );
 };
 
-// 2:01:40
+// 4:14

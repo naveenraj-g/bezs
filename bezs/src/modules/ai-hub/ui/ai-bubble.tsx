@@ -23,12 +23,19 @@ import { TChatMessage } from "../types/chat-types";
 import { encodingForModel } from "js-tiktoken";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import { useChatContext } from "../context/chat/context";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { RegenerateWithModelSelect } from "./regenerate-model-select";
 
-export const AIMessageBubble = (props: TRenderMessageProps) => {
-  const { id, humanMessage, aiMessage, loading, model } = props;
-  const selectedModel = useSelectedModelStore((state) => state.selectedModel);
+export type TAIMessageBubble = {
+  chatMessage: TChatMessage;
+  isLast: boolean;
+};
+
+export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
+  const { id, rawAI, isLoading, model, errorMessage } = chatMessage;
+  // const selectedModel = useSelectedModelStore((state) => state.selectedModel);
   // const removeMessage = useChatStore((state) => state.removeMessage);
-  const { removeMessage } = useChatContext();
+  const { removeMessage, runModel } = useChatContext();
 
   const messageRef = useRef<HTMLDivElement>(null);
 
@@ -36,8 +43,8 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
   const { renderMarkdown } = useMarkdown();
 
   const handleCopyContent = () => {
-    if (messageRef?.current && aiMessage) {
-      copy(aiMessage);
+    if (messageRef?.current && rawAI) {
+      copy(rawAI);
     }
   };
 
@@ -53,7 +60,7 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
     return undefined;
   };
 
-  const tokenCount = getTokenCount({ model, rawAI: aiMessage });
+  const tokenCount = getTokenCount({ model, rawAI });
 
   return (
     <div className="flex flex-row gap-2 w-full">
@@ -65,12 +72,18 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
           y: 0,
           transition: { duration: 1, ease: easeInOut },
         }}
-        className="rounded-2xl p-3 w-full border border-black/10 dark:border-white/10 flex flex-col items-start"
+        className="rounded-2xl p-3 w-full flex flex-col items-start"
       >
-        {aiMessage && (
+        {rawAI && (
           <div className="pb-2 w-full">
-            {renderMarkdown(aiMessage, id === "streaming")}
+            {renderMarkdown(rawAI, id === "streaming")}
           </div>
+        )}
+        {errorMessage && (
+          <Alert variant="destructive">
+            <AlertTitle>Something went wrong!</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
         )}
         <div className="flex flex-row w-full justify-between items-center opacity-50 hover:opacity-100 transition-opacity">
           <motion.div
@@ -81,8 +94,8 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
               transition: { duration: 1, ease: easeInOut },
             }}
           >
-            <span>{loading ? <LinearSpinner /> : model}</span>
-            {tokenCount && !loading && (
+            <span>{isLoading ? <LinearSpinner /> : model}</span>
+            {tokenCount && !isLoading && (
               <ActionTooltipProvider
                 label="Estimated Output Tokens"
                 align="center"
@@ -91,7 +104,7 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
                 <span className="flex gap-1 items-center cursor-pointer">
                   {getTokenCount({
                     model,
-                    rawAI: aiMessage,
+                    rawAI,
                   })}{" "}
                   tokens
                   <InfoIcon size={14} weight="bold" className="inline-block" />
@@ -99,7 +112,7 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
               </ActionTooltipProvider>
             )}
           </motion.div>
-          {!loading && (
+          {!isLoading && (
             <div className="flex flex-row gap-1">
               <ActionTooltipProvider label="Copy" align="center" side="bottom">
                 <Button variant="ghost" size="icon" onClick={handleCopyContent}>
@@ -110,15 +123,18 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
                   )}
                 </Button>
               </ActionTooltipProvider>
-              <ActionTooltipProvider
-                label="Regenerate"
-                align="center"
-                side="bottom"
-              >
-                <Button variant="ghost" size="icon">
-                  <ArrowClockwiseIcon size={16} weight="regular" />
-                </Button>
-              </ActionTooltipProvider>
+              {chatMessage && isLast && (
+                <RegenerateWithModelSelect
+                  onRegenerate={(model: string) => {
+                    runModel({
+                      messageId: chatMessage.id,
+                      selectedModel: model,
+                      props: chatMessage.props!,
+                      sessionId: chatMessage.sessionId,
+                    });
+                  }}
+                />
+              )}
               <ActionTooltipProvider
                 label="Delete"
                 align="center"

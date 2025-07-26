@@ -56,23 +56,34 @@ export const useChatSession = () => {
     const sessions = await getSessions();
     const newSessions = sessions.map((session: TChatSession) => {
       if (session.id === sessionId) {
-        if (session?.messages?.length === 0) {
+        if (session?.messages?.length !== 0) {
+          const isExistingMessage = session.messages.find(
+            (message) => message.id === chatMessage.id
+          );
           return {
             ...session,
-            messages: [...session.messages, chatMessage],
+            messages: isExistingMessage
+              ? session.messages.map((message) => {
+                  if (message.id === chatMessage.id) return chatMessage;
+                  return message;
+                })
+              : [...session.messages, chatMessage],
             title: chatMessage.rawHuman,
             updatedAt: moment().toISOString(),
           };
         }
         return {
           ...session,
-          messages: [...session.messages, chatMessage],
+          messages: [chatMessage],
+          title: chatMessage.rawHuman,
           updatedAt: moment().toISOString(),
         };
       }
 
       return session;
     });
+
+    console.log({ newSessions });
 
     await set("chat-sessions", newSessions);
   };
