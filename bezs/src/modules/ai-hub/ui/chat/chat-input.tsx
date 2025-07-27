@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CircleStop, File, Mic, Send, Upload, X } from "lucide-react";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 // import { useChatStore } from "../../stores/useChatStore";
 import { PromptType, RoleType } from "../../types/chat-types";
 import { SparkleIcon, StopIcon } from "@phosphor-icons/react/dist/ssr";
@@ -45,6 +45,7 @@ import Text from "@tiptap/extension-text";
 import { EditorContent, Extension, Mark, useEditor } from "@tiptap/react";
 import moment from "moment";
 import { ChatGreeting } from "./chat-greeting";
+import { useChatSession } from "../../hooks/use-chat-session";
 
 export type TAttachment = {
   file?: File;
@@ -71,6 +72,7 @@ const zoomVariant = {
 
 export const ChatInput = () => {
   const params = useParams();
+  const router = useRouter();
   const sessionId = params?.sessionId;
   // const runModel = useChatStore((state) => state.runModel);
   // const currentSession = useChatStore((state) => state.currentSession);
@@ -80,8 +82,17 @@ export const ChatInput = () => {
   const { scrollToBottom, showButton } = useScrollToBottom();
   const { selectedText, showPopup, handleClearSelection } = useTextSelection();
 
-  const { runModel, currentSession, streaming, stopGeneration } =
-    useChatContext();
+  const {
+    initialPrompt,
+    setInitialPrompt,
+    runModel,
+    currentSession,
+    streaming,
+    stopGeneration,
+    createSession,
+  } = useChatContext();
+
+  const { getSessions, sortSessions } = useChatSession();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -116,8 +127,28 @@ export const ChatInput = () => {
     }
   }, [selectedModel]);
 
-  const handleRunModel = (query?: string, clear?: () => void) => {
+  const handleRunModel = async (query?: string, clear?: () => void) => {
+    if (!sessionId?.toString()) {
+      setInitialPrompt(query);
+      const sessions = (await getSessions()) || [];
+
+      const latestSession = sortSessions(sessions, "createdAt")?.[0];
+      if (latestSession && latestSession?.messages?.length === 0) {
+        router.push(`/bezs/ai-hub/ask-ai/${latestSession.id}`);
+        return;
+      }
+
+      const newSession = await createSession();
+      if (newSession[0]?.id) {
+        router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+        return;
+      }
+
+      return;
+    }
+
     if (!query) return;
+
     runModel({
       props: {
         role: RoleType.assistant,
@@ -133,6 +164,16 @@ export const ChatInput = () => {
     setContextValue("");
     clear?.();
   };
+
+  const hasRunRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasRunRef.current && initialPrompt && sessionId) {
+      hasRunRef.current = true;
+      handleRunModel(initialPrompt);
+      setInitialPrompt(undefined);
+    }
+  }, [initialPrompt, sessionId]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -325,8 +366,8 @@ export const ChatInput = () => {
   };
 
   return (
-    <div className="relative">
-      {isNewSession && <ChatGreeting />}
+    <div className="relative w-full">
+      {(isNewSession || !sessionId?.toString()) && <ChatGreeting />}
       {showButton && !showPopup && (
         <Button
           onClick={scrollToBottom}
@@ -576,7 +617,7 @@ export const ChatInput = () => {
           )}
         </div>
       </div>
-      {isNewSession && (
+      {(isNewSession || !sessionId?.toString()) && (
         <ChatExamples
           examples={examplePrompts}
           onExampleClick={(prompt) => {

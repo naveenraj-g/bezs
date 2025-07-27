@@ -11,7 +11,7 @@ import {
 import { useFilterStore } from "../stores/useFilterStore";
 // import { useChatStore } from "../stores/useChatStore";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { startTransition, useEffect } from "react";
 import { TChatSession } from "../types/chat-types";
 import {
   ChatIcon,
@@ -53,6 +53,8 @@ export const FilterModal = () => {
 
   const { sortSessions } = useChatSession();
 
+  const allSortedSessions = sortSessions(sessions, "updatedAt");
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -76,11 +78,18 @@ export const FilterModal = () => {
           <CommandItem
             className="gap-3 rounded-lg h-10"
             value="new"
-            onSelect={(value) => {
-              createSession().then((session: TChatSession) => {
-                router.push(`/bezs/ai-hub/ask-ai/${session.id}`);
+            onSelect={async () => {
+              // createSession().then((session: TChatSession) => {
+              //   router.push(`/bezs/ai-hub/ask-ai/${session.id}`);
+              //   filterClose();
+              // });
+
+              const newSession = await createSession();
+
+              if (newSession[0]?.id) {
+                router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
                 filterClose();
-              });
+              }
             }}
           >
             <PlusIcon size={14} weight="bold" />
@@ -92,12 +101,12 @@ export const FilterModal = () => {
           <CommandItem
             className="gap-3 rounded-lg h-10"
             value="clear history"
-            onSelect={async (value) => {
+            onSelect={async () => {
               await clearChatSessions!();
               const newSession = await createSession();
 
               if (newSession[0]?.id) {
-                router.push(`/bezs/ai-hub/ask-ai/${newSession.id}`);
+                router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
                 filterClose();
               }
             }}
@@ -108,7 +117,10 @@ export const FilterModal = () => {
         </CommandGroup>
 
         <CommandGroup heading="Chat History">
-          {sortSessions(sessions, "updatedAt").map((session) => (
+          {allSortedSessions.length === 0 && (
+            <CommandItem>No sessions found</CommandItem>
+          )}
+          {allSortedSessions.map((session) => (
             <CommandItem
               key={session.id}
               value={`${session.id}/${session.title}`}
@@ -118,7 +130,7 @@ export const FilterModal = () => {
                   ? "bg-black/10 dark:bg-white/10"
                   : undefined
               )}
-              onSelect={(value) => {
+              onSelect={() => {
                 router.push(`/bezs/ai-hub/ask-ai/${session.id}`);
                 filterClose();
               }}
@@ -142,8 +154,17 @@ export const FilterModal = () => {
                       className="text-red-500"
                       onClick={async () => {
                         await removeSession(session.id);
-                        router.push("/bezs/ai-hub/ask-ai");
+
+                        setTimeout(() => {
+                          router.push("/bezs/ai-hub/ask-ai");
+                        }, 100);
                       }}
+                      // onSelect={async () => {
+                      //   console.log("selected");
+                      //   await removeSession(session.id);
+
+                      //   router.push("/bezs/ai-hub/ask-ai");
+                      // }}
                     >
                       <Trash2 className="text-red-500" /> Delete
                     </DropdownMenuItem>

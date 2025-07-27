@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
   try {
     const groqResp = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
+      // "http://127.0.0.1:11434/api/chat",
       {
         method: "POST",
         headers: {

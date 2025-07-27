@@ -17,6 +17,9 @@ export type TChatContext = {
   runModel: (props: TRunModel) => Promise<void>;
   removeMessage: (messageId: string) => void;
   error?: string | undefined;
+
+  initialPrompt?: string;
+  setInitialPrompt: (query: string | undefined) => void;
 };
 
 export const ChatContext = createContext<TChatContext | undefined>(undefined);

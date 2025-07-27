@@ -22,6 +22,7 @@ import { useSelectedModelStore } from "../stores/useSelectedModelStore";
 import moment from "moment";
 import type { Serialized } from "@langchain/core/load/serializable";
 import { LLMResult } from "@langchain/core/outputs";
+import { RunnableLike, RunnableSequence } from "@langchain/core/runnables";
 
 export const useLLM = ({
   onInit,
@@ -87,18 +88,18 @@ export const useLLM = ({
       user,
     ]);
 
-    const previousMessageHistory = sortMessages(history, "createdAt")
-      .slice(0, messageLimit === "all" ? history.length : messageLimit)
-      .reduce(
-        (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman, image }) => {
-          if (rawAI && rawHuman) {
-            return [...acc, new HumanMessage(rawHuman), new AIMessage(rawAI)];
-          } else {
-            return [...acc];
-          }
-        },
-        []
-      );
+    // const previousMessageHistory = sortMessages(history, "createdAt")
+    //   .slice(0, messageLimit === "all" ? history.length : messageLimit)
+    //   .reduce(
+    //     (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman, image }) => {
+    //       if (rawAI && rawHuman) {
+    //         return [...acc, new HumanMessage(rawHuman), new AIMessage(rawAI)];
+    //       } else {
+    //         return [...acc];
+    //       }
+    //     },
+    //     []
+    //   );
 
     // prompt.format({
     //   chat_history: previousMessageHistory || [],
@@ -191,32 +192,54 @@ export const useLLM = ({
       // });
 
       const model = await createInstance(selectedModel);
-      model.bind({ signal: abortController.signal });
-      const formattedChatPrompt = await preparePrompt(
+
+      const prompt = await preparePrompt(
         props,
-        currentSession?.messages || []
+        currentSession?.messages?.filter((m) => m.id !== messageId) || []
       );
 
-      const stream = await model.stream(formattedChatPrompt, {
-        options: {
-          stream: true,
-          signal: abortController.signal,
-        },
-        callbacks: [
-          {
-            handleLLMStart: async (llm: Serialized, prompts: string[]) => {
-              console.log(JSON.stringify(llm, null, 2));
-              console.log(JSON.stringify(prompts, null, 2));
-            },
-            handleLLMEnd: async (output: LLMResult) => {
-              console.log(JSON.stringify(output, null, 2));
-            },
-            handleLLMError: async (err: Error) => {
-              console.error(err);
-            },
+      const previousAllowedChatHistory = chatHistory
+        .slice(0, messageLimit === "all" ? history.length : messageLimit)
+        .reduce(
+          (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman, image }) => {
+            if (rawAI && rawHuman) {
+              return [...acc, new HumanMessage(rawHuman), new AIMessage(rawAI)];
+            } else {
+              return [...acc];
+            }
           },
-        ],
-      });
+          []
+        );
+
+      const chain = RunnableSequence.from([
+        prompt,
+        model.bind({
+          signal: abortController.signal,
+        }) as RunnableLike,
+      ]);
+
+      const stream = await chain.stream(
+        {
+          chat_history: previousAllowedChatHistory || [],
+          context: props.context,
+          input: props.query,
+        },
+        {
+          callbacks: [
+            {
+              handleLLMStart: async (llm: Serialized, prompts: string[]) => {
+                console.log("LLM Start");
+              },
+              handleLLMEnd: async (output: LLMResult) => {
+                console.log("LLM End");
+              },
+              handleLLMError: async (err: Error) => {
+                console.error(err);
+              },
+            },
+          ],
+        }
+      );
 
       if (!stream) {
         return;
@@ -233,6 +256,7 @@ export const useLLM = ({
         model: selectedModel,
         isLoading: true,
         hasError: false,
+        errorMessage: undefined,
         createdAt: moment().toISOString(),
       });
 
@@ -269,6 +293,7 @@ export const useLLM = ({
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e: any) {
+      console.log(e);
       onError({
         id: newMessageId,
         props,
@@ -288,5 +313,3 @@ export const useLLM = ({
     stopGeneration,
   };
 };
-
-// 3:05

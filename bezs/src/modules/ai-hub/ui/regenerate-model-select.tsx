@@ -24,7 +24,7 @@ export const RegenerateWithModelSelect = ({
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <ActionTooltipProvider label="Regenerate">
+        <ActionTooltipProvider label="Regenerate" side="bottom">
           <DropdownMenuTrigger asChild>
             {
               <Button variant="ghost" size="icon">

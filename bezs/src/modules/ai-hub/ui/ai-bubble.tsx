@@ -117,9 +117,9 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
               <ActionTooltipProvider label="Copy" align="center" side="bottom">
                 <Button variant="ghost" size="icon" onClick={handleCopyContent}>
                   {showCopied ? (
-                    <CheckIcon size={16} weight="regular" />
+                    <CheckIcon size={16} weight="bold" />
                   ) : (
-                    <CopyIcon size={16} weight="regular" />
+                    <CopyIcon size={16} weight="bold" />
                   )}
                 </Button>
               </ActionTooltipProvider>
@@ -150,7 +150,7 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                     });
                   }}
                 >
-                  <TrashSimpleIcon size={16} weight="regular" />
+                  <TrashSimpleIcon size={16} weight="bold" />
                 </Button>
               </ActionTooltipProvider>
             </div>

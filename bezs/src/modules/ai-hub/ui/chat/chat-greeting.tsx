@@ -5,7 +5,7 @@ export const ChatGreeting = () => {
     const date = moment();
     const hours = date.get("hour");
     if (hours < 12) return `Good Morning,`;
-    if (hours < 18) return `Good Afternoon,`;
+    if (hours < 16) return `Good Afternoon,`;
     return `Good Evening,`;
   };
 
