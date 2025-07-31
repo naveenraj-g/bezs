@@ -23,6 +23,7 @@ import moment from "moment";
 import type { Serialized } from "@langchain/core/load/serializable";
 import { LLMResult } from "@langchain/core/outputs";
 import { RunnableLike, RunnableSequence } from "@langchain/core/runnables";
+import { useTokenCounter } from "./use-token-counter";
 
 export const useLLM = ({
   onInit,
@@ -43,6 +44,7 @@ export const useLLM = ({
     (state) => state.defaultModelPreferences
   );
   const abortController = new AbortController();
+  const { getTokenCount, countPricing } = useTokenCounter();
 
   const stopGeneration = () => {
     abortController?.abort();
@@ -55,16 +57,16 @@ export const useLLM = ({
 
     const system: BaseMessagePromptTemplateLike = [
       "system",
-      `${systemPrompt}.`,
+      `${systemPrompt}. ${
+        props?.context
+          ? `Answer user's question based on the following context: """{context}"""`
+          : ""
+      } ${hasPreviousMessages ? `You can also refer this pervious conversations if needed.` : ""}`,
     ];
 
     const messageHolders = new MessagesPlaceholder("chat_history");
 
-    const userContext = `{input} ${
-      props?.context
-        ? `Answer user's question based on the following context: """{context}"""`
-        : ""
-    } ${hasPreviousMessages ? `You can also refer this pervious conversations if needed.` : ""}`;
+    const userContext = `{input}`;
 
     const user: BaseMessagePromptTemplateLike = [
       "user",
@@ -218,6 +220,14 @@ export const useLLM = ({
         }) as RunnableLike,
       ]);
 
+      const promptValue = await prompt.formatPromptValue({
+        chat_history: previousAllowedChatHistory || [],
+        context: props.context,
+        input: props.query,
+      });
+
+      console.log("pm", promptValue.toString());
+
       const stream = await chain.stream(
         {
           chat_history: previousAllowedChatHistory || [],
@@ -231,7 +241,7 @@ export const useLLM = ({
                 console.log("LLM Start");
               },
               handleLLMEnd: async (output: LLMResult) => {
-                console.log("LLM End");
+                console.log("LLM End", output);
               },
               handleLLMError: async (err: Error) => {
                 console.error(err);
@@ -260,8 +270,12 @@ export const useLLM = ({
         createdAt: moment().toISOString(),
       });
 
+      let finalChunk;
+
       for await (const chunk of stream) {
         streamedMessage += chunk.content;
+        console.log(chunk?.additional_kwargs);
+        console.log("chunk", chunk);
         onStream({
           id: newMessageId,
           props,

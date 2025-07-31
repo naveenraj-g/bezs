@@ -16,10 +16,10 @@ const AiHubAskAiLayout = async ({
   }
 
   return (
-    <div className="h-[calc(100vh-141px)] overflow-y-auto">
+    <div className="h-[calc(100dvh-141px)] overflow-y-auto">
       {/* <StoreInitializerProvider /> */}
       <Topbar />
-      <div className="h-[calc(100vh-189px)]">{children}</div>
+      <div className="h-[calc(100dvh-189px)]">{children}</div>
     </div>
   );
 };

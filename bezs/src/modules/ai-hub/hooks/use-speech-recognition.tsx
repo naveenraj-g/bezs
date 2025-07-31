@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { toast } from "sonner";
 
 export const useSpeechRecognition = () => {
   const [text, setText] = useState("");
@@ -43,6 +44,13 @@ export const useSpeechRecognition = () => {
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error("Speech recognition error:", event.error);
+
+      if (
+        event.error === "not-allowed" ||
+        event.error === "service-not-allowed"
+      ) {
+        stopListening();
+      }
     };
 
     recognition.onend = () => {
@@ -60,15 +68,37 @@ export const useSpeechRecognition = () => {
   }, []);
 
   const startListening = () => {
-    setText("");
-    setInterimText("");
-    setIsListening(true);
-    recognitionRef.current?.start();
+    if (!recognitionRef.current) {
+      const err = "Speech recognition not initialized.";
+      toast.error(err, {
+        richColors: true,
+      });
+      return;
+    }
+
+    try {
+      setText("");
+      setInterimText("");
+      setIsListening(true);
+      recognitionRef.current?.start();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      toast.error("Speech recognition error", {
+        description: "Not supported in your browser",
+        richColors: true,
+      });
+    }
   };
 
   const stopListening = () => {
     setIsListening(false);
-    recognitionRef.current?.stop();
+    try {
+      recognitionRef.current?.stop();
+    } catch (err: any) {
+      const errMsg = "Failed to stop speech recognition.";
+      console.error(errMsg, err);
+      toast.error(errMsg);
+    }
   };
 
   return {

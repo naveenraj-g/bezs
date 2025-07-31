@@ -89,7 +89,10 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         setCurrentSessionLoading(false);
       })
       .catch(() => {
-        setCurrentSessionLoading(false);
+        createNewSession().then((sessions) => {
+          setCurrentSession(Array.isArray(sessions) ? sessions[0] : sessions);
+          setCurrentSessionLoading(false);
+        });
       });
   };
 
@@ -136,7 +139,7 @@ export const ChatProvider = ({ children }: TChatProvider) => {
       return;
     }
     setCurrentSessionLoading(true);
-    removeMessageById(currentSession?.id, messageId).then(async () => {
+    removeMessageById(currentSession?.id, messageId).then(async (sessions) => {
       fetchCurrentSession().then(() => setCurrentSessionLoading(false));
     });
   };

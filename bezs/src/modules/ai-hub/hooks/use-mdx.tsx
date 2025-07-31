@@ -36,6 +36,39 @@ export const useMarkdown = () => {
               {children}
             </motion.span>
           ),
+          table: (children) => {
+            return (
+              <div className="overflow-x-auto my-3 border border-zinc-300 dark:border-zinc-800 rounded-xl dark:bg-zinc-800">
+                <table className="w-full overflow-hidden text-sm text-left rtl:text-right text-gray-800 dark:text-gray-200">
+                  {children}
+                </table>
+              </div>
+            );
+          },
+          tableHeader: (children) => {
+            return (
+              <thead className="text-xs w-full font-medium text-zinc-800 uppercase bg-zinc-100/70 dark:bg-white/10 dark:text-white/70">
+                {children}
+              </thead>
+            );
+          },
+          tableRow: (children) => {
+            return (
+              <tr className="hover:bg-zinc-50/70 dark:hover:bg-white/5">
+                {children}
+              </tr>
+            );
+          },
+          tableCell: (children, flag) => {
+            if (flag.header) {
+              return <th className="p-3 text-xs">{children}</th>;
+            } else {
+              return <td className="p-3 text-xs">{children}</td>;
+            }
+          },
+          tableBody: (children) => {
+            return <tbody>{children}</tbody>;
+          },
           paragraph: (children) => (
             <p className="text-sm leading-7">{children}</p>
           ),

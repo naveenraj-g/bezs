@@ -17,7 +17,12 @@ import { useSelectedModelStore } from "../../stores/useSelectedModelStore";
 import { useSpeechRecognition } from "../../hooks/use-speech-recognition";
 import { VoiceWaveAnimation } from "../voice-wave-animation";
 import { useScrollToBottom } from "../../hooks/use-scroll-to-bottom";
-import { ArrowDownIcon, QuotesIcon, XIcon } from "@phosphor-icons/react";
+import {
+  ArrowDownIcon,
+  PlusIcon,
+  QuotesIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { useTextSelection } from "../../hooks/use-text-selection";
 import { ChatExamples } from "./chat-examples";
 import { toast } from "sonner";
@@ -41,11 +46,13 @@ import Highlight from "@tiptap/extension-highlight";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
 import Text from "@tiptap/extension-text";
+import HardBreak from "@tiptap/extension-hard-break";
 
 import { EditorContent, Extension, Mark, useEditor } from "@tiptap/react";
 import moment from "moment";
 import { ChatGreeting } from "./chat-greeting";
 import { useChatSession } from "../../hooks/use-chat-session";
+import { Badge } from "@/components/ui/badge";
 
 export type TAttachment = {
   file?: File;
@@ -128,6 +135,8 @@ export const ChatInput = () => {
   }, [selectedModel]);
 
   const handleRunModel = async (query?: string, clear?: () => void) => {
+    if (!query) return;
+
     if (!sessionId?.toString()) {
       setInitialPrompt(query);
       const sessions = (await getSessions()) || [];
@@ -146,8 +155,6 @@ export const ChatInput = () => {
 
       return;
     }
-
-    if (!query) return;
 
     runModel({
       props: {
@@ -182,7 +189,10 @@ export const ChatInput = () => {
     const fileTypes = ["image/jpeg", "image/png", "image/gif"];
 
     if (file && !fileTypes.includes(file?.type)) {
-      toast.message("Please select a valid image (JPEG, PNG, GIF).");
+      toast.error("Invalid format", {
+        description: "Please select a valid image (JPEG, PNG, GIF).",
+        richColors: true,
+      });
       return;
     }
 
@@ -230,12 +240,6 @@ export const ChatInput = () => {
     },
   });
 
-  const inputRegex = /\{\{(.*?)\}\}/g;
-
-  const CustomMark = Mark.create({
-    name: "customMark",
-  });
-
   const editor = useEditor({
     extensions: [
       Document,
@@ -251,6 +255,7 @@ export const ChatInput = () => {
           class: "prompt-highlight",
         },
       }),
+      HardBreak,
     ],
     content: ``,
     onTransaction(props) {
@@ -305,17 +310,28 @@ export const ChatInput = () => {
     }
   }, [text]);
 
+  useEffect(() => {
+    if (editor?.isActive) {
+      editor.commands.focus("end");
+    }
+  }, [editor?.commands, editor?.isActive]);
+
   // editor?.commands.setContent(text)
 
   const focusToInput = () => {
-    editor?.commands.clearContent();
     editor?.commands.focus("end");
+  };
+
+  const clearInput = () => {
+    editor?.commands.clearContent();
   };
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!sessionId) return;
+
+    console.log("Form Submitted");
 
     const formData = new FormData(e.currentTarget);
     const prompt = formData.get("prompt") as string;
@@ -475,7 +491,7 @@ export const ChatInput = () => {
         )}
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverAnchor className="w-full">
-            {selectedPrompt && (
+            {/* {selectedPrompt && (
               <div className="mb-2 px-2 w-full dark:bg-zinc-600 bg-zinc-300 rounded-2xl">
                 <div className="flex items-center justify-between py-1">
                   <p className="text-sm">{selectedPrompt}</p>
@@ -484,7 +500,8 @@ export const ChatInput = () => {
                     variant="ghost"
                     onClick={() => {
                       setSelectedPrompt(undefined);
-                      textareaRef.current?.focus();
+                      // textareaRef.current?.focus();
+                      editor?.commands.focus("end")
                     }}
                     className="shrink-0 ml-4 hover:bg-transparent dark:hover:bg-transparent"
                   >
@@ -492,8 +509,8 @@ export const ChatInput = () => {
                   </Button>
                 </div>
               </div>
-            )}
-            <form onSubmit={handleSubmit}>
+            )} */}
+            <>
               <div className="flex items-center gap-2">
                 {/* <Textarea
                   ref={textareaRef}
@@ -512,8 +529,9 @@ export const ChatInput = () => {
                   className="!bg-transparent border-none focus-visible:!border-0 focus-visible:ring-0 shadow-none min-h-9 max-h-24 resize-none"
                 /> */}
                 <EditorContent
+                  autoFocus
                   editor={editor}
-                  className="w-full min-h-9 max-h-24 overflow-y-auto outline-none text-sm focus:outline-none p-2 cursor-text [&>*]:leading-6 [&>*]:outline-none wysiwyg"
+                  className="w-full min-h-8 max-h-24 overflow-y-auto outline-none text-sm focus:outline-none p-2 cursor-text [&>*]:leading-6 [&>*]:outline-none wysiwyg"
                 />
                 {streaming ? (
                   renderStopButton()
@@ -523,21 +541,30 @@ export const ChatInput = () => {
                     size="icon"
                     variant="ghost"
                     className="bg-transparent dark:hover:!bg-zinc-600/50 rounded-full"
+                    onClick={() => {
+                      handleRunModel(editor?.getText(), () => {
+                        editor?.commands.clearContent();
+                      });
+                    }}
                   >
                     <Send className="dark:text-white !w-[1.15rem] !h-[1.15rem]" />
                   </Button>
                 )}
               </div>
-            </form>
+            </>
           </PopoverAnchor>
           <PopoverContent
             align="start"
-            className="max-w-[400px] mb-2 p-0 rounded-2xl overflow-hidden"
+            className="w-56 xxs:w-76 mb-2 p-0 rounded-2xl overflow-hidden"
           >
             <CMDKCommand>
               <CommandInput placeholder="Search..." className="h-9" />
               <CommandEmpty>No prompt found.</CommandEmpty>
               <CommandList className="p-1 max-h-[140px]">
+                <CommandItem onScroll={() => {}}>
+                  <PlusIcon size={14} weight="bold" className="shrink-0" />{" "}
+                  Create New Prompt <Badge>Will add soon</Badge>
+                </CommandItem>
                 {roles.map((role, index) => (
                   <CommandItem
                     key={index}

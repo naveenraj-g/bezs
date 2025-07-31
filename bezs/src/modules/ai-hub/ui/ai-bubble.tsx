@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { TRenderMessageProps } from "./chat/chat-messages";
 import { useClipboard } from "../hooks/use-clipboard";
 import { useMarkdown } from "../hooks/use-mdx";
@@ -8,7 +8,7 @@ import { motion, easeInOut } from "framer-motion";
 import Spinner from "./loading-spinner";
 import { LinearSpinner } from "./loading-spinner";
 import { useSelectedModelStore } from "../stores/useSelectedModelStore";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   ArrowClockwiseIcon,
   BookmarkSimpleIcon,
@@ -25,6 +25,14 @@ import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provi
 import { useChatContext } from "../context/chat/context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { RegenerateWithModelSelect } from "./regenerate-model-select";
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { useTokenCounter } from "../hooks/use-token-counter";
 
 export type TAIMessageBubble = {
   chatMessage: TChatMessage;
@@ -41,6 +49,7 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
 
   const { showCopied, copy } = useClipboard();
   const { renderMarkdown } = useMarkdown();
+  const { countPricing, getTokenCount } = useTokenCounter();
 
   const handleCopyContent = () => {
     if (messageRef?.current && rawAI) {
@@ -48,19 +57,20 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
     }
   };
 
-  const getTokenCount = (
-    message: Partial<Pick<TChatMessage, "model" | "rawAI">>
-  ) => {
-    const enc = encodingForModel("gpt-3.5-turbo");
+  // const getTokenCount = (
+  //   message: Partial<Pick<TChatMessage, "model" | "rawAI">>
+  // ) => {
+  //   const enc = encodingForModel("gpt-3.5-turbo");
 
-    if (message.rawAI) {
-      return enc.encode(message.rawAI).length;
-    }
+  //   if (message.rawAI) {
+  //     return enc.encode(message.rawAI).length;
+  //   }
 
-    return undefined;
-  };
+  //   return undefined;
+  // };
 
-  const tokenCount = getTokenCount({ model, rawAI });
+  // const tokenCount = getTokenCount({ model, rawAI });
+  const tokenCount = getTokenCount(rawAI!);
 
   return (
     <div className="flex flex-row gap-2 w-full">
@@ -85,7 +95,7 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
-        <div className="flex flex-row w-full justify-between items-center opacity-50 hover:opacity-100 transition-opacity">
+        <div className="flex xs:flex-row flex-col w-full justify-between items-center opacity-50 hover:opacity-100 transition-opacity">
           <motion.div
             className="text-xs py-1/2 px-2 flex items-center gap-4"
             initial={{ opacity: 0 }}
@@ -102,10 +112,7 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                 side="bottom"
               >
                 <span className="flex gap-1 items-center cursor-pointer">
-                  {getTokenCount({
-                    model,
-                    rawAI,
-                  })}{" "}
+                  {tokenCount}
                   tokens
                   <InfoIcon size={14} weight="bold" className="inline-block" />
                 </span>
@@ -140,18 +147,37 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                 align="center"
                 side="bottom"
               >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    removeMessage(id);
-                    toast("Message Deleted.", {
-                      duration: 600,
-                    });
-                  }}
-                >
-                  <TrashSimpleIcon size={16} weight="bold" />
-                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <TrashSimpleIcon size={16} weight="bold" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent side="bottom" collisionPadding={10}>
+                    <p className="text-sm font-medium pb-2">
+                      Are you sure, you want to delete this message?
+                    </p>
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        className="h-7 px-2 bg-red-600 hover:bg-red-700 text-white"
+                        onClick={() => {
+                          removeMessage(id);
+                        }}
+                      >
+                        Delete Message
+                      </Button>
+                      <PopoverClose
+                        className={cn(
+                          "!h-7 !px-2",
+                          buttonVariants({ variant: "ghost", size: "sm" })
+                        )}
+                      >
+                        Cancel
+                      </PopoverClose>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </ActionTooltipProvider>
             </div>
           )}

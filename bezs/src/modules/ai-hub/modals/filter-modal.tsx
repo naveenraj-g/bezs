@@ -31,6 +31,7 @@ import {
 import { EllipsisVertical, Trash2 } from "lucide-react";
 import { useChatContext } from "../context/chat/context";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const FilterModal = () => {
   const router = useRouter();
@@ -102,13 +103,26 @@ export const FilterModal = () => {
             className="gap-3 rounded-lg h-10"
             value="clear history"
             onSelect={async () => {
-              await clearChatSessions!();
-              const newSession = await createSession();
+              filterClose();
+              toast.warning("Are you sure?", {
+                description:
+                  "This will clear all chat history. This action can't be undone.",
+                action: {
+                  label: "Delete",
+                  onClick: async () => {
+                    await clearChatSessions!();
+                    const newSession = await createSession();
 
-              if (newSession[0]?.id) {
-                router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
-                filterClose();
-              }
+                    if (newSession[0]?.id) {
+                      router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+                    }
+                  },
+                },
+                actionButtonStyle: {
+                  padding: "0.8rem",
+                },
+                closeButton: true,
+              });
             }}
           >
             <EraserIcon size={14} weight="bold" />

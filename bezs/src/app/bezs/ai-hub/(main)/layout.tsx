@@ -23,7 +23,7 @@ const AiHubMainLayout = async ({ children }: { children: React.ReactNode }) => {
           }}
         >
           <CommonSideBar label="MENUS" />
-          <main className="h-[calc(100vh-53px)] overflow-y-auto w-full py-4 px-6 space-y-4">
+          <main className="h-[calc(100dvh-53px)] overflow-y-auto w-full py-4 px-2 sm:px-6 space-y-4">
             <div className="flex items-center">
               <SidebarTrigger className="cursor-pointer" />
               <BreadCrumb />
