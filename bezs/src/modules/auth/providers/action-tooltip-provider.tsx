@@ -10,6 +10,7 @@ interface ActionTooltipProviderProps {
   children: React.ReactNode;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
+  className?: string;
 }
 
 const ActionTooltipProvider = ({
@@ -17,12 +18,13 @@ const ActionTooltipProvider = ({
   children,
   side,
   align,
+  className,
 }: ActionTooltipProviderProps) => {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={50}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent side={side} align={align}>
+        <TooltipContent side={side} align={align} className={className}>
           <p>{label}</p>
         </TooltipContent>
       </Tooltip>
