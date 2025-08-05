@@ -70,69 +70,70 @@ export const FilterModal = () => {
     };
   }, [toggleFilter]);
 
+  const actions = [
+    {
+      name: "New Chat",
+      icon: PlusIcon,
+      action: async () => {
+        const newSession = await createSession();
+
+        if (newSession[0]?.id) {
+          router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+          filterClose();
+        }
+      },
+    },
+    {
+      name: "Clear History",
+      icon: EraserIcon,
+      action: async () => {
+        filterClose();
+        toast.warning("Are you sure?", {
+          description:
+            "This will clear all chat history. This action can't be undone.",
+          action: {
+            label: "Delete",
+            onClick: async () => {
+              await clearChatSessions!();
+              const newSession = await createSession();
+
+              if (newSession[0]?.id) {
+                router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+              }
+            },
+          },
+          actionButtonStyle: {
+            padding: "0.8rem",
+          },
+          closeButton: true,
+        });
+      },
+    },
+  ];
+
   return (
     <CommandDialog open={isFilterOpen} onOpenChange={filterClose}>
       <CommandInput placeholder="Search..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Actions">
-          <CommandItem
-            className="gap-3 rounded-lg h-10"
-            value="new"
-            onSelect={async () => {
-              // createSession().then((session: TChatSession) => {
-              //   router.push(`/bezs/ai-hub/ask-ai/${session.id}`);
-              //   filterClose();
-              // });
-
-              const newSession = await createSession();
-
-              if (newSession[0]?.id) {
-                router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
-                filterClose();
-              }
-            }}
-          >
-            <PlusIcon size={14} weight="bold" />
-            New Chat
-          </CommandItem>
-        </CommandGroup>
-
-        <CommandGroup>
-          <CommandItem
-            className="gap-3 rounded-lg h-10"
-            value="clear history"
-            onSelect={async () => {
-              filterClose();
-              toast.warning("Are you sure?", {
-                description:
-                  "This will clear all chat history. This action can't be undone.",
-                action: {
-                  label: "Delete",
-                  onClick: async () => {
-                    await clearChatSessions!();
-                    const newSession = await createSession();
-
-                    if (newSession[0]?.id) {
-                      router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
-                    }
-                  },
-                },
-                actionButtonStyle: {
-                  padding: "0.8rem",
-                },
-                closeButton: true,
-              });
-            }}
-          >
-            <EraserIcon size={14} weight="bold" />
-            Clear History
-          </CommandItem>
+          {actions.map((action, index) => {
+            return (
+              <CommandItem
+                key={index}
+                className="gap-2 rounded-lg h-10"
+                onSelect={action.action}
+              >
+                <action.icon size={14} weight="bold" className="shrink-0" />
+                {action.name}
+              </CommandItem>
+            );
+          })}
         </CommandGroup>
 
         <CommandGroup heading="Chat History">
           {allSortedSessions.length === 0 && (
-            <CommandItem>No sessions found</CommandItem>
+            <CommandItem>No chat history found</CommandItem>
           )}
           {allSortedSessions.map((session) => (
             <CommandItem
@@ -173,12 +174,6 @@ export const FilterModal = () => {
                           router.push("/bezs/ai-hub/ask-ai");
                         }, 100);
                       }}
-                      // onSelect={async () => {
-                      //   console.log("selected");
-                      //   await removeSession(session.id);
-
-                      //   router.push("/bezs/ai-hub/ask-ai");
-                      // }}
                     >
                       <Trash2 className="text-red-500" /> Delete
                     </DropdownMenuItem>

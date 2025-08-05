@@ -67,7 +67,9 @@ export const useChatSession = () => {
             ...session,
             messages: isExistingMessage
               ? session.messages.map((message) => {
-                  if (message.id === chatMessage.id) return chatMessage;
+                  if (message.id === chatMessage.id) {
+                    return { ...message, ...chatMessage };
+                  }
                   return message;
                 })
               : [...session.messages, chatMessage],
@@ -85,8 +87,6 @@ export const useChatSession = () => {
 
       return session;
     });
-
-    console.log({ newSessions });
 
     await set("chat-sessions", newSessions);
   };
@@ -113,7 +113,7 @@ export const useChatSession = () => {
 
   const updateSession = async (
     sessionId: string,
-    newSession: Omit<TChatSession, "id">
+    newSession: Partial<Omit<TChatSession, "id">>
   ) => {
     const sessions = await getSessions();
     const newSessions = sessions.map((session: TChatSession) => {

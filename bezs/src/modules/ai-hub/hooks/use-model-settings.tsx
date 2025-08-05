@@ -2,19 +2,14 @@
 
 import { useFormik } from "formik";
 import { useEffect } from "react";
-import { useSelectedModelStore } from "../stores/useSelectedModelStore";
+import { usePreferences, defaultPreferences } from "./use-preferences";
 
 export type TModelSettings = {
   refresh?: boolean;
 };
 
 export const useModelSettings = ({ refresh }: TModelSettings) => {
-  const modelPreferences = useSelectedModelStore(
-    (state) => state.modelPreferences
-  );
-  const defaultModelPreferences = useSelectedModelStore(
-    (state) => state.defaultModelPreferences
-  );
+  const { getPreferences } = usePreferences();
 
   const formik = useFormik({
     initialValues: {
@@ -24,35 +19,41 @@ export const useModelSettings = ({ refresh }: TModelSettings) => {
       topP: 1,
       topK: 5,
       maxTokens: 1000,
+      googleSearchEngineId: "",
+      googleSearchApiKey: "",
     },
     onSubmit: (values) => {},
   });
 
   useEffect(() => {
-    formik.setFieldValue(
-      "systemPrompt",
-      modelPreferences.systemPrompt || defaultModelPreferences.systemPrompt
-    );
-    formik.setFieldValue(
-      "messageLimit",
-      modelPreferences.messageLimit || defaultModelPreferences.messageLimit
-    );
-    formik.setFieldValue(
-      "temperature",
-      modelPreferences.temperature || defaultModelPreferences.temperature
-    );
-    formik.setFieldValue(
-      "topP",
-      modelPreferences.topP || defaultModelPreferences.topP
-    );
-    formik.setFieldValue(
-      "topK",
-      modelPreferences.topK || defaultModelPreferences.topK
-    );
-    formik.setFieldValue(
-      "maxTokens",
-      modelPreferences.maxTokens || defaultModelPreferences.maxTokens
-    );
+    getPreferences().then((preferences) => {
+      formik.setFieldValue(
+        "systemPrompt",
+        preferences.systemPrompt || defaultPreferences.systemPrompt
+      );
+      formik.setFieldValue(
+        "messageLimit",
+        preferences.messageLimit || defaultPreferences.messageLimit
+      );
+      formik.setFieldValue(
+        "temperature",
+        preferences.temperature || defaultPreferences.temperature
+      );
+      formik.setFieldValue("topP", preferences.topP || defaultPreferences.topP);
+      formik.setFieldValue("topK", preferences.topK || defaultPreferences.topK);
+      formik.setFieldValue(
+        "maxTokens",
+        preferences.maxTokens || defaultPreferences.maxTokens
+      );
+      formik.setFieldValue(
+        "googleSearchEngineId",
+        preferences.googleSearchEngineId || ""
+      );
+      formik.setFieldValue(
+        "googleSearchApiKey",
+        preferences.googleSearchApiKey || ""
+      );
+    });
   }, [refresh]);
 
   return { formik };

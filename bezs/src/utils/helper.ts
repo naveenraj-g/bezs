@@ -70,3 +70,9 @@ export const getRelativeDate = (date: string | Date) => {
     return inputDate.format("DD/MM/YYYY");
   }
 };
+
+export function removeExtraSpaces(str?: string) {
+  str = str?.trim();
+  str = str?.replace(/\n{2,}/g, "\n");
+  return str;
+}

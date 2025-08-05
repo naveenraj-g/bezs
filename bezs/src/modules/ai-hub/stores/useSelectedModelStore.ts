@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { TToolKey } from "../hooks/use-tools";
 
 export type selectedModel = {
   id: string;
@@ -13,6 +14,7 @@ export type TModelPreferences = {
   topP: number;
   topK: number;
   maxTokens: number;
+  plugins: TToolKey[];
 };
 
 export type TSelectedModelStore = {
@@ -36,6 +38,7 @@ export const useSelectedModelStore = create<TSelectedModelStore>((set) => {
       topP: 1.0,
       topK: 5,
       maxTokens: 1000,
+      plugins: ["calculator", "web_search"],
     },
     defaultModelPreferences: {
       systemPrompt: "You are a helpful assistant.",
@@ -44,6 +47,7 @@ export const useSelectedModelStore = create<TSelectedModelStore>((set) => {
       topP: 1.0,
       topK: 5,
       maxTokens: 1000,
+      plugins: ["calculator", "web_search"],
     },
     setModelPreferences(preferences) {
       set((state) => ({

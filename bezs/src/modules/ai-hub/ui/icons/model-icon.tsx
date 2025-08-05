@@ -9,7 +9,9 @@ export type TModelIcon = {
     | "gemini"
     | "groqllama3"
     | "medgemma"
-    | "openai";
+    | "openai"
+    | "websearch"
+    | "calculator";
   size: "sm" | "md" | "lg";
 };
 
@@ -22,6 +24,8 @@ export const ModelIcon = ({ type, size }: TModelIcon) => {
     groqllama3: "/model-icons/groqllama3.svg",
     medgemma: "/model-icons/medgemma.svg",
     openai: "/model-icons/openai.svg",
+    websearch: "/icons/websearch.svg",
+    calculator: "/icons/calculator.svg",
   };
 
   return (

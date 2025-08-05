@@ -1,26 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { TRenderMessageProps } from "./chat/chat-messages";
+import { useRef } from "react";
 import { useClipboard } from "../hooks/use-clipboard";
 import { useMarkdown } from "../hooks/use-mdx";
 import { motion, easeInOut } from "framer-motion";
-import Spinner from "./loading-spinner";
 import { LinearSpinner } from "./loading-spinner";
-import { useSelectedModelStore } from "../stores/useSelectedModelStore";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  ArrowClockwiseIcon,
-  BookmarkSimpleIcon,
   CheckIcon,
   CopyIcon,
   InfoIcon,
   TrashSimpleIcon,
 } from "@phosphor-icons/react";
-// import { useChatStore } from "../stores/useChatStore";
-import { toast } from "sonner";
 import { TChatMessage } from "../types/chat-types";
-import { encodingForModel } from "js-tiktoken";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import { useChatContext } from "../context/chat/context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -33,6 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useTokenCounter } from "../hooks/use-token-counter";
+import { TToolKey, useTools } from "../hooks/use-tools";
 
 export type TAIMessageBubble = {
   chatMessage: TChatMessage;
@@ -40,10 +33,14 @@ export type TAIMessageBubble = {
 };
 
 export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
-  const { id, rawAI, isLoading, model, errorMessage } = chatMessage;
-  // const selectedModel = useSelectedModelStore((state) => state.selectedModel);
-  // const removeMessage = useChatStore((state) => state.removeMessage);
+  const { id, rawAI, isLoading, model, errorMessage, isToolRunning, toolName } =
+    chatMessage;
   const { removeMessage, runModel } = useChatContext();
+  const { getToolInfoByKey } = useTools();
+
+  const toolUsed = toolName
+    ? getToolInfoByKey(toolName as TToolKey)
+    : undefined;
 
   const messageRef = useRef<HTMLDivElement>(null);
 
@@ -84,9 +81,19 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
         }}
         className="rounded-2xl p-3 w-full flex flex-col items-start"
       >
+        {toolUsed && (
+          <div className="flex flex-row gap-2 py-2 items-center text-xs text-zinc-500/70 dark:text-zinc-400">
+            {toolUsed.smallIcon()}
+            {isToolRunning ? (
+              <p className="text-xs">{toolUsed.loadingMessage}</p>
+            ) : (
+              <p>{toolUsed.resultMessage}</p>
+            )}
+          </div>
+        )}
         {rawAI && (
           <div className="pb-2 w-full">
-            {renderMarkdown(rawAI, id === "streaming")}
+            {renderMarkdown(rawAI, !!isLoading)}
           </div>
         )}
         {errorMessage && (
@@ -104,7 +111,9 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
               transition: { duration: 1, ease: easeInOut },
             }}
           >
-            <span>{isLoading ? <LinearSpinner /> : model}</span>
+            <span>
+              {isLoading && !isToolRunning ? <LinearSpinner /> : model}
+            </span>
             {tokenCount && !isLoading && (
               <ActionTooltipProvider
                 label="Estimated Output Tokens"
@@ -142,43 +151,43 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                   }}
                 />
               )}
-              <ActionTooltipProvider
-                label="Delete"
-                align="center"
-                side="bottom"
-              >
-                <Popover>
-                  <PopoverTrigger asChild>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <ActionTooltipProvider
+                    label="Delete"
+                    align="center"
+                    side="bottom"
+                  >
                     <Button variant="ghost" size="icon">
                       <TrashSimpleIcon size={16} weight="bold" />
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent side="bottom" collisionPadding={10}>
-                    <p className="text-sm font-medium pb-2">
-                      Are you sure, you want to delete this message?
-                    </p>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        className="h-7 px-2 bg-red-600 hover:bg-red-700 text-white"
-                        onClick={() => {
-                          removeMessage(id);
-                        }}
-                      >
-                        Delete Message
-                      </Button>
-                      <PopoverClose
-                        className={cn(
-                          "!h-7 !px-2",
-                          buttonVariants({ variant: "ghost", size: "sm" })
-                        )}
-                      >
-                        Cancel
-                      </PopoverClose>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </ActionTooltipProvider>
+                  </ActionTooltipProvider>
+                </PopoverTrigger>
+                <PopoverContent side="bottom" collisionPadding={10}>
+                  <p className="text-sm font-medium pb-2">
+                    Are you sure, you want to delete this message?
+                  </p>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      className="h-7 px-2 bg-red-600 hover:bg-red-700 text-white"
+                      onClick={() => {
+                        removeMessage(id);
+                      }}
+                    >
+                      Delete Message
+                    </Button>
+                    <PopoverClose
+                      className={cn(
+                        "!h-7 !px-2",
+                        buttonVariants({ variant: "ghost", size: "sm" })
+                      )}
+                    >
+                      Cancel
+                    </PopoverClose>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           )}
         </div>

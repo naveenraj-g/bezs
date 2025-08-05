@@ -53,6 +53,8 @@ import moment from "moment";
 import { ChatGreeting } from "./chat-greeting";
 import { useChatSession } from "../../hooks/use-chat-session";
 import { Badge } from "@/components/ui/badge";
+import { removeExtraSpaces } from "@/utils/helper";
+import { PluginSelect } from "../plugin-select";
 
 export type TAttachment = {
   file?: File;
@@ -161,8 +163,8 @@ export const ChatInput = () => {
         role: RoleType.assistant,
         type: PromptType.ask,
         image: attachment?.base64,
-        query,
-        context: contextValue,
+        query: removeExtraSpaces(query),
+        context: removeExtraSpaces(contextValue),
       },
       sessionId: sessionId!.toString(),
       selectedModel: selectedModelRef.current || undefined,
@@ -611,6 +613,7 @@ export const ChatInput = () => {
               </div>
             </ActionTooltipProvider>
             <ModelSelect />
+            <PluginSelect />
           </div>
           {!isListening ? (
             <ActionTooltipProvider label="Dictate" align="center" side="bottom">

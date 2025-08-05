@@ -7,6 +7,14 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon, SidebarSimpleIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
+import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Ellipsis, Trash2 } from "lucide-react";
 
 export const HistorySidebar = () => {
   const [open, setOpen] = useState(false);
@@ -71,22 +79,56 @@ export const HistorySidebar = () => {
                 </div>
               </div>
               <div className="p-2 mt-2">
-                <p className="text-sm text-zinc-500">Recent History</p>
+                <Drawer.Title className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Recent History
+                </Drawer.Title>
               </div>
               {sortSessions(sessions, "updatedAt")?.map((session) => {
                 return (
                   <div
                     key={session.id}
                     className={cn(
-                      "w-full cursor-pointer p-2 rounded-xl hover:bg-black/10 hover:dark:bg-black/15",
+                      "w-full p-2 rounded-xl hover:bg-black/10 hover:dark:bg-black/15 flex gap-2 items-center group",
                       currentSession?.id === session.id
                         ? "bg-black/10 dark:bg-black/30"
                         : ""
                     )}
                   >
-                    <p className="w-full truncate text-xs md:text-sm">
+                    <Link
+                      href={`/bezs/ai-hub/ask-ai/${session.id}`}
+                      className="inline-block w-full truncate text-xs md:text-sm"
+                      onClick={() => setOpen(false)}
+                    >
                       {session.title}
-                    </p>
+                    </Link>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-fit p-0 hover:!bg-transparent relative"
+                        >
+                          <Ellipsis className="shrink-0" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="absolute z-[910] right-[-30px]"
+                        align="center"
+                      >
+                        <DropdownMenuItem
+                          className="text-red-500"
+                          onClick={async () => {
+                            await removeSession(session.id);
+
+                            setTimeout(() => {
+                              router.push("/bezs/ai-hub/ask-ai");
+                            }, 100);
+                          }}
+                        >
+                          <Trash2 className="text-red-500" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 );
               })}

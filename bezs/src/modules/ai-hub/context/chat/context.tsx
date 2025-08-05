@@ -6,7 +6,6 @@ import { TChatSession, TRunModel } from "../../types/chat-types";
 export type TChatContext = {
   sessions: TChatSession[];
   refetchSessions: () => void;
-  streaming: boolean;
   isAllSessionLoading: boolean;
   isCurrentSessionLoading: boolean;
   currentSession: TChatSession | undefined;

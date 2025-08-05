@@ -3,18 +3,24 @@ import { TSettingsMenuItem } from "../types/settings-type";
 import { GroqLlama3Settings } from "../ui/settings/groq-llama3";
 import {
   ChatCenteredIcon,
+  DatabaseIcon,
   GearSixIcon,
+  MicrophoneIcon,
   UserCircleIcon,
 } from "@phosphor-icons/react";
 import { ModelIcon } from "../ui/icons/model-icon";
 import { GeminiSettings } from "../ui/settings/gemini";
 import { CommonSettings } from "../ui/settings/common";
+import { Data } from "../ui/settings/data";
+import { VoiceInput } from "../ui/settings/voice-input";
+import { WebSearchPlugin } from "../ui/settings/plugins/web-search";
 
 export type TSettingsStore = {
   isSettingOpen: boolean;
   selectedMenu: string;
   settingMenu: TSettingsMenuItem[];
   modelsMenu: TSettingsMenuItem[];
+  pluginsMenu: TSettingsMenuItem[];
   getAllMenu: () => TSettingsMenuItem[];
   open: () => void;
   dismiss: () => void;
@@ -33,16 +39,16 @@ export const useSettingsStore = create<TSettingsStore>((set, get) => {
         component: <CommonSettings />,
       },
       {
-        name: "Prompts",
-        key: "prompts",
-        icon: () => <ChatCenteredIcon size={16} weight="bold" />,
-        component: <div>Prompts</div>,
+        name: "Voice Input",
+        key: "voice-input",
+        icon: () => <MicrophoneIcon size={16} weight="bold" />,
+        component: <VoiceInput />,
       },
       {
-        name: "Roles",
-        key: "roles",
-        icon: () => <UserCircleIcon size={16} weight="bold" />,
-        component: <div>Roles</div>,
+        name: "Data",
+        key: "your-data",
+        icon: () => <DatabaseIcon size={16} weight="bold" />,
+        component: <Data />,
       },
     ],
     modelsMenu: [
@@ -71,9 +77,17 @@ export const useSettingsStore = create<TSettingsStore>((set, get) => {
         component: <GroqLlama3Settings />,
       },
     ],
+    pluginsMenu: [
+      {
+        name: "Web Search",
+        key: "web-search",
+        icon: () => <ModelIcon size="md" type="websearch" />,
+        component: <WebSearchPlugin />,
+      },
+    ],
     getAllMenu() {
-      const { settingMenu, modelsMenu } = get();
-      return [...settingMenu, ...modelsMenu];
+      const { settingMenu, modelsMenu, pluginsMenu } = get();
+      return [...settingMenu, ...modelsMenu, ...pluginsMenu];
     },
     open() {
       set({ isSettingOpen: true });

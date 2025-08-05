@@ -8,6 +8,7 @@ export const SettingsModal = () => {
   const selectedMenu = useSettingsStore((state) => state.selectedMenu);
   const settingMenu = useSettingsStore((state) => state.settingMenu);
   const modelsMenu = useSettingsStore((state) => state.modelsMenu);
+  const pluginsMenu = useSettingsStore((state) => state.pluginsMenu);
   const setSelectedMenu = useSettingsStore((state) => state.setSelectedMenu);
   const getAllMenu = useSettingsStore((state) => state.getAllMenu);
 
@@ -40,6 +41,20 @@ export const SettingsModal = () => {
           <p className="px-2 py-2 text-xs font-semibold mt-2">MODELS</p>
           <div className="flex flex-col gap-1">
             {modelsMenu.map((menu) => (
+              <Button
+                key={menu.key}
+                variant={selectedMenu === menu.key ? "secondary" : "ghost"}
+                onClick={() => setSelectedMenu(menu.key)}
+                className="justify-start text-zinc-600 dark:text-zinc-300/80 h-7"
+                size="sm"
+              >
+                {menu.icon()} {menu.name}
+              </Button>
+            ))}
+          </div>
+          <p className="px-2 py-2 text-xs font-semibold mt-2">PLUGINS</p>
+          <div className="flex flex-col gap-1">
+            {pluginsMenu.map((menu) => (
               <Button
                 key={menu.key}
                 variant={selectedMenu === menu.key ? "secondary" : "ghost"}

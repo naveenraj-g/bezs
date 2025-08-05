@@ -19,7 +19,7 @@ import Spinner, { LinearSpinner } from "../loading-spinner";
 import { ProfileAvatar } from "@/modules/telemedicine/ui/profile-image";
 import { useSession } from "@/modules/auth/services/better-auth/auth-client";
 import moment from "moment";
-import { getRelativeDate } from "@/utils/helper";
+import { getRelativeDate, removeExtraSpaces } from "@/utils/helper";
 import { AIMessageBubble } from "../ai-bubble";
 import Image from "next/image";
 import { useChatContext } from "../../context/chat/context";
@@ -109,7 +109,9 @@ export const ChatMessages = () => {
             name={session.data?.user.name}
             imgUrl={session.data?.user.image}
           />
-          <span>{message.rawHuman}</span>
+          <span className="whitespace-pre-wrap">
+            {removeExtraSpaces(message.rawHuman)}
+          </span>
         </motion.div>
         <AIMessageBubble chatMessage={message} isLast={isLast} />
       </div>
@@ -203,4 +205,4 @@ export const ChatMessages = () => {
   );
 };
 
-// 9:08
+// 11:58
