@@ -137,7 +137,7 @@ export const ChatMessages = () => {
       ref={chatContainerRef}
       id="chat-container"
       className={cn(
-        "flex-1 overflow-y-auto pb-28 pr-2",
+        "flex-1 overflow-y-auto pb-28 pr-2 pt-8",
         isNewSession && "hidden"
       )}
     >

@@ -2,10 +2,7 @@ import { z } from "zod";
 import { AiModelType } from "../../../../prisma/generated/ai-hub";
 
 export const AdminCreateAiModelSchema = z.object({
-  displayName: z
-    .string()
-    .min(1, { message: "Display name is required" })
-    .nullable(),
+  displayName: z.string().min(1, { message: "Display name is required" }),
   modelName: z.string().min(1, { message: "Model name is required" }),
   tokens: z.string().min(1, { message: "Tokens is required" }),
   type: z.nativeEnum(AiModelType, {
@@ -13,9 +10,42 @@ export const AdminCreateAiModelSchema = z.object({
     invalid_type_error: "Invalid model type",
   }),
   secretKey: z.string().min(1, { message: "Secret key is required" }),
-  modelUrl: z.string().min(1, { message: "Model URL is required" }).nullable(),
+  modelUrl: z.string().min(1, { message: "Model URL is required" }),
 });
 
 export const AdminDeleteAiModelSchema = z.object({
-  modelId: z.string().min(1, { message: "Model ID is required." }),
+  modelId: z.union([
+    z
+      .string({ invalid_type_error: "Model ID must be a number or string." })
+      .min(1, { message: "Model ID is required." }),
+    z
+      .number({ invalid_type_error: "Model ID must be a number or string." })
+      .min(1, { message: "Model ID is required." }),
+  ]),
+});
+
+export const AdminCreatePromptsSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  description: z
+    .string()
+    .min(15, { message: "Description must be at least 15 characters long" }),
+});
+
+export const AdminEditPromptByIdSchema = z.object({
+  id: z.number().min(1, { message: "Id is required" }),
+  name: z.string().min(1, { message: "Name is required" }),
+  description: z
+    .string()
+    .min(15, { message: "Description must be at least 15 characters long" }),
+});
+
+export const AdminDeletePromptSchema = z.object({
+  promptId: z.union([
+    z
+      .string({ invalid_type_error: "Prompt ID must be a number or string." })
+      .min(1, { message: "Prompt ID is required." }),
+    z
+      .number({ invalid_type_error: "Prompt ID must be a number or string." })
+      .min(1, { message: "Prompt ID is required." }),
+  ]),
 });

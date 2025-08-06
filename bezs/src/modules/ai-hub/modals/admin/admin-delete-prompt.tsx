@@ -15,12 +15,12 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAiHubAdminModal } from "../../stores/use-ai-hub-admin-modal-store";
 import { useServerAction } from "zsa-react";
-import { deleteModel } from "../../serveractions/admin-server-actions";
+import { deletePrompt } from "../../serveractions/admin-server-actions";
 
-export const DeleteAiModelModal = () => {
+export const DeletePromptModal = () => {
   const closeModal = useAiHubAdminModal((state) => state.onClose);
   const modalType = useAiHubAdminModal((state) => state.type);
-  const modelId = useAiHubAdminModal((state) => state.id) || "";
+  const promptId = useAiHubAdminModal((state) => state.id) || "";
   const isOpen = useAiHubAdminModal((state) => state.isOpen);
   const incrementTriggerRefetch = useAiHubAdminModal(
     (state) => state.incrementTrigger
@@ -28,9 +28,9 @@ export const DeleteAiModelModal = () => {
 
   const session = useSession();
 
-  const isModalOpen = isOpen && modalType === "deleteModel";
+  const isModalOpen = isOpen && modalType === "deletePrompt";
 
-  const { execute, isPending } = useServerAction(deleteModel);
+  const { execute, isPending } = useServerAction(deletePrompt);
 
   async function handleAppDelete() {
     if (!session) {
@@ -41,7 +41,7 @@ export const DeleteAiModelModal = () => {
     }
 
     try {
-      const [data, err] = await execute({ modelId });
+      const [data, err] = await execute({ promptId });
 
       if (err) {
         throw new Error(
@@ -66,10 +66,10 @@ export const DeleteAiModelModal = () => {
       <DialogContent className="p-8">
         <DialogHeader>
           <DialogTitle className="mb-2 text-2xl text-center">
-            Delete Model
+            Delete Prompt
           </DialogTitle>
           <DialogDescription className="mb-6 text-md">
-            Are you sure you want to delete this Model? This action cannot be
+            Are you sure you want to delete this Prompt? This action cannot be
             undone.
           </DialogDescription>
           <DialogFooter className="space-x-2">

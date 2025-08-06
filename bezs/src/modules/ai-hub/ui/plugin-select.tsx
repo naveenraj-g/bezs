@@ -34,8 +34,6 @@ export const PluginSelect = () => {
     return null;
   }
 
-  console.log("rendering...");
-
   return (
     <>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
