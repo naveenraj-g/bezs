@@ -36,3 +36,14 @@ model Prompts {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
+
+model Assistant {
+    id               Int    @id @default(autoincrement())
+    name             String
+    description      String
+    greeting_message String
+    prompt           String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

@@ -1,12 +1,15 @@
 import { create } from "zustand";
-import { Prompts } from "../../../../prisma/generated/ai-hub";
+import { Assistant, Prompts } from "../../../../prisma/generated/ai-hub";
 
 export type ModalType =
   | "addModel"
   | "deleteModel"
   | "addPrompts"
   | "editPrompts"
-  | "deletePrompt";
+  | "deletePrompt"
+  | "addAssistant"
+  | "editAssistant"
+  | "deleteAssistant";
 
 interface AdminStore {
   type: ModalType | null;
@@ -15,12 +18,14 @@ interface AdminStore {
   triggerInModal: number;
   id?: string | number;
   promptData?: Prompts | null;
+  assistantData?: Assistant | null;
   incrementTrigger: () => void;
   incrementInModalTrigger: () => void;
   onOpen: (props: {
     type: ModalType;
     id?: string | number;
     promptData?: Prompts | null;
+    assistantData?: Assistant | null;
   }) => void;
   onClose: () => void;
 }
@@ -30,12 +35,13 @@ export const useAiHubAdminModal = create<AdminStore>((set) => ({
   isOpen: false,
   trigger: 0,
   triggerInModal: 0,
-  onOpen: ({ type, id = "", promptData = null }) =>
+  onOpen: ({ type, id = "", promptData = null, assistantData = null }) =>
     set({
       isOpen: true,
       type,
       id,
       promptData,
+      assistantData,
     }),
   onClose: () =>
     set({
@@ -43,6 +49,7 @@ export const useAiHubAdminModal = create<AdminStore>((set) => ({
       isOpen: false,
       id: "",
       promptData: null,
+      assistantData: null,
     }),
   incrementTrigger: () => set((state) => ({ trigger: state.trigger + 1 })),
   incrementInModalTrigger: () =>

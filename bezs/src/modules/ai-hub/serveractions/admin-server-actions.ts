@@ -8,7 +8,10 @@ import {
   AdminCreatePromptsSchema,
   AdminEditPromptByIdSchema,
   AdminDeletePromptSchema,
+  AdminCreateAssistantSchema,
 } from "../schema/admin-schemas";
+
+// Models
 
 export const getModels = authProcedures
   .createServerAction()
@@ -70,6 +73,8 @@ export const deleteModel = authProcedures
       );
     }
   });
+
+// Prompts
 
 export const getPrompts = authProcedures
   .createServerAction()
@@ -148,6 +153,52 @@ export const deletePrompt = authProcedures
       await prismaAiHub.prompts.delete({
         where: {
           id: Number(input.promptId),
+        },
+      });
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+// Assistants
+
+export const getAssistants = authProcedures
+  .createServerAction()
+  .handler(async () => {
+    try {
+      const assistants = await prismaAiHub.assistant.findMany({
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+      const total = await prismaAiHub.assistant.count();
+
+      return { assistants, total };
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const createAssistant = authProcedures
+  .createServerAction()
+  .input(AdminCreateAssistantSchema)
+  .handler(async ({ input }) => {
+    try {
+      await prismaAiHub.assistant.create({
+        data: {
+          ...input,
         },
       });
     } catch (err) {

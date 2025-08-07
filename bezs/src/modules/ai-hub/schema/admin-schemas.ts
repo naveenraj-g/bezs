@@ -49,3 +49,16 @@ export const AdminDeletePromptSchema = z.object({
       .min(1, { message: "Prompt ID is required." }),
   ]),
 });
+
+export const AdminCreateAssistantSchema = z.object({
+  name: z.string().min(1, { message: "Assistant name is required" }),
+  description: z
+    .string()
+    .min(15, { message: "Description must be at least 15 characters long" }),
+  greeting_message: z.string().min(10, {
+    message: "Greeting message must be at least 10 characters long",
+  }),
+  prompt: z
+    .string()
+    .min(15, { message: "Prompt must be at least 15 characters long" }),
+});

@@ -55,6 +55,7 @@ import { useChatSession } from "../../hooks/use-chat-session";
 import { Badge } from "@/components/ui/badge";
 import { removeExtraSpaces } from "@/utils/helper";
 import { PluginSelect } from "../plugin-select";
+import { usePrompt } from "../../hooks/use-prompt";
 
 export type TAttachment = {
   file?: File;
@@ -102,6 +103,7 @@ export const ChatInput = () => {
   } = useChatContext();
 
   const { getSessions, sortSessions } = useChatSession();
+  const { prompts, isPromptsLoading, isPromptsError } = usePrompt();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -563,11 +565,11 @@ export const ChatInput = () => {
               <CommandInput placeholder="Search..." className="h-9" />
               <CommandEmpty>No prompt found.</CommandEmpty>
               <CommandList className="p-1 max-h-[140px]">
-                <CommandItem onScroll={() => {}}>
+                {/* <CommandItem onScroll={() => {}}>
                   <PlusIcon size={14} weight="bold" className="shrink-0" />{" "}
                   Create New Prompt <Badge>Will add soon</Badge>
-                </CommandItem>
-                {roles.map((role, index) => (
+                </CommandItem> */}
+                {prompts.map((role, index) => (
                   <CommandItem
                     key={index}
                     onSelect={() => {
