@@ -22,8 +22,14 @@ import { useServerAction } from "zsa-react";
 import { createPrompts } from "../../serveractions/admin-server-actions";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import { useClipboard } from "../../hooks/use-clipboard";
+import { Status } from "../../../../../prisma/generated/ai-hub";
 
 type CreatePromptFormSchemaType = z.infer<typeof AdminCreatePromptsSchema>;
+
+const statusSelectList = Object.keys(Status).map((status) => ({
+  label: status,
+  value: status,
+}));
 
 export const AdminAddPromptModal = () => {
   const session = useSession();
@@ -41,6 +47,7 @@ export const AdminAddPromptModal = () => {
     defaultValues: {
       name: "",
       description: "",
+      status: "ACTIVE",
     },
   });
 
@@ -109,6 +116,15 @@ export const AdminAddPromptModal = () => {
                   label="Description"
                   placeholder="Enter prompt description"
                   control={promptForm.control}
+                />
+                <CustomInput
+                  type="select"
+                  name="status"
+                  label="Status"
+                  placeholder="Select status of the prompt"
+                  defaultValue={promptForm.getFieldState("status")}
+                  control={promptForm.control}
+                  selectList={statusSelectList}
                 />
               </div>
 

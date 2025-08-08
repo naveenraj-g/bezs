@@ -7,6 +7,8 @@ import { AdminAddPromptModal } from "../modals/admin/admin-add-prompts";
 import { AdminEditPromptModal } from "../modals/admin/admin-edit-prompts";
 import { DeletePromptModal } from "../modals/admin/admin-delete-prompt";
 import { AdminAddAssistantModal } from "../modals/admin/admin-add-assistant";
+import { AdminEditAssistantModal } from "../modals/admin/admin-edit-assistant";
+import { DeleteAssistantModal } from "../modals/admin/admin-delete-assistant";
 
 export const AskAIAdminModalProvider = () => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -25,6 +27,8 @@ export const AskAIAdminModalProvider = () => {
       <AdminEditPromptModal />
       <DeletePromptModal />
       <AdminAddAssistantModal />
+      <AdminEditAssistantModal />
+      <DeleteAssistantModal />
     </>
   );
 };

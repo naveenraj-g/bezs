@@ -7,13 +7,15 @@ import { useAiHubAdminModal } from "@/modules/ai-hub/stores/use-ai-hub-admin-mod
 import { useServerAction } from "zsa-react";
 import { getPrompts } from "@/modules/ai-hub/serveractions/admin-server-actions";
 import { toast } from "sonner";
-import { Prompts } from "../../../../../../prisma/generated/ai-hub";
+import { Prompts, Status } from "../../../../../../prisma/generated/ai-hub";
 import { adminManagePromptsColumn } from "./admin-manage-prompts-column";
 
 type TDataType = {
   data: Prompts[];
   total: number;
 };
+
+const status = Object.values(Status);
 
 export const AdminManagePromptsTable = () => {
   const openModal = useAiHubAdminModal((state) => state.onOpen);
@@ -58,7 +60,8 @@ export const AdminManagePromptsTable = () => {
           dataSize={promptsTableData.total}
           label="All Prompts"
           addLabelName="Add Prompts"
-          searchField=""
+          filterField="status"
+          filterValues={status}
           isLoading={isPending}
           error={(promptsTableData.data.length === 0 && error?.message) || null}
           fallbackText={

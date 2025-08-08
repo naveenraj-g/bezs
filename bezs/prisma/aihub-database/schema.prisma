@@ -13,6 +13,11 @@ enum AiModelType {
     CUSTOM
 }
 
+enum Status {
+    ACTIVE
+    INACTIVE
+}
+
 model AiModel {
     id          String      @id @default(uuid())
     displayName String?     @unique
@@ -21,6 +26,8 @@ model AiModel {
     type        AiModelType
     secretKey   String?     @unique
     modelUrl    String?
+
+    assistant Assistant[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -32,17 +39,23 @@ model Prompts {
     id          Int    @id @default(autoincrement())
     name        String
     description String
+    status      Status @default(ACTIVE)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
 model Assistant {
-    id               Int    @id @default(autoincrement())
+    id               Int      @id @default(autoincrement())
     name             String
     description      String
     greeting_message String
     prompt           String
+    status           Status   @default(ACTIVE)
+    accessRole       String[] @default([])
+
+    modelId String?
+    model   AiModel? @relation(fields: [modelId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

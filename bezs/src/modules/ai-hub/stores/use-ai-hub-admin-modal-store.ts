@@ -11,6 +11,14 @@ export type ModalType =
   | "editAssistant"
   | "deleteAssistant";
 
+type TModelsForAssistantMap = {
+  id: string;
+  displayName: string | null;
+  modelName: string | null;
+};
+
+type TAssistantData = Assistant & { modelId: string | null };
+
 interface AdminStore {
   type: ModalType | null;
   isOpen: boolean;
@@ -18,16 +26,20 @@ interface AdminStore {
   triggerInModal: number;
   id?: string | number;
   promptData?: Prompts | null;
-  assistantData?: Assistant | null;
+  assistantData?: TAssistantData | null;
+  modelsForAssistantMap?: TModelsForAssistantMap[];
   incrementTrigger: () => void;
   incrementInModalTrigger: () => void;
   onOpen: (props: {
     type: ModalType;
     id?: string | number;
     promptData?: Prompts | null;
-    assistantData?: Assistant | null;
+    assistantData?: TAssistantData | null;
   }) => void;
   onClose: () => void;
+  setModelsForAssistantMap: (props: {
+    models: TModelsForAssistantMap[];
+  }) => void;
 }
 
 export const useAiHubAdminModal = create<AdminStore>((set) => ({
@@ -35,6 +47,7 @@ export const useAiHubAdminModal = create<AdminStore>((set) => ({
   isOpen: false,
   trigger: 0,
   triggerInModal: 0,
+  modelsForAssistantMap: [],
   onOpen: ({ type, id = "", promptData = null, assistantData = null }) =>
     set({
       isOpen: true,
@@ -54,4 +67,6 @@ export const useAiHubAdminModal = create<AdminStore>((set) => ({
   incrementTrigger: () => set((state) => ({ trigger: state.trigger + 1 })),
   incrementInModalTrigger: () =>
     set((state) => ({ triggerInModal: state.triggerInModal + 1 })),
+  setModelsForAssistantMap: ({ models }) =>
+    set({ modelsForAssistantMap: models }),
 }));

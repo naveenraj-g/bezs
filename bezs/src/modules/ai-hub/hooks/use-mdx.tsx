@@ -61,7 +61,7 @@ export const useMarkdown = () => {
           },
           tableCell: (children, flag) => {
             if (flag.header) {
-              return <th className="p-3 text-xs">{children}</th>;
+              return <th className="p-3 text-sm">{children}</th>;
             } else {
               return <td className="p-3 text-xs">{children}</td>;
             }
@@ -75,7 +75,7 @@ export const useMarkdown = () => {
           heading: (children, level) => {
             const Heading = `h${level}` as keyof JSX.IntrinsicElements;
             return (
-              <Heading className="font-medium text-md">{children}</Heading>
+              <Heading className="font-medium text-base">{children}</Heading>
             );
           },
           link: (href, text) => {
@@ -88,7 +88,7 @@ export const useMarkdown = () => {
           },
           blockquote: (children) => (
             <div>
-              <p className="text-sm leading-7">{children}</p>
+              <p className="text-sm md:text-base leading-7">{children}</p>
             </div>
           ),
           list: (children, ordered) => {

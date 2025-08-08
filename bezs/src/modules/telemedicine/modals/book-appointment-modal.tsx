@@ -258,31 +258,6 @@ export const BookAppointmentModal = () => {
                       />
                     </div>
                     <div className="flex flex-wrap gap-4 items-center">
-                      {/* <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Date</FormLabel>
-                        <FormControl>
-                          <Controller
-                            control={form.control}
-                            name="date"
-                            render={({ field: { value, onChange } }) => (
-                              <DatePicker
-                                selected={value}
-                                onChange={(date) => onChange(date)}
-                                placeholderText="Select an available date"
-                                className={cn("border px-3 py-1.5 rounded-md")}
-                                calendarClassName="!bg-white !border max-h-[150px] overflow-y-scroll !rounded-md !shadow-md"
-                              />
-                            )}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
                       <CustomInput
                         type="input"
                         control={form.control}
@@ -293,31 +268,6 @@ export const BookAppointmentModal = () => {
                         formItemClassName="flex-1"
                         dateMin={new Date().toISOString().split("T")[0]}
                       />
-                      {/* <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Date</FormLabel>
-                        <FormControl>
-                          <Controller
-                            control={form.control}
-                            name="date"
-                            render={({ field: { value, onChange } }) => (
-                              <div className="border rounded-lg p-2 shadow-md">
-                                <Calendar
-                                  value={value || null}
-                                  onChange={(date) => onChange(date as Date)}
-                                  className="!w-full !rounded-md !border !shadow-sm"
-                                />
-                              </div>
-                            )}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
                       <CustomInput
                         type="select"
                         name="time"

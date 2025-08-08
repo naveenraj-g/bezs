@@ -8,6 +8,7 @@ import { z } from "zod";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -19,23 +20,25 @@ import { useAiHubAdminModal } from "../../stores/use-ai-hub-admin-modal-store";
 import { AdminCreateAssistantSchema } from "../../schema/admin-schemas";
 import { CustomInput } from "@/shared/ui/custom-input";
 import { useServerAction } from "zsa-react";
-import { createAssistant } from "../../serveractions/admin-server-actions";
+import { editAssistant } from "../../serveractions/admin-server-actions";
+import { useEffect } from "react";
 import { Status } from "../../../../../prisma/generated/ai-hub";
 
-type TCreateAssistantForm = z.infer<typeof AdminCreateAssistantSchema>;
+type TEditAssistantForm = z.infer<typeof AdminCreateAssistantSchema>;
 
 const statusSelectList = Object.keys(Status).map((status) => ({
   label: status,
   value: status,
 }));
 
-export const AdminAddAssistantModal = () => {
+export const AdminEditAssistantModal = () => {
   const session = useSession();
 
   const closeModal = useAiHubAdminModal((state) => state.onClose);
   const modalType = useAiHubAdminModal((state) => state.type);
   const isOpen = useAiHubAdminModal((state) => state.isOpen);
   const triggerRefetch = useAiHubAdminModal((state) => state.incrementTrigger);
+  const assistantData = useAiHubAdminModal((state) => state.assistantData);
   const modelsForAssistantMap = useAiHubAdminModal(
     (state) => state.modelsForAssistantMap
   );
@@ -51,27 +54,47 @@ export const AdminAddAssistantModal = () => {
     };
   });
 
-  const isModalOpen = isOpen && modalType === "addAssistant";
+  const isModalOpen = isOpen && modalType === "editAssistant";
 
-  const assistantForm = useForm<TCreateAssistantForm>({
+  const assistantForm = useForm<TEditAssistantForm>({
     resolver: zodResolver(AdminCreateAssistantSchema),
     defaultValues: {
-      modelId: "",
-      name: "",
-      description: "",
-      greeting_message: "",
-      prompt: "",
+      modelId: assistantData?.modelId || "",
+      name: assistantData?.name || "",
+      description: assistantData?.description || "",
+      greeting_message: assistantData?.greeting_message || "",
+      prompt: assistantData?.prompt || "",
       status: "ACTIVE",
     },
   });
+
+  useEffect(() => {
+    assistantForm.setValue("name", assistantData?.name || "");
+    assistantForm.setValue("description", assistantData?.description || "");
+    assistantForm.setValue(
+      "greeting_message",
+      assistantData?.greeting_message || ""
+    );
+    assistantForm.setValue("prompt", assistantData?.prompt || "");
+    assistantForm.setValue("status", assistantData?.status || "ACTIVE");
+    assistantForm.setValue("modelId", assistantData?.modelId || "");
+  }, [
+    assistantData?.description,
+    assistantData?.greeting_message,
+    assistantData?.modelId,
+    assistantData?.name,
+    assistantData?.prompt,
+    assistantData?.status,
+    assistantForm,
+  ]);
 
   const {
     formState: { isSubmitting },
   } = assistantForm;
 
-  const { execute } = useServerAction(createAssistant, {
+  const { execute } = useServerAction(editAssistant, {
     onSuccess() {
-      toast.success("Assistant created successfully.", {
+      toast.success("Assistant Edited.", {
         richColors: true,
       });
     },
@@ -83,14 +106,24 @@ export const AdminAddAssistantModal = () => {
     },
   });
 
-  async function handleSubmit(values: TCreateAssistantForm) {
+  async function handleSubmit(values: TEditAssistantForm) {
     if (!session) {
       toast("unauthorized.");
       return;
     }
 
+    if (!assistantData?.id) {
+      toast.error("Assistant ID is missing");
+      return;
+    }
+
+    const assistantValue = {
+      id: assistantData.id,
+      ...values,
+    };
+
     try {
-      await execute(values);
+      await execute(assistantValue);
       triggerRefetch();
       handleCloseModal();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -107,9 +140,10 @@ export const AdminAddAssistantModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex justify-center items-center gap-2">
-            Create Assistant
+            Edit Assistant
           </DialogTitle>
         </DialogHeader>
+        <DialogDescription></DialogDescription>
         <div className="mt-4">
           <Form {...assistantForm}>
             <form
@@ -145,22 +179,35 @@ export const AdminAddAssistantModal = () => {
                   placeholder="Hello, How can I help you?"
                   control={assistantForm.control}
                 />
-                <div className="flex flex-col lg:flex-row lg:gap-4 items-center flex-wrap space-y-4">
-                  <CustomInput
-                    type="select"
-                    name="modelId"
-                    label="LLM Model"
-                    placeholder="Select status of the prompt"
-                    control={assistantForm.control}
-                    selectList={modelsList}
-                    formItemClassName="flex-1"
-                    className="lg:w-full "
-                  />
+
+                <div className="flex flex-col lg:flex-row lg:gap-4 flex-wrap space-y-4">
+                  <div className="flex-1 flex flex-col space-y-2">
+                    <CustomInput
+                      type="select"
+                      name="modelId"
+                      label="LLM Model"
+                      placeholder="Select model to this assistant"
+                      defaultValue={assistantForm.getFieldState("modelId")}
+                      control={assistantForm.control}
+                      selectList={modelsList}
+                      formItemClassName="flex-1"
+                      className="lg:w-full "
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      className="w-fit"
+                      onClick={() => assistantForm.setValue("modelId", null)}
+                    >
+                      Reset Model
+                    </Button>
+                  </div>
                   <CustomInput
                     type="select"
                     name="status"
                     label="Status"
-                    placeholder="Select model to this assistant"
+                    placeholder="Select status of the prompt"
                     defaultValue={assistantForm.getFieldState("status")}
                     control={assistantForm.control}
                     selectList={statusSelectList}
@@ -174,10 +221,10 @@ export const AdminAddAssistantModal = () => {
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="animate-spin" />
-                    Adding...
+                    Saving...
                   </div>
                 ) : (
-                  "Add Assistant"
+                  "Save Assistant"
                 )}
               </Button>
             </form>

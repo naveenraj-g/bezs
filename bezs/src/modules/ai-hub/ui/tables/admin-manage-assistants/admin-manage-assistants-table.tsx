@@ -5,19 +5,33 @@ import { useEffect, useState } from "react";
 import DataTable from "@/shared/ui/table/data-table";
 import { useAiHubAdminModal } from "@/modules/ai-hub/stores/use-ai-hub-admin-modal-store";
 import { useServerAction } from "zsa-react";
-import { getAssistants } from "@/modules/ai-hub/serveractions/admin-server-actions";
+import {
+  getAssistants,
+  getModelsForMapAssistant,
+} from "@/modules/ai-hub/serveractions/admin-server-actions";
 import { toast } from "sonner";
-import { Assistant } from "../../../../../../prisma/generated/ai-hub";
+import { Assistant, Status } from "../../../../../../prisma/generated/ai-hub";
 import { adminManageAssistantsColumn } from "./admin-manage-assistants-column";
 
+export type TModelForAssistant = {
+  id: string;
+  displayName: string | null;
+  modelName: string | null;
+} | null;
+
 type TDataType = {
-  data: Assistant[];
+  data: (Assistant & { model: TModelForAssistant })[];
   total: number;
 };
+
+const status = Object.values(Status);
 
 export const AdminManageAssistantsTable = () => {
   const openModal = useAiHubAdminModal((state) => state.onOpen);
   const triggerRefetch = useAiHubAdminModal((state) => state.trigger);
+  const setModelsForAssistantMap = useAiHubAdminModal(
+    (state) => state.setModelsForAssistantMap
+  );
 
   const [assistantsTableData, setAssistantsTableData] = useState<TDataType>({
     data: [],
@@ -32,6 +46,29 @@ export const AdminManageAssistantsTable = () => {
       });
     },
   });
+
+  const {
+    isPending: getModelsPending,
+    error: getModelsError,
+    execute: getModels,
+  } = useServerAction(getModelsForMapAssistant, {
+    onError(err) {
+      toast.error("Error", {
+        description: err.err.message,
+        richColors: true,
+      });
+    },
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [data] = await getModels();
+        setModelsForAssistantMap({ models: data?.models ?? [] });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {}
+    })();
+  }, [getModels, setModelsForAssistantMap]);
 
   useEffect(() => {
     (async () => {
@@ -58,13 +95,17 @@ export const AdminManageAssistantsTable = () => {
           dataSize={assistantsTableData.total}
           label="All Assistants"
           addLabelName="Add Assistant"
-          searchField=""
-          isLoading={isPending}
+          filterField="status"
+          filterValues={status}
+          isLoading={isPending || getModelsPending}
           error={
-            (assistantsTableData.data.length === 0 && error?.message) || null
+            (assistantsTableData.data.length === 0 &&
+              error?.message &&
+              getModelsError?.message) ||
+            null
           }
           fallbackText={
-            isPending
+            isPending || getModelsPending
               ? "Loading assistants..."
               : error?.message
                 ? error.message

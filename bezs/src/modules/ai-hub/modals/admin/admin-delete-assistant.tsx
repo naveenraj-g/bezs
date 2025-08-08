@@ -15,12 +15,12 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAiHubAdminModal } from "../../stores/use-ai-hub-admin-modal-store";
 import { useServerAction } from "zsa-react";
-import { deletePrompt } from "../../serveractions/admin-server-actions";
+import { deleteAssistant } from "../../serveractions/admin-server-actions";
 
-export const DeletePromptModal = () => {
+export const DeleteAssistantModal = () => {
   const closeModal = useAiHubAdminModal((state) => state.onClose);
   const modalType = useAiHubAdminModal((state) => state.type);
-  const promptId = useAiHubAdminModal((state) => state.id) || "";
+  const assistantId = useAiHubAdminModal((state) => state.id) || "";
   const isOpen = useAiHubAdminModal((state) => state.isOpen);
   const incrementTriggerRefetch = useAiHubAdminModal(
     (state) => state.incrementTrigger
@@ -28,11 +28,11 @@ export const DeletePromptModal = () => {
 
   const session = useSession();
 
-  const isModalOpen = isOpen && modalType === "deletePrompt";
+  const isModalOpen = isOpen && modalType === "deleteAssistant";
 
-  const { execute, isPending } = useServerAction(deletePrompt);
+  const { execute, isPending } = useServerAction(deleteAssistant);
 
-  async function handleAppDelete() {
+  async function handleDelete() {
     if (!session) {
       toast.error("Unauthorized!", {
         richColors: true,
@@ -41,14 +41,14 @@ export const DeletePromptModal = () => {
     }
 
     try {
-      const [data, err] = await execute({ promptId });
+      const [data, err] = await execute({ assistantId });
 
       if (err) {
         throw new Error(
           typeof err === "string" ? err : err?.message || JSON.stringify(err)
         );
       }
-      toast.success("Prompt deleted!", {
+      toast.success("Assistant deleted!", {
         richColors: true,
       });
       incrementTriggerRefetch();
@@ -66,16 +66,16 @@ export const DeletePromptModal = () => {
       <DialogContent className="p-8">
         <DialogHeader>
           <DialogTitle className="mb-2 text-2xl text-center">
-            Delete Prompt
+            Delete Assistant
           </DialogTitle>
           <DialogDescription className="mb-6 text-md">
-            Are you sure you want to delete this Prompt? This action cannot be
-            undone.
+            Are you sure you want to delete this assistant? This action cannot
+            be undone.
           </DialogDescription>
           <DialogFooter className="space-x-2">
             <Button
               className="cursor-pointer"
-              onClick={handleAppDelete}
+              onClick={handleDelete}
               disabled={isPending}
             >
               {isPending ? (

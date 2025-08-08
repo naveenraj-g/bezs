@@ -33,25 +33,13 @@ export const adminManagePromptsColumn: ColumnDef<Prompts>[] = [
 
       return (
         <TanstackTableColumnSorting
-          label="Prompt Description"
+          label="Status"
           column={column}
           isSorted={isSorted}
         />
       );
     },
-    accessorKey: "description",
-    cell: ({ row }) => {
-      const description = row.original.description;
-
-      return (
-        <span
-          className="inline-block truncate max-w-[250px] xl:max-w-[450px] 2xl:max-w-full"
-          title={description}
-        >
-          {description}
-        </span>
-      );
-    },
+    accessorKey: "status",
   },
   {
     header: ({ column }) => {

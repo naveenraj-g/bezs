@@ -11,8 +11,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Ellipsis, Eye, PencilLine, Trash2, TriangleAlert } from "lucide-react";
 import { useAiHubAdminModal } from "@/modules/ai-hub/stores/use-ai-hub-admin-modal-store";
+import { TModelForAssistant } from "./admin-manage-assistants-table";
 
-export const adminManageAssistantsColumn: ColumnDef<Assistant>[] = [
+type TAssistant = Assistant & { model: TModelForAssistant };
+
+export const adminManageAssistantsColumn: ColumnDef<TAssistant>[] = [
   {
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
@@ -59,22 +62,21 @@ export const adminManageAssistantsColumn: ColumnDef<Assistant>[] = [
 
       return (
         <TanstackTableColumnSorting
-          label="System Prompt"
+          label="Assigned Model"
           column={column}
           isSorted={isSorted}
         />
       );
     },
-    accessorKey: "prompt",
+    accessorKey: "model",
     cell: ({ row }) => {
-      const systemPrompt = row.original.prompt;
+      const modelData = row.original.model;
 
       return (
-        <span
-          className="inline-block truncate max-w-[250px] xl:max-w-[450px] 2xl:max-w-full"
-          title={systemPrompt}
-        >
-          {systemPrompt}
+        <span>
+          {modelData
+            ? `${modelData?.displayName} (${modelData?.modelName})`
+            : "No Model"}
         </span>
       );
     },
@@ -85,25 +87,13 @@ export const adminManageAssistantsColumn: ColumnDef<Assistant>[] = [
 
       return (
         <TanstackTableColumnSorting
-          label="Greeting Message"
+          label="Status"
           column={column}
           isSorted={isSorted}
         />
       );
     },
-    accessorKey: "greeting_message",
-    cell: ({ row }) => {
-      const greetingMessage = row.original.greeting_message;
-
-      return (
-        <span
-          className="inline-block truncate max-w-[250px] xl:max-w-[450px] 2xl:max-w-full"
-          title={greetingMessage}
-        >
-          {greetingMessage}
-        </span>
-      );
-    },
+    accessorKey: "status",
   },
   {
     header: ({ column }) => {
@@ -122,8 +112,8 @@ export const adminManageAssistantsColumn: ColumnDef<Assistant>[] = [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const openModal = useAiHubAdminModal((state) => state.onOpen);
 
-      const promptData = row.original;
-      const promptId = row.original.id;
+      const assistantData = row.original;
+      const assistantId = row.original.id;
       const createdDate: Date = row.getValue("createdAt");
       return (
         <div className="flex items-center justify-between gap-4">
@@ -139,7 +129,9 @@ export const adminManageAssistantsColumn: ColumnDef<Assistant>[] = [
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
-                onClick={() => openModal({ type: "editPrompts", promptData })}
+                onClick={() =>
+                  openModal({ type: "editAssistant", assistantData })
+                }
               >
                 <PencilLine />
                 Edit
@@ -148,7 +140,7 @@ export const adminManageAssistantsColumn: ColumnDef<Assistant>[] = [
               <DropdownMenuItem
                 className="space-x-2 cursor-pointer"
                 onClick={() =>
-                  openModal({ type: "deletePrompt", id: promptId })
+                  openModal({ type: "deleteAssistant", id: assistantId })
                 }
               >
                 <div className="flex items-center gap-2">

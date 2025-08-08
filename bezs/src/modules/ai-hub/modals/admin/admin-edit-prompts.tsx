@@ -23,8 +23,14 @@ import { editPrompt } from "../../serveractions/admin-server-actions";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import { useClipboard } from "../../hooks/use-clipboard";
 import { useEffect } from "react";
+import { Status } from "../../../../../prisma/generated/ai-hub";
 
 type CreatePromptFormSchemaType = z.infer<typeof AdminCreatePromptsSchema>;
+
+const statusSelectList = Object.keys(Status).map((status) => ({
+  label: status,
+  value: status,
+}));
 
 export const AdminEditPromptModal = () => {
   const session = useSession();
@@ -43,13 +49,21 @@ export const AdminEditPromptModal = () => {
     defaultValues: {
       name: promptData?.name || "",
       description: promptData?.description || "",
+      status: promptData?.status,
     },
   });
 
   useEffect(() => {
     promptForm.setValue("name", promptData?.name || "");
     promptForm.setValue("description", promptData?.description || "");
-  }, [isModalOpen, promptData?.description, promptData?.name, promptForm]);
+    promptForm.setValue("status", promptData?.status || "ACTIVE");
+  }, [
+    isModalOpen,
+    promptData?.description,
+    promptData?.name,
+    promptData?.status,
+    promptForm,
+  ]);
 
   const {
     formState: { isSubmitting },
@@ -126,6 +140,15 @@ export const AdminEditPromptModal = () => {
                   label="Description"
                   placeholder="Enter prompt description"
                   control={promptForm.control}
+                />
+                <CustomInput
+                  type="select"
+                  name="status"
+                  label="Status"
+                  placeholder="Select status of the prompt"
+                  defaultValue={promptForm.getFieldState("status")}
+                  control={promptForm.control}
+                  selectList={statusSelectList}
                 />
               </div>
 
