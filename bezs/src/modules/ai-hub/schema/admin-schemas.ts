@@ -70,6 +70,7 @@ export const AdminCreateAssistantSchema = z.object({
     .string()
     .min(15, { message: "Prompt must be at least 15 characters long" }),
   status: nativeEnum(Status),
+  role: z.string().min(1, { message: "Role is required" }),
 });
 
 export const AdminEditAssistantSchema = z.object({
@@ -91,6 +92,11 @@ export const AdminEditAssistantSchema = z.object({
     .string()
     .min(15, { message: "Prompt must be at least 15 characters long" }),
   status: nativeEnum(Status),
+  role: z.string().min(1, { message: "Role is required" }),
+  roleId: z.union([
+    z.string({ invalid_type_error: "Model ID must be a number or string." }),
+    z.number({ invalid_type_error: "Model ID must be a number or string." }),
+  ]),
 });
 
 export const AdminDeleteAssistantSchema = z.object({

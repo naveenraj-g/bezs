@@ -1,5 +1,6 @@
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { TModelKey } from "../hooks/use-model-list";
+import { Assistant } from "../../../../prisma/generated/ai-hub";
 
 export enum ModelType {
   GPT3 = "gpt-3",
@@ -74,4 +75,5 @@ export type TRunModel = {
   sessionId: string;
   messageId?: string;
   selectedModel?: string;
+  selectedAssistant?: Assistant;
 };

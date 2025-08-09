@@ -7,7 +7,7 @@ import { useAiHubAdminModal } from "@/modules/ai-hub/stores/use-ai-hub-admin-mod
 import { useServerAction } from "zsa-react";
 import {
   getAssistants,
-  getModelsForMapAssistant,
+  getModelsForMapAssistantAndRoles,
 } from "@/modules/ai-hub/serveractions/admin-server-actions";
 import { toast } from "sonner";
 import { Assistant, Status } from "../../../../../../prisma/generated/ai-hub";
@@ -19,8 +19,17 @@ export type TModelForAssistant = {
   modelName: string | null;
 } | null;
 
+export type TRolesForAssistant = {
+  name: string;
+  id: number;
+  assistantId: number;
+}[];
+
 type TDataType = {
-  data: (Assistant & { model: TModelForAssistant })[];
+  data: (Assistant & {
+    model: TModelForAssistant;
+    accessRoles: TRolesForAssistant;
+  })[];
   total: number;
 };
 
@@ -29,14 +38,16 @@ const status = Object.values(Status);
 export const AdminManageAssistantsTable = () => {
   const openModal = useAiHubAdminModal((state) => state.onOpen);
   const triggerRefetch = useAiHubAdminModal((state) => state.trigger);
-  const setModelsForAssistantMap = useAiHubAdminModal(
-    (state) => state.setModelsForAssistantMap
+  const setModelsForAssistantMapAndRoles = useAiHubAdminModal(
+    (state) => state.setModelsForAssistantMapAndRoles
   );
 
   const [assistantsTableData, setAssistantsTableData] = useState<TDataType>({
     data: [],
     total: 0,
   });
+
+  console.log(assistantsTableData.data);
 
   const { isPending, error, execute } = useServerAction(getAssistants, {
     onError(err) {
@@ -51,7 +62,7 @@ export const AdminManageAssistantsTable = () => {
     isPending: getModelsPending,
     error: getModelsError,
     execute: getModels,
-  } = useServerAction(getModelsForMapAssistant, {
+  } = useServerAction(getModelsForMapAssistantAndRoles, {
     onError(err) {
       toast.error("Error", {
         description: err.err.message,
@@ -64,11 +75,14 @@ export const AdminManageAssistantsTable = () => {
     (async () => {
       try {
         const [data] = await getModels();
-        setModelsForAssistantMap({ models: data?.models ?? [] });
+        setModelsForAssistantMapAndRoles({
+          models: data?.models ?? [],
+          roles: data?.uniqueRoles ?? [],
+        });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {}
     })();
-  }, [getModels, setModelsForAssistantMap]);
+  }, [getModels, setModelsForAssistantMapAndRoles]);
 
   useEffect(() => {
     (async () => {

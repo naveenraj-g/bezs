@@ -42,6 +42,9 @@ export const AdminEditAssistantModal = () => {
   const modelsForAssistantMap = useAiHubAdminModal(
     (state) => state.modelsForAssistantMap
   );
+  const rolesForAssistantMap = useAiHubAdminModal(
+    (state) => state.assistantRoles
+  );
 
   const modelsList = modelsForAssistantMap?.map((model) => {
     return {
@@ -51,6 +54,13 @@ export const AdminEditAssistantModal = () => {
         </div>
       ),
       value: model.id,
+    };
+  });
+
+  const rolesList = rolesForAssistantMap?.map((role) => {
+    return {
+      label: role,
+      value: role,
     };
   });
 
@@ -65,6 +75,7 @@ export const AdminEditAssistantModal = () => {
       greeting_message: assistantData?.greeting_message || "",
       prompt: assistantData?.prompt || "",
       status: "ACTIVE",
+      role: assistantData?.accessRoles?.[0]?.name || "",
     },
   });
 
@@ -78,7 +89,9 @@ export const AdminEditAssistantModal = () => {
     assistantForm.setValue("prompt", assistantData?.prompt || "");
     assistantForm.setValue("status", assistantData?.status || "ACTIVE");
     assistantForm.setValue("modelId", assistantData?.modelId || "");
+    assistantForm.setValue("role", assistantData?.accessRoles?.[0]?.name || "");
   }, [
+    assistantData?.accessRoles,
     assistantData?.description,
     assistantData?.greeting_message,
     assistantData?.modelId,
@@ -119,6 +132,7 @@ export const AdminEditAssistantModal = () => {
 
     const assistantValue = {
       id: assistantData.id,
+      roleId: assistantData.accessRoles?.[0].id,
       ...values,
     };
 
@@ -215,6 +229,17 @@ export const AdminEditAssistantModal = () => {
                     className="lg:w-full"
                   />
                 </div>
+                <CustomInput
+                  type="select"
+                  name="role"
+                  label="Assign Role to access Assistant"
+                  placeholder="Select role"
+                  defaultValue={assistantForm.getFieldState("role")}
+                  control={assistantForm.control}
+                  selectList={rolesList}
+                  formItemClassName="flex-1 lg:self-start"
+                  className="lg:w-full"
+                />
               </div>
 
               <Button type="submit" className="w-full" disabled={isSubmitting}>

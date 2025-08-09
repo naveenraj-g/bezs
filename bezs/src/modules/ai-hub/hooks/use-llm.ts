@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { useTools } from "./use-tools";
 import { AgentExecutor, createToolCallingAgent } from "langchain/agents";
 import { usePreferences, defaultPreferences } from "./use-preferences";
+import { Assistant } from "../../../../prisma/generated/ai-hub";
+import { assistantStore } from "../stores/assistantStore";
 
 export const useLLM = ({ onChange }: TUseLLM) => {
   const { getSessionById, addMessageToSession, sortMessages, updateSession } =
@@ -39,11 +41,17 @@ export const useLLM = ({ onChange }: TUseLLM) => {
     abortController?.abort();
   };
 
-  const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
+  const preparePrompt = async (
+    props: PromptProps,
+    history: TChatMessage[],
+    assistant?: Assistant
+  ) => {
     const preference = await getPreferences();
     const hasPreviousMessages = history?.length > 0;
     const systemPrompt =
-      preference.systemPrompt || defaultPreferences.systemPrompt;
+      assistant?.prompt ||
+      preference.systemPrompt ||
+      defaultPreferences.systemPrompt;
 
     const system: BaseMessagePromptTemplateLike = [
       "system",
@@ -51,7 +59,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
         props?.context
           ? `Answer user's question based on the following context: """{context}"""`
           : ""
-      } ${hasPreviousMessages ? `You can also refer this pervious conversations if needed.` : ""}`,
+      } ${hasPreviousMessages ? `You can also refer to these pervious conversations` : ""}`,
     ];
 
     const messageHolders = new MessagesPlaceholder("chat_history");
@@ -89,8 +97,13 @@ export const useLLM = ({ onChange }: TUseLLM) => {
     sessionId,
     messageId,
     selectedModel,
+    selectedAssistant,
   }: TRunModel) => {
     const currentSession = await getSessionById(sessionId);
+
+    // const selectedAssistant = assistantStore(
+    //   (state) => state.selectedAssistant
+    // );
 
     if (!props?.query) {
       return;
@@ -135,7 +148,8 @@ export const useLLM = ({ onChange }: TUseLLM) => {
 
       const prompt = await preparePrompt(
         props,
-        currentSession?.messages?.filter((m) => m.id !== messageId) || []
+        currentSession?.messages?.filter((m) => m.id !== messageId) || [],
+        selectedAssistant ?? undefined
       );
 
       const previousAllowedChatHistory = chatHistory

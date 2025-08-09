@@ -21,6 +21,14 @@ import { CustomInput } from "@/shared/ui/custom-input";
 import { useServerAction } from "zsa-react";
 import { createAssistant } from "../../serveractions/admin-server-actions";
 import { Status } from "../../../../../prisma/generated/ai-hub";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectGroup,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 
 type TCreateAssistantForm = z.infer<typeof AdminCreateAssistantSchema>;
 
@@ -39,6 +47,9 @@ export const AdminAddAssistantModal = () => {
   const modelsForAssistantMap = useAiHubAdminModal(
     (state) => state.modelsForAssistantMap
   );
+  const rolesForAssistantMap = useAiHubAdminModal(
+    (state) => state.assistantRoles
+  );
 
   const modelsList = modelsForAssistantMap?.map((model) => {
     return {
@@ -48,6 +59,13 @@ export const AdminAddAssistantModal = () => {
         </div>
       ),
       value: model.id,
+    };
+  });
+
+  const rolesList = rolesForAssistantMap?.map((role) => {
+    return {
+      label: role,
+      value: role,
     };
   });
 
@@ -62,6 +80,7 @@ export const AdminAddAssistantModal = () => {
       greeting_message: "",
       prompt: "",
       status: "ACTIVE",
+      role: "",
     },
   });
 
@@ -168,6 +187,39 @@ export const AdminAddAssistantModal = () => {
                     className="lg:w-full"
                   />
                 </div>
+                <CustomInput
+                  type="select"
+                  name="role"
+                  label="Assign Role to access Assistant"
+                  placeholder="Select role"
+                  control={assistantForm.control}
+                  selectList={rolesList}
+                  formItemClassName="flex-1 lg:self-start"
+                  className="lg:w-full"
+                />
+
+                {/* <div className="mt-8">
+                  <div className="space-y-2">
+                    <p>Assign Role to Assistant</p>
+                    <Select>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {rolesForAssistantMap.length > 0 &&
+                            rolesForAssistantMap?.map((role, index) => {
+                              return (
+                                <SelectItem key={index} value={role}>
+                                  {role}
+                                </SelectItem>
+                              );
+                            })}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div> */}
               </div>
 
               <Button type="submit" className="w-full" disabled={isSubmitting}>

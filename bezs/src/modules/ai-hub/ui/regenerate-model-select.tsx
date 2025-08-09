@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
 export type TRegenerateModelSelect = {
-  onRegenerate: (modelKey: string) => void;
+  onRegenerate: (modelKey: string | undefined) => void;
 };
 
 export const RegenerateWithModelSelect = ({
@@ -38,7 +38,7 @@ export const RegenerateWithModelSelect = ({
           <DropdownMenuItem
             onClick={() => {
               if (selectedModel && selectedModel.modelName) {
-                onRegenerate(selectedModel.modelName);
+                onRegenerate(selectedModel.modelName || undefined);
               }
             }}
             disabled={!selectedModel || !selectedModel.modelName}

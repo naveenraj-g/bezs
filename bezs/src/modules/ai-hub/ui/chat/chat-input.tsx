@@ -56,6 +56,9 @@ import { Badge } from "@/components/ui/badge";
 import { removeExtraSpaces } from "@/utils/helper";
 import { PluginSelect } from "../plugin-select";
 import { usePrompt } from "../../hooks/use-prompt";
+import { AssistantSelect } from "../assistant-select";
+import { assistantStore } from "../../stores/assistantStore";
+import { Assistant } from "../../../../../prisma/generated/ai-hub";
 
 export type TAttachment = {
   file?: File;
@@ -89,6 +92,7 @@ export const ChatInput = () => {
   // const streamingMessage = useChatStore((state) => state.streamingMessage);
   // const stopGeneration = useChatStore((state) => state.stopGeneration);
   const selectedModel = useSelectedModelStore((state) => state.selectedModel);
+  const selectedAssistant = assistantStore((state) => state.selectedAssistant);
   const { scrollToBottom, showButton } = useScrollToBottom();
   const { selectedText, showPopup, handleClearSelection } = useTextSelection();
 
@@ -110,6 +114,7 @@ export const ChatInput = () => {
   const [contextValue, setContextValue] = useState<string>("");
 
   const selectedModelRef = useRef<string | null>(null);
+  const selectedAssistantRef = useRef<Assistant | null>(null);
 
   const {
     text,
@@ -137,6 +142,14 @@ export const ChatInput = () => {
       selectedModelRef.current = selectedModel.modelName;
     }
   }, [selectedModel]);
+
+  useEffect(() => {
+    if (selectedAssistant) {
+      selectedAssistantRef.current = selectedAssistant;
+    } else {
+      selectedAssistantRef.current = null;
+    }
+  }, [selectedAssistant]);
 
   const handleRunModel = async (query?: string, clear?: () => void) => {
     if (!query) return;
@@ -170,6 +183,7 @@ export const ChatInput = () => {
       },
       sessionId: sessionId!.toString(),
       selectedModel: selectedModelRef.current || undefined,
+      selectedAssistant: selectedAssistantRef.current || undefined,
     });
     setAttachment(undefined);
     setContextValue("");
@@ -615,6 +629,7 @@ export const ChatInput = () => {
               </div>
             </ActionTooltipProvider>
             <ModelSelect />
+            <AssistantSelect />
             <PluginSelect />
           </div>
           {!isListening ? (

@@ -1,6 +1,6 @@
 "use server";
 
-import { prismaAiHub } from "@/lib/prisma";
+import { prismaAiHub, prismaMain } from "@/lib/prisma";
 import { authProcedures } from "@/shared/server-actions/server-action";
 import {
   AdminCreateAiModelSchema,
@@ -12,6 +12,46 @@ import {
   AdminEditAssistantSchema,
   AdminDeleteAssistantSchema,
 } from "../schema/admin-schemas";
+import { getAppSlugServerOnly } from "@/utils/getAppSlugServerOnly";
+
+const getUniqueRoles = async () => {
+  const { appSlug } = await getAppSlugServerOnly();
+
+  const currentAppOrgId = await prismaMain.app.findFirst({
+    where: {
+      slug: appSlug,
+    },
+    select: {
+      appOrganization: {
+        select: {
+          organizationId: true,
+        },
+      },
+    },
+  });
+
+  let uniqueRoles: string[] = [];
+
+  if (currentAppOrgId?.appOrganization) {
+    const orgId = currentAppOrgId?.appOrganization[0].organizationId;
+
+    const roles = await prismaMain.rBAC.findMany({
+      where: {
+        organizationId: orgId,
+      },
+      select: {
+        role: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    uniqueRoles = Array.from(new Set(roles.map((r) => r.role.name)));
+  }
+  return { uniqueRoles };
+};
 
 // Models
 
@@ -34,10 +74,12 @@ export const getModels = authProcedures
     }
   });
 
-export const getModelsForMapAssistant = authProcedures
+export const getModelsForMapAssistantAndRoles = authProcedures
   .createServerAction()
   .handler(async () => {
     try {
+      const { uniqueRoles } = await getUniqueRoles();
+
       const models = await prismaAiHub.aiModel.findMany({
         select: {
           id: true,
@@ -46,7 +88,7 @@ export const getModelsForMapAssistant = authProcedures
         },
       });
 
-      return { models };
+      return { models, uniqueRoles };
     } catch (err) {
       throw new Error(
         typeof err === "string"
@@ -210,6 +252,13 @@ export const getAssistants = authProcedures
               modelName: true,
             },
           },
+          accessRoles: {
+            select: {
+              id: true,
+              name: true,
+              assistantId: true,
+            },
+          },
         },
       });
       const total = await prismaAiHub.assistant.count();
@@ -230,15 +279,24 @@ export const createAssistant = authProcedures
   .createServerAction()
   .input(AdminCreateAssistantSchema)
   .handler(async ({ input }) => {
-    const { modelId, ...values } = input;
+    const { modelId, role, ...values } = input;
 
     try {
-      await prismaAiHub.assistant.create({
+      const data = await prismaAiHub.assistant.create({
         data: {
           modelId: String(modelId),
           ...values,
         },
       });
+
+      if (role && data.id) {
+        await prismaAiHub.accessRole.create({
+          data: {
+            name: role,
+            assistantId: data.id,
+          },
+        });
+      }
     } catch (err) {
       throw new Error(
         typeof err === "string"
@@ -254,7 +312,7 @@ export const editAssistant = authProcedures
   .createServerAction()
   .input(AdminEditAssistantSchema)
   .handler(async ({ input }) => {
-    const { id, modelId, ...data } = input;
+    const { id, modelId, roleId, role, ...data } = input;
     try {
       await prismaAiHub.assistant.update({
         where: {
@@ -263,6 +321,15 @@ export const editAssistant = authProcedures
         data: {
           modelId: Boolean(modelId) ? String(modelId) : null,
           ...data,
+        },
+      });
+
+      await prismaAiHub.accessRole.update({
+        where: {
+          id: Number(roleId),
+        },
+        data: {
+          name: role,
         },
       });
     } catch (err) {

@@ -10,7 +10,7 @@ export const authProcedures = createServerActionProcedure().handler(
         throw new Error("Unauthorized");
       }
 
-      return session?.user?.id;
+      return session;
     } catch {
       throw new Error("Unauthorized");
     }

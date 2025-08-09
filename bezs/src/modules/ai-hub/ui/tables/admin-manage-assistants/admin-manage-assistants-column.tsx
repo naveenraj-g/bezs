@@ -11,9 +11,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Ellipsis, Eye, PencilLine, Trash2, TriangleAlert } from "lucide-react";
 import { useAiHubAdminModal } from "@/modules/ai-hub/stores/use-ai-hub-admin-modal-store";
-import { TModelForAssistant } from "./admin-manage-assistants-table";
+import {
+  TModelForAssistant,
+  TRolesForAssistant,
+} from "./admin-manage-assistants-table";
 
-type TAssistant = Assistant & { model: TModelForAssistant };
+type TAssistant = Assistant & {
+  model: TModelForAssistant;
+  accessRoles: TRolesForAssistant;
+};
 
 export const adminManageAssistantsColumn: ColumnDef<TAssistant>[] = [
   {
@@ -77,6 +83,29 @@ export const adminManageAssistantsColumn: ColumnDef<TAssistant>[] = [
           {modelData
             ? `${modelData?.displayName} (${modelData?.modelName})`
             : "No Model"}
+        </span>
+      );
+    },
+  },
+  {
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+
+      return (
+        <TanstackTableColumnSorting
+          label="Access Roles"
+          column={column}
+          isSorted={isSorted}
+        />
+      );
+    },
+    accessorKey: "accessRoles",
+    cell: ({ row }) => {
+      const accessRoles = row.original.accessRoles;
+
+      return (
+        <span>
+          {accessRoles.length > 0 ? `${accessRoles[0].name}` : "No Roles"}
         </span>
       );
     },

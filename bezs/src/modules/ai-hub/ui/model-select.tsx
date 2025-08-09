@@ -5,6 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ export const ModelSelect = () => {
       </DropdownMenuTrigger>
       {!isPending && !isError && (
         <DropdownMenuContent className="max-h-56 overflow-y-auto">
+          <DropdownMenuLabel className="text-sm">Models</DropdownMenuLabel>
           {allModels.map((model) => (
             <DropdownMenuItem
               key={model.id}

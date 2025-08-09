@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useClipboard } from "../hooks/use-clipboard";
 import { useMarkdown } from "../hooks/use-mdx";
 import { motion, easeInOut } from "framer-motion";
@@ -26,6 +26,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useTokenCounter } from "../hooks/use-token-counter";
 import { TToolKey, useTools } from "../hooks/use-tools";
+import { assistantStore } from "../stores/assistantStore";
+import { Assistant } from "../../../../prisma/generated/ai-hub";
 
 export type TAIMessageBubble = {
   chatMessage: TChatMessage;
@@ -43,10 +45,21 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
     : undefined;
 
   const messageRef = useRef<HTMLDivElement>(null);
+  const selectedAssistant = assistantStore((state) => state.selectedAssistant);
+
+  const selectedAssistantRef = useRef<Assistant | null>(null);
+
+  useEffect(() => {
+    if (selectedAssistant) {
+      selectedAssistantRef.current = selectedAssistant;
+    } else {
+      selectedAssistantRef.current = null;
+    }
+  }, [selectedAssistant]);
 
   const { showCopied, copy } = useClipboard();
   const { renderMarkdown } = useMarkdown();
-  const { countPricing, getTokenCount } = useTokenCounter();
+  const { getTokenCount } = useTokenCounter();
 
   const handleCopyContent = () => {
     if (messageRef?.current && rawAI) {
@@ -54,19 +67,6 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
     }
   };
 
-  // const getTokenCount = (
-  //   message: Partial<Pick<TChatMessage, "model" | "rawAI">>
-  // ) => {
-  //   const enc = encodingForModel("gpt-3.5-turbo");
-
-  //   if (message.rawAI) {
-  //     return enc.encode(message.rawAI).length;
-  //   }
-
-  //   return undefined;
-  // };
-
-  // const tokenCount = getTokenCount({ model, rawAI });
   const tokenCount = getTokenCount(rawAI!);
 
   return (
@@ -141,12 +141,14 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
               </ActionTooltipProvider>
               {chatMessage && isLast && (
                 <RegenerateWithModelSelect
-                  onRegenerate={(model: string) => {
+                  onRegenerate={(model: string | undefined) => {
                     runModel({
                       messageId: chatMessage.id,
-                      selectedModel: model,
+                      selectedModel: model || undefined,
                       props: chatMessage.props!,
                       sessionId: chatMessage.sessionId,
+                      selectedAssistant:
+                        selectedAssistantRef.current || undefined,
                     });
                   }}
                 />
