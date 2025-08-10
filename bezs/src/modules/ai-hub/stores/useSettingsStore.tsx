@@ -30,20 +30,20 @@ export type TSettingsStore = {
 export const useSettingsStore = create<TSettingsStore>((set, get) => {
   return {
     isSettingOpen: false,
-    selectedMenu: "common",
+    selectedMenu: "your-data",
     settingMenu: [
-      {
-        name: "Common",
-        key: "common",
-        icon: () => <GearSixIcon size={16} weight="bold" />,
-        component: <CommonSettings />,
-      },
-      {
-        name: "Voice Input",
-        key: "voice-input",
-        icon: () => <MicrophoneIcon size={16} weight="bold" />,
-        component: <VoiceInput />,
-      },
+      // {
+      //   name: "Common",
+      //   key: "common",
+      //   icon: () => <GearSixIcon size={16} weight="bold" />,
+      //   component: <CommonSettings />,
+      // },
+      // {
+      //   name: "Voice Input",
+      //   key: "voice-input",
+      //   icon: () => <MicrophoneIcon size={16} weight="bold" />,
+      //   component: <VoiceInput />,
+      // },
       {
         name: "Data",
         key: "your-data",
@@ -51,43 +51,43 @@ export const useSettingsStore = create<TSettingsStore>((set, get) => {
         component: <Data />,
       },
     ],
-    modelsMenu: [
-      {
-        name: "OpenAI",
-        key: "open-ai",
-        icon: () => <ModelIcon size="md" type="openai" />,
-        component: <div>OpenAI</div>,
-      },
-      {
-        name: "Anthropic",
-        key: "anthropic",
-        icon: () => <ModelIcon size="md" type="anthropic" />,
-        component: <div>Anthropic</div>,
-      },
-      {
-        name: "Gemini",
-        key: "gemini",
-        icon: () => <ModelIcon size="md" type="gemini" />,
-        component: <GeminiSettings />,
-      },
-      {
-        name: "Groq llama3",
-        key: "groq llama3",
-        icon: () => <ModelIcon size="md" type="groqllama3" />,
-        component: <GroqLlama3Settings />,
-      },
-    ],
-    pluginsMenu: [
-      {
-        name: "Web Search",
-        key: "web-search",
-        icon: () => <ModelIcon size="md" type="websearch" />,
-        component: <WebSearchPlugin />,
-      },
-    ],
+    // modelsMenu: [
+    //   {
+    //     name: "OpenAI",
+    //     key: "open-ai",
+    //     icon: () => <ModelIcon size="md" type="openai" />,
+    //     component: <div>OpenAI</div>,
+    //   },
+    //   {
+    //     name: "Anthropic",
+    //     key: "anthropic",
+    //     icon: () => <ModelIcon size="md" type="anthropic" />,
+    //     component: <div>Anthropic</div>,
+    //   },
+    //   {
+    //     name: "Gemini",
+    //     key: "gemini",
+    //     icon: () => <ModelIcon size="md" type="gemini" />,
+    //     component: <GeminiSettings />,
+    //   },
+    //   {
+    //     name: "Groq llama3",
+    //     key: "groq llama3",
+    //     icon: () => <ModelIcon size="md" type="groqllama3" />,
+    //     component: <GroqLlama3Settings />,
+    //   },
+    // ],
+    // pluginsMenu: [
+    //   {
+    //     name: "Web Search",
+    //     key: "web-search",
+    //     icon: () => <ModelIcon size="md" type="websearch" />,
+    //     component: <WebSearchPlugin />,
+    //   },
+    // ],
     getAllMenu() {
-      const { settingMenu, modelsMenu, pluginsMenu } = get();
-      return [...settingMenu, ...modelsMenu, ...pluginsMenu];
+      const { settingMenu } = get();
+      return [...settingMenu];
     },
     open() {
       set({ isSettingOpen: true });

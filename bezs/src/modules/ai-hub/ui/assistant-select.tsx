@@ -47,7 +47,7 @@ export const AssistantSelect = () => {
           className={cn(
             "px-2 py-1 text-xs border border-zinc-400",
             isError && "text-red-500 hover:text-red-500",
-            !selectedAssistant && "text-yellow-500 hover:text-yellow-500"
+            !selectedAssistant && ""
           )}
         >
           {isPending ? (
@@ -81,6 +81,7 @@ export const AssistantSelect = () => {
                 onClick={() => {
                   setSelectedAssistant(assistant);
                 }}
+                className="text-xs text-zinc-700 dark:text-zinc-300"
               >
                 {assistant.name}
                 {selectedAssistant?.name === assistant.name && <Check />}
@@ -89,7 +90,10 @@ export const AssistantSelect = () => {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           {selectedAssistant && (
-            <DropdownMenuItem onClick={() => setSelectedAssistant(null)}>
+            <DropdownMenuItem
+              onClick={() => setSelectedAssistant(null)}
+              className="text-xs"
+            >
               <XIcon size={8} weight="bold" className="text-red-500" />
               Remove Assistant
             </DropdownMenuItem>

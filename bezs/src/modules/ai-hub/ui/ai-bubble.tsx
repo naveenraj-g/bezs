@@ -10,6 +10,8 @@ import {
   CheckIcon,
   CopyIcon,
   InfoIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
   TrashSimpleIcon,
 } from "@phosphor-icons/react";
 import { TChatMessage } from "../types/chat-types";
@@ -45,17 +47,18 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
     : undefined;
 
   const messageRef = useRef<HTMLDivElement>(null);
-  const selectedAssistant = assistantStore((state) => state.selectedAssistant);
 
-  const selectedAssistantRef = useRef<Assistant | null>(null);
+  const selectedAssistantRef = useRef<Assistant | null>(
+    assistantStore.getState().selectedAssistant
+  );
 
   useEffect(() => {
-    if (selectedAssistant) {
-      selectedAssistantRef.current = selectedAssistant;
-    } else {
-      selectedAssistantRef.current = null;
-    }
-  }, [selectedAssistant]);
+    const unsub = assistantStore.subscribe((state) => {
+      selectedAssistantRef.current = state.selectedAssistant;
+    });
+
+    return unsub;
+  }, []);
 
   const { showCopied, copy } = useClipboard();
   const { renderMarkdown } = useMarkdown();
@@ -121,8 +124,7 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                 side="bottom"
               >
                 <span className="flex gap-1 items-center cursor-pointer">
-                  {tokenCount}
-                  tokens
+                  {tokenCount} tokens
                   <InfoIcon size={14} weight="bold" className="inline-block" />
                 </span>
               </ActionTooltipProvider>
@@ -130,6 +132,24 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
           </motion.div>
           {!isLoading && (
             <div className="flex flex-row gap-1">
+              <ActionTooltipProvider
+                label="Good response"
+                align="center"
+                side="bottom"
+              >
+                <Button variant="ghost" size="icon">
+                  <ThumbsUpIcon size={16} weight="bold" />
+                </Button>
+              </ActionTooltipProvider>
+              <ActionTooltipProvider
+                label="Bad response"
+                align="center"
+                side="bottom"
+              >
+                <Button variant="ghost" size="icon">
+                  <ThumbsDownIcon size={16} weight="bold" />
+                </Button>
+              </ActionTooltipProvider>
               <ActionTooltipProvider label="Copy" align="center" side="bottom">
                 <Button variant="ghost" size="icon" onClick={handleCopyContent}>
                   {showCopied ? (

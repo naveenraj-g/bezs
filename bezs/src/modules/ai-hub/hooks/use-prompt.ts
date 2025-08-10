@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPrompts } from "../serveractions/admin-server-actions";
 import { useServerAction } from "zsa-react";
 import { Prompts } from "../../../../prisma/generated/ai-hub";
+// import { getPrompts } from "../serveractions/admin-server-actions";
+import { getPrompts } from "../serveractions/prompts";
 
 export const usePrompt = () => {
   const [prompts, setPrompts] = useState<Prompts[]>([]);
@@ -17,9 +18,10 @@ export const usePrompt = () => {
   useEffect(() => {
     (async () => {
       const [data] = await execute();
+      console.log(data);
       setPrompts(data?.prompts || []);
     })();
-  }, []);
+  }, [execute]);
 
   return { prompts, isPromptsError, isPromptsLoading };
 };

@@ -75,6 +75,7 @@ export const ModelSelect = () => {
               onClick={() => {
                 setSelectedModel(model);
               }}
+              className="text-xs text-zinc-700 dark:text-zinc-300"
             >
               {model.displayName}
               {selectedModel?.displayName === model.displayName && <Check />}

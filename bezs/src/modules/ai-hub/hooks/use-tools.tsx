@@ -50,8 +50,8 @@ const webSearchTool = (preferences: TPreferences) => {
     func: async ({ input }, runManager) => {
       const url = "https://www.googleapis.com/customsearch/v1";
       const params = {
-        key: preferences.googleSearchApiKey,
-        cx: preferences.googleSearchEngineId,
+        key: process.env.NEXT_PUBLIC_GOOGLE_SEARCH_API_KEY,
+        cx: process.env.NEXT_PUBLIC_GOOGLE_SEARCH_ENGINE_ID,
         q: input,
       };
 

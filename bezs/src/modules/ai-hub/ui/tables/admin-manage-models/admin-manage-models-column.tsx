@@ -86,6 +86,7 @@ export const adminManageModelsColumn: ColumnDef<AiModel>[] = [
       const openModal = useAiHubAdminModal((state) => state.onOpen);
 
       const modelId: string = row.original.id;
+      const modelData = row.original;
       const createdDate: Date = row.getValue("createdAt");
       return (
         <div className="flex items-center justify-between gap-4">
@@ -99,7 +100,10 @@ export const adminManageModelsColumn: ColumnDef<AiModel>[] = [
                 <Eye />
                 View
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => {}}>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => openModal({ type: "editModel", modelData })}
+              >
                 <PencilLine />
                 Edit
               </DropdownMenuItem>

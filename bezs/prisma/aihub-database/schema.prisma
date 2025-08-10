@@ -27,6 +27,12 @@ model AiModel {
     secretKey   String?     @unique
     modelUrl    String?
 
+    defaultPrompt String @default("You are a helpful assistant.")
+    maxToken      Int    @default(1000)
+    temperature   Float  @default(0.5)
+    topP          Float  @default(1)
+    topK          Float  @default(5)
+
     assistant Assistant[]
 
     createdAt DateTime @default(now())

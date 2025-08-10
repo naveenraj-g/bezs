@@ -49,6 +49,11 @@ const RenderInput = ({ field, props }: { field: any; props: InputProps }) => {
             min={props.dateMin}
             disabled={props.disable}
             {...field}
+            onChange={(e) =>
+              props.inputType === "number"
+                ? field.onChange(+e.target.value)
+                : field.onChange(e.target.value)
+            }
           />
         </FormControl>
       );

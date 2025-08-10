@@ -26,44 +26,79 @@ import { AdminCreateAiModelSchema } from "../../schema/admin-schemas";
 import { CustomInput } from "@/shared/ui/custom-input";
 import { AiModelType } from "../../../../../prisma/generated/ai-hub";
 import { useServerAction } from "zsa-react";
-import { createModel } from "../../serveractions/admin-server-actions";
+import { editModel } from "../../serveractions/admin-server-actions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
+import { useEffect } from "react";
 
-type CreateModelFormSchemaType = z.infer<typeof AdminCreateAiModelSchema>;
+type EditModelFormSchemaType = z.infer<typeof AdminCreateAiModelSchema>;
 
-export const AdminAddAiModelModal = () => {
+export const AdminEditAiModelModal = () => {
   const session = useSession();
 
   const closeModal = useAiHubAdminModal((state) => state.onClose);
   const modalType = useAiHubAdminModal((state) => state.type);
   const isOpen = useAiHubAdminModal((state) => state.isOpen);
   const triggerRefetch = useAiHubAdminModal((state) => state.incrementTrigger);
+  const modelData = useAiHubAdminModal((state) => state.modelData);
 
-  const isModalOpen = isOpen && modalType === "addModel";
+  const isModalOpen = isOpen && modalType === "editModel";
 
-  const modelForm = useForm<CreateModelFormSchemaType>({
+  const modelForm = useForm<EditModelFormSchemaType>({
     resolver: zodResolver(AdminCreateAiModelSchema),
     defaultValues: {
-      displayName: "",
-      modelName: "",
-      modelUrl: "",
-      secretKey: "",
-      tokens: "",
-      type: "PRE_AVAILABLE",
-      defaultPrompt: "You are a helpful assistant.",
-      maxToken: 1000,
-      temperature: 0.5,
-      topP: 1,
-      topK: 10,
+      displayName: modelData?.displayName || "",
+      modelName: modelData?.modelName || "",
+      modelUrl: modelData?.modelUrl || "",
+      secretKey: modelData?.secretKey || "",
+      tokens: modelData?.tokens || "",
+      type: modelData?.type || "PRE_AVAILABLE",
+      defaultPrompt: modelData?.defaultPrompt || "You are a helpful assistant.",
+      maxToken: modelData?.maxToken || 1000,
+      temperature: modelData?.temperature || 0.5,
+      topP: modelData?.topP || 1,
+      topK: modelData?.topK || 10,
     },
   });
+
+  useEffect(() => {
+    if (isModalOpen) {
+      modelForm.reset({
+        displayName: modelData?.displayName || "",
+        modelName: modelData?.modelName || "",
+        modelUrl: modelData?.modelUrl || "",
+        secretKey: modelData?.secretKey || "",
+        tokens: modelData?.tokens || "",
+        type: modelData?.type || "PRE_AVAILABLE",
+        defaultPrompt:
+          modelData?.defaultPrompt || "You are a helpful assistant.",
+        maxToken: modelData?.maxToken || 1000,
+        temperature: modelData?.temperature || 0.5,
+        topP: modelData?.topP || 1,
+        topK: modelData?.topK || 10,
+      });
+    }
+  }, [
+    isModalOpen,
+    modelData?.defaultPrompt,
+    modelData?.displayName,
+    modelData?.maxToken,
+    modelData?.modelName,
+    modelData?.modelUrl,
+    modelData?.secretKey,
+    modelData?.temperature,
+    modelData?.tokens,
+    modelData?.topK,
+    modelData?.topP,
+    modelData?.type,
+    modelForm,
+  ]);
 
   const {
     formState: { isSubmitting },
   } = modelForm;
 
-  const { execute } = useServerAction(createModel, {
+  const { execute } = useServerAction(editModel, {
     onSuccess() {
       toast.success("Model created successfully.", {
         richColors: true,
@@ -77,14 +112,24 @@ export const AdminAddAiModelModal = () => {
     },
   });
 
-  async function onAiModelSubmit(values: CreateModelFormSchemaType) {
+  async function onAiModelSubmit(values: EditModelFormSchemaType) {
     if (!session) {
       toast("unauthorized.");
       return;
     }
 
+    if (!modelData?.id) {
+      toast.error("Model ID not found!");
+      return;
+    }
+
+    const data = {
+      id: modelData?.id,
+      ...values,
+    };
+
     try {
-      await execute(values);
+      await execute(data);
       triggerRefetch();
       handleCloseModal();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -106,7 +151,7 @@ export const AdminAddAiModelModal = () => {
       <DialogContent className="h-[648px]">
         <DialogHeader>
           <DialogTitle className="flex justify-center items-center gap-2">
-            Create AI Model
+            Edit AI Model
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
@@ -162,6 +207,7 @@ export const AdminAddAiModelModal = () => {
                       name="type"
                       label="Model Type"
                       placeholder="select model type"
+                      defaultValue={modelForm.getFieldState("type")}
                       control={modelForm.control}
                       selectList={selectModel}
                       className="w-full"
@@ -327,10 +373,10 @@ export const AdminAddAiModelModal = () => {
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="animate-spin" />
-                    Adding...
+                    Editing...
                   </div>
                 ) : (
-                  "Add Model"
+                  "Edit Model"
                 )}
               </Button>
             </form>

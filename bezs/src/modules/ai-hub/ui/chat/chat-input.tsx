@@ -114,7 +114,10 @@ export const ChatInput = () => {
   const [contextValue, setContextValue] = useState<string>("");
 
   const selectedModelRef = useRef<string | null>(null);
-  const selectedAssistantRef = useRef<Assistant | null>(null);
+  // const selectedAssistantRef = useRef<Assistant | null>(null);
+  const selectedAssistantRef = useRef<Assistant | null>(
+    assistantStore.getState().selectedAssistant
+  );
 
   const {
     text,
@@ -143,13 +146,21 @@ export const ChatInput = () => {
     }
   }, [selectedModel]);
 
+  // useEffect(() => {
+  //   if (selectedAssistant) {
+  //     selectedAssistantRef.current = selectedAssistant;
+  //   } else {
+  //     selectedAssistantRef.current = null;
+  //   }
+  // }, [selectedAssistant]);
+
   useEffect(() => {
-    if (selectedAssistant) {
-      selectedAssistantRef.current = selectedAssistant;
-    } else {
-      selectedAssistantRef.current = null;
-    }
-  }, [selectedAssistant]);
+    const unsub = assistantStore.subscribe((state) => {
+      selectedAssistantRef.current = state.selectedAssistant;
+    });
+
+    return unsub;
+  }, []);
 
   const handleRunModel = async (query?: string, clear?: () => void) => {
     if (!query) return;

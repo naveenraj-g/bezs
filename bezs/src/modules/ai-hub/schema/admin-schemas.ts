@@ -11,7 +11,27 @@ export const AdminCreateAiModelSchema = z.object({
   }),
   secretKey: z.string().min(1, { message: "Secret key is required" }),
   modelUrl: z.string().min(1, { message: "Model URL is required" }),
+
+  defaultPrompt: z.string().min(15, {
+    message: "Default Prompt should be atleast 15 characters long",
+  }),
+  maxToken: z.number().min(1, { message: "Max Token is required" }),
+  temperature: z
+    .number()
+    .min(0.1, { message: "Temperature should be atleast 0.1" })
+    .max(1, { message: "Temperature should be atmost 1" }),
+  topP: z
+    .number()
+    .min(0.1, { message: "topP should be atleast 0.1" })
+    .max(1, { message: "topP should be atmost 1" }),
+  topK: z.number().max(100, { message: "topK should be atmost 100" }),
 });
+
+export const AdminEditAiModelSchema = AdminCreateAiModelSchema.merge(
+  z.object({
+    id: z.string().min(1, { message: "Id is required" }),
+  })
+);
 
 export const AdminDeleteAiModelSchema = z.object({
   modelId: z.union([

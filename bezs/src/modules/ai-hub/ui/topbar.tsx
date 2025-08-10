@@ -43,14 +43,6 @@ export const Topbar = () => {
             Ctrl K
           </span>
         </Button>
-        <Button size="sm" variant="outline">
-          <RobotIcon size={16} weight="bold" />
-          Assistants <Badge>Adding soon</Badge>
-        </Button>
-        <Button size="sm" variant="outline">
-          <TextboxIcon size={16} weight="bold" />
-          Prompts <Badge>Adding soon</Badge>
-        </Button>
         <HistorySidebar />
       </div>
     </div>

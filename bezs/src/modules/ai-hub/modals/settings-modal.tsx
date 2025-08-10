@@ -38,8 +38,8 @@ export const SettingsModal = () => {
               </Button>
             ))}
           </div>
-          <p className="px-2 py-2 text-xs font-semibold mt-2">MODELS</p>
-          <div className="flex flex-col gap-1">
+          {/* <p className="px-2 py-2 text-xs font-semibold mt-2">MODELS</p> */}
+          {/* <div className="flex flex-col gap-1">
             {modelsMenu.map((menu) => (
               <Button
                 key={menu.key}
@@ -51,8 +51,8 @@ export const SettingsModal = () => {
                 {menu.icon()} {menu.name}
               </Button>
             ))}
-          </div>
-          <p className="px-2 py-2 text-xs font-semibold mt-2">PLUGINS</p>
+          </div> */}
+          {/* <p className="px-2 py-2 text-xs font-semibold mt-2">PLUGINS</p>
           <div className="flex flex-col gap-1">
             {pluginsMenu.map((menu) => (
               <Button
@@ -65,7 +65,7 @@ export const SettingsModal = () => {
                 {menu.icon()} {menu.name}
               </Button>
             ))}
-          </div>
+          </div> */}
         </div>
         <div className="p-4 bg-zinc-100/80 dark:bg-zinc-900 w-full overflow-y-auto no-scrollbar">
           {selectedMenuItem?.component}

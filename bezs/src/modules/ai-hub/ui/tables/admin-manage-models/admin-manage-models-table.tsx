@@ -48,6 +48,7 @@ export const AdminManageModelsTable = () => {
             total: data?.total ?? 0,
           };
         });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         // setError((error as Error).message);
       } finally {

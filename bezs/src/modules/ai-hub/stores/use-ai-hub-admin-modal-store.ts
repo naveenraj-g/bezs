@@ -1,16 +1,22 @@
 import { create } from "zustand";
-import { Assistant, Prompts } from "../../../../prisma/generated/ai-hub";
+import {
+  AiModel,
+  Assistant,
+  Prompts,
+} from "../../../../prisma/generated/ai-hub";
 import { TRolesForAssistant } from "../ui/tables/admin-manage-assistants/admin-manage-assistants-table";
 
 export type ModalType =
   | "addModel"
+  | "editModel"
   | "deleteModel"
   | "addPrompts"
   | "editPrompts"
   | "deletePrompt"
   | "addAssistant"
   | "editAssistant"
-  | "deleteAssistant";
+  | "deleteAssistant"
+  | "knowledge-based";
 
 type TModelsForAssistantMap = {
   id: string;
@@ -29,6 +35,7 @@ interface AdminStore {
   trigger: number;
   triggerInModal: number;
   id?: string | number;
+  modelData?: AiModel | null;
   promptData?: Prompts | null;
   assistantData?: TAssistantData | null;
   modelsForAssistantMap?: TModelsForAssistantMap[];
@@ -38,6 +45,7 @@ interface AdminStore {
   onOpen: (props: {
     type: ModalType;
     id?: string | number;
+    modelData?: AiModel | null;
     promptData?: Prompts | null;
     assistantData?: TAssistantData | null;
   }) => void;
@@ -55,11 +63,18 @@ export const useAiHubAdminModal = create<AdminStore>((set) => ({
   triggerInModal: 0,
   modelsForAssistantMap: [],
   assistantRoles: [],
-  onOpen: ({ type, id = "", promptData = null, assistantData = null }) =>
+  onOpen: ({
+    type,
+    id = "",
+    modelData = null,
+    promptData = null,
+    assistantData = null,
+  }) =>
     set({
       isOpen: true,
       type,
       id,
+      modelData,
       promptData,
       assistantData,
     }),
@@ -68,6 +83,7 @@ export const useAiHubAdminModal = create<AdminStore>((set) => ({
       type: null,
       isOpen: false,
       id: "",
+      modelData: null,
       promptData: null,
       assistantData: null,
     }),

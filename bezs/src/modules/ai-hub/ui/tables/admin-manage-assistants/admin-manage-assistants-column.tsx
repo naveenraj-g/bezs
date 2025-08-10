@@ -15,6 +15,8 @@ import {
   TModelForAssistant,
   TRolesForAssistant,
 } from "./admin-manage-assistants-table";
+import { BrainIcon } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 
 type TAssistant = Assistant & {
   model: TModelForAssistant;
@@ -54,7 +56,7 @@ export const adminManageAssistantsColumn: ColumnDef<TAssistant>[] = [
 
       return (
         <span
-          className="inline-block truncate max-w-[250px] xl:max-w-[450px] 2xl:max-w-full"
+          className="inline-block truncate max-w-[250px] xl:max-w-[450px]"
           title={description}
         >
           {description}
@@ -84,6 +86,37 @@ export const adminManageAssistantsColumn: ColumnDef<TAssistant>[] = [
             ? `${modelData?.displayName} (${modelData?.modelName})`
             : "No Model"}
         </span>
+      );
+    },
+  },
+  {
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+
+      return (
+        <TanstackTableColumnSorting
+          label="Knowledge Based"
+          column={column}
+          isSorted={isSorted}
+        />
+      );
+    },
+    accessorKey: "13",
+    cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const openModal = useAiHubAdminModal((state) => state.onOpen);
+
+      return (
+        <div
+          className="flex items-center w-fit mx-auto"
+          onClick={() => {
+            openModal({ type: "knowledge-based" });
+          }}
+        >
+          <Button size="icon" variant="secondary" className="h-8">
+            <BrainIcon size={16} weight="bold" />
+          </Button>
+        </div>
       );
     },
   },

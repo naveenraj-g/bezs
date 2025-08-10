@@ -11,6 +11,7 @@ import {
   AdminCreateAssistantSchema,
   AdminEditAssistantSchema,
   AdminDeleteAssistantSchema,
+  AdminEditAiModelSchema,
 } from "../schema/admin-schemas";
 import { getAppSlugServerOnly } from "@/utils/getAppSlugServerOnly";
 
@@ -108,6 +109,32 @@ export const createModel = authProcedures
       await prismaAiHub.aiModel.create({
         data: {
           ...input,
+        },
+      });
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const editModel = authProcedures
+  .createServerAction()
+  .input(AdminEditAiModelSchema)
+  .handler(async ({ input }) => {
+    const { id, ...data } = input;
+
+    try {
+      await prismaAiHub.aiModel.update({
+        where: {
+          id,
+        },
+        data: {
+          ...data,
         },
       });
     } catch (err) {
