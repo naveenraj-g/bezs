@@ -18,6 +18,15 @@ enum Status {
     INACTIVE
 }
 
+enum KnowledgeBasedType {
+    VectorDB
+    API
+    KnowledgeGrass
+    MCP
+    Agents
+    TextSQL
+}
+
 model AiModel {
     id          String      @id @default(uuid())
     displayName String?     @unique
@@ -33,12 +42,28 @@ model AiModel {
     topP          Float  @default(1)
     topK          Float  @default(5)
 
-    assistant Assistant[]
+    modelSettings ModelSettings?
+    assistant     Assistant[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@index([id])
+}
+
+model ModelSettings {
+    id            Int    @id @default(autoincrement())
+    defaultPrompt String @default("You are a helpful assistant.")
+    maxToken      Int    @default(1000)
+    temperature   Float  @default(0.5)
+    topP          Float  @default(1)
+    topK          Float  @default(5)
+
+    modelId String  @unique
+    model   AiModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model Prompts {
@@ -59,7 +84,8 @@ model Assistant {
     prompt           String
     status           Status @default(ACTIVE)
 
-    accessRoles AccessRole[]
+    accessRoles    AccessRole[]
+    knowledgeBased KnowledgeBased?
 
     modelId String?
     model   AiModel? @relation(fields: [modelId], references: [id], onDelete: Cascade)
@@ -73,6 +99,20 @@ model AccessRole {
     name String
 
     assistantId Int
+    assistant   Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model KnowledgeBased {
+    id Int @id @default(autoincrement())
+
+    name        String
+    type        KnowledgeBasedType
+    connections String
+
+    assistantId Int       @unique
     assistant   Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())

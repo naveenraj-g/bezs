@@ -1,5 +1,9 @@
 import { nativeEnum, z } from "zod";
-import { AiModelType, Status } from "../../../../prisma/generated/ai-hub";
+import {
+  AiModelType,
+  KnowledgeBasedType,
+  Status,
+} from "../../../../prisma/generated/ai-hub";
 
 export const AdminCreateAiModelSchema = z.object({
   displayName: z.string().min(1, { message: "Display name is required" }),
@@ -132,4 +136,70 @@ export const AdminDeleteAssistantSchema = z.object({
       })
       .min(1, { message: "Prompt ID is required." }),
   ]),
+});
+
+export const AdminCreateModelSettingsSchema = z.object({
+  modelId: z.string().min(1, { message: "Model ID is required" }),
+
+  defaultPrompt: z
+    .string()
+    .min(15, {
+      message: "Default Prompt should be at least 15 characters long",
+    })
+    .default("You are a helpful assistant."),
+
+  maxToken: z
+    .number()
+    .min(1, { message: "Max Token is required" })
+    .default(1000),
+
+  temperature: z
+    .number()
+    .min(0.1, { message: "Temperature should be at least 0.1" })
+    .max(1, { message: "Temperature should be at most 1" })
+    .default(0.5),
+
+  topP: z
+    .number()
+    .min(0.1, { message: "topP should be at least 0.1" })
+    .max(1, { message: "topP should be at most 1" })
+    .default(1),
+
+  topK: z
+    .number()
+    .max(100, { message: "topK should be at most 100" })
+    .default(5),
+});
+
+export const AdminEditModelSettingsSchema =
+  AdminCreateModelSettingsSchema.merge(
+    z.object({
+      id: z.union([
+        z
+          .string({
+            invalid_type_error: "Prompt ID must be a number or string.",
+          })
+          .min(1, { message: "Prompt ID is required." }),
+        z
+          .number({
+            invalid_type_error: "Prompt ID must be a number or string.",
+          })
+          .min(1, { message: "Prompt ID is required." }),
+      ]),
+    })
+  );
+
+export const AdminCreateKnowledgeBasedSchema = z.object({
+  name: z.string().min(1, { message: "Knowledge base name is required" }),
+
+  type: z.nativeEnum(KnowledgeBasedType, {
+    required_error: "Type is required",
+    invalid_type_error: "Invalid type value",
+  }),
+
+  connections: z.string().min(1, { message: "Connections string is required" }),
+
+  assistantId: z
+    .number({ invalid_type_error: "Assistant ID must be a number" })
+    .int({ message: "Assistant ID must be an integer" }),
 });

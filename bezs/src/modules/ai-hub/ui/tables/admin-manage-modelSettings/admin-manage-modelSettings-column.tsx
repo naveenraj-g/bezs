@@ -5,28 +5,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AiModel } from "../../../../../../prisma/generated/ai-hub";
 import { TanstackTableColumnSorting } from "@/shared/ui/table/tanstack-table-column-sorting";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Ellipsis, Eye, PencilLine, Trash2, TriangleAlert } from "lucide-react";
 import { useAiHubAdminModal } from "@/modules/ai-hub/stores/use-ai-hub-admin-modal-store";
+import { TModelSettings } from "./admin-manage-modelSettings-table";
 
-export const adminManageModelsColumn: ColumnDef<AiModel>[] = [
-  {
-    header: ({ column }) => {
-      const isSorted = column.getIsSorted();
-
-      return (
-        <TanstackTableColumnSorting
-          label="Display Name"
-          column={column}
-          isSorted={isSorted}
-        />
-      );
-    },
-    accessorKey: "displayName",
-  },
+export const adminManageModelSettingsColumn: ColumnDef<TModelSettings>[] = [
   {
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
@@ -39,39 +25,44 @@ export const adminManageModelsColumn: ColumnDef<AiModel>[] = [
         />
       );
     },
-    accessorKey: "modelName",
-  },
-  {
-    header: "Model URL",
-    accessorKey: "modelUrl",
+    accessorKey: "model",
     cell: ({ row }) => {
-      const modelUrl: string = row.getValue("modelUrl");
+      const model: { displayName: string | null; modelName: string | null } =
+        row.getValue("model");
 
       return (
-        <p className="truncate max-w-[250px] xl:max-w-[450px]">{modelUrl}</p>
+        <span>
+          {model.displayName} ({model.modelName})
+        </span>
       );
     },
   },
   {
-    header: "Model Key",
-    accessorKey: "secretKey",
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted();
+
+      return (
+        <TanstackTableColumnSorting
+          label="Default Prompt"
+          column={column}
+          isSorted={isSorted}
+        />
+      );
+    },
+    accessorKey: "defaultPrompt",
     cell: ({ row }) => {
-      const secretKey: string = row.getValue("secretKey");
+      const defaultPrompt: string = row.getValue("defaultPrompt");
 
       return (
         <p className="truncate max-w-[250px] xl:max-w-[450px]">
-          {"*".repeat(secretKey.length)}
+          {defaultPrompt}
         </p>
       );
     },
   },
   {
-    header: "Tokens",
-    accessorKey: "tokens",
-  },
-  {
-    header: "Type",
-    accessorKey: "type",
+    header: "Max Token",
+    accessorKey: "maxToken",
   },
   {
     header: ({ column }) => {
@@ -90,8 +81,8 @@ export const adminManageModelsColumn: ColumnDef<AiModel>[] = [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const openModal = useAiHubAdminModal((state) => state.onOpen);
 
-      const modelId: string = row.original.id;
-      const modelData = row.original;
+      const modelSettingsId: number = row.original.id;
+      const modelSettingsData = row.original;
       const createdDate: Date = row.getValue("createdAt");
       return (
         <div className="flex items-center justify-between gap-4">
@@ -107,7 +98,9 @@ export const adminManageModelsColumn: ColumnDef<AiModel>[] = [
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
-                onClick={() => openModal({ type: "editModel", modelData })}
+                onClick={() =>
+                  openModal({ type: "editModelSettings", modelSettingsData })
+                }
               >
                 <PencilLine />
                 Edit
@@ -115,7 +108,12 @@ export const adminManageModelsColumn: ColumnDef<AiModel>[] = [
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="space-x-2 cursor-pointer"
-                onClick={() => openModal({ type: "deleteModel", id: modelId })}
+                onClick={() =>
+                  openModal({
+                    type: "deleteModelSettings",
+                    id: modelSettingsId,
+                  })
+                }
               >
                 <div className="flex items-center gap-2">
                   <Trash2 />

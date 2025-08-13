@@ -106,11 +106,13 @@ export const adminManageAssistantsColumn: ColumnDef<TAssistant>[] = [
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const openModal = useAiHubAdminModal((state) => state.onOpen);
 
+      const assistantId = row.original.id;
+
       return (
         <div
           className="flex items-center w-fit mx-auto"
           onClick={() => {
-            openModal({ type: "knowledge-based" });
+            openModal({ type: "addKnowledgeBased", id: assistantId });
           }}
         >
           <Button size="icon" variant="secondary" className="h-8">

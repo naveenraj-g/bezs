@@ -15,12 +15,12 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAiHubAdminModal } from "../../stores/use-ai-hub-admin-modal-store";
 import { useServerAction } from "zsa-react";
-import { deleteModel } from "../../serveractions/admin-server-actions";
+import { deleteModelSettings } from "../../serveractions/admin-server-actions";
 
-export const DeleteAiModelModal = () => {
+export const DeleteModelSettingsModal = () => {
   const closeModal = useAiHubAdminModal((state) => state.onClose);
   const modalType = useAiHubAdminModal((state) => state.type);
-  const modelId = useAiHubAdminModal((state) => state.id) || "";
+  const modelSettingsId = useAiHubAdminModal((state) => state.id) || "";
   const isOpen = useAiHubAdminModal((state) => state.isOpen);
   const incrementTriggerRefetch = useAiHubAdminModal(
     (state) => state.incrementTrigger
@@ -28,11 +28,11 @@ export const DeleteAiModelModal = () => {
 
   const session = useSession();
 
-  const isModalOpen = isOpen && modalType === "deleteModel";
+  const isModalOpen = isOpen && modalType === "deleteModelSettings";
 
-  const { execute, isPending } = useServerAction(deleteModel);
+  const { execute, isPending } = useServerAction(deleteModelSettings);
 
-  async function handleAppDelete() {
+  async function handleDelete() {
     if (!session) {
       toast.error("Unauthorized!", {
         richColors: true,
@@ -41,7 +41,7 @@ export const DeleteAiModelModal = () => {
     }
 
     try {
-      const [, err] = await execute({ modelId });
+      const [, err] = await execute({ modelId: modelSettingsId });
 
       if (err) {
         throw new Error(
@@ -66,16 +66,16 @@ export const DeleteAiModelModal = () => {
       <DialogContent className="p-8">
         <DialogHeader>
           <DialogTitle className="mb-2 text-2xl text-center">
-            Delete Model
+            Delete Model Settings
           </DialogTitle>
           <DialogDescription className="mb-6 text-md">
-            Are you sure you want to delete this Model? This action cannot be
-            undone.
+            Are you sure you want to delete this Model Settings? This action
+            cannot be undone.
           </DialogDescription>
           <DialogFooter className="space-x-2">
             <Button
               className="cursor-pointer"
-              onClick={handleAppDelete}
+              onClick={handleDelete}
               disabled={isPending}
             >
               {isPending ? (

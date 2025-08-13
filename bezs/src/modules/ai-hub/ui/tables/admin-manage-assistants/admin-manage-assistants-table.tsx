@@ -47,8 +47,6 @@ export const AdminManageAssistantsTable = () => {
     total: 0,
   });
 
-  console.log(assistantsTableData.data);
-
   const { isPending, error, execute } = useServerAction(getAssistants, {
     onError(err) {
       toast.error("Error", {

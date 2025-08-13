@@ -12,6 +12,9 @@ import {
   AdminEditAssistantSchema,
   AdminDeleteAssistantSchema,
   AdminEditAiModelSchema,
+  AdminCreateModelSettingsSchema,
+  AdminEditModelSettingsSchema,
+  AdminCreateKnowledgeBasedSchema,
 } from "../schema/admin-schemas";
 import { getAppSlugServerOnly } from "@/utils/getAppSlugServerOnly";
 
@@ -109,6 +112,12 @@ export const createModel = authProcedures
       await prismaAiHub.aiModel.create({
         data: {
           ...input,
+          modelSettings: {
+            create: {},
+          },
+        },
+        include: {
+          modelSettings: true,
         },
       });
     } catch (err) {
@@ -156,6 +165,128 @@ export const deleteModel = authProcedures
       await prismaAiHub.aiModel.delete({
         where: {
           id: String(input.modelId),
+        },
+      });
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+// Model Settings
+
+export const getModelsForSettingsSelect = authProcedures
+  .createServerAction()
+  .handler(async () => {
+    try {
+      const models = await prismaAiHub.aiModel.findMany({
+        select: {
+          id: true,
+          displayName: true,
+          modelName: true,
+        },
+      });
+
+      return { models };
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const getModelSettings = authProcedures
+  .createServerAction()
+  .handler(async () => {
+    try {
+      const modelSettings = await prismaAiHub.modelSettings.findMany({
+        include: {
+          model: {
+            select: {
+              displayName: true,
+              modelName: true,
+            },
+          },
+        },
+      });
+      const total = await prismaAiHub.modelSettings.count();
+
+      return { modelSettings, total };
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const createModelSettings = authProcedures
+  .createServerAction()
+  .input(AdminCreateModelSettingsSchema)
+  .handler(async ({ input }) => {
+    try {
+      await prismaAiHub.modelSettings.create({
+        data: {
+          ...input,
+        },
+      });
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const editModelSettings = authProcedures
+  .createServerAction()
+  .input(AdminEditModelSettingsSchema)
+  .handler(async ({ input }) => {
+    const { id, ...data } = input;
+
+    try {
+      await prismaAiHub.modelSettings.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          ...data,
+        },
+      });
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const deleteModelSettings = authProcedures
+  .createServerAction()
+  .input(AdminDeleteAiModelSchema)
+  .handler(async ({ input }) => {
+    try {
+      await prismaAiHub.modelSettings.delete({
+        where: {
+          id: Number(input.modelId),
         },
       });
     } catch (err) {
@@ -378,6 +509,27 @@ export const deleteAssistant = authProcedures
       await prismaAiHub.assistant.delete({
         where: {
           id: Number(input.assistantId),
+        },
+      });
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const createKnowledgeBased = authProcedures
+  .createServerAction()
+  .input(AdminCreateKnowledgeBasedSchema)
+  .handler(async ({ input }) => {
+    try {
+      await prismaAiHub.knowledgeBased.create({
+        data: {
+          ...input,
         },
       });
     } catch (err) {
