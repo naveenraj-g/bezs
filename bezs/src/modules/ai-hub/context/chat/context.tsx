@@ -14,7 +14,7 @@ export type TChatContext = {
   clearChatSessions: () => Promise<void>;
   stopGeneration: () => void;
   runModel: (props: TRunModel) => Promise<void>;
-  removeMessage: (messageId: string) => void;
+  removeMessage: (messageId: string) => Promise<void>;
   error?: string | undefined;
 
   initialPrompt?: string;

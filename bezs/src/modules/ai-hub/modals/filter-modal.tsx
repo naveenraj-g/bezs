@@ -9,16 +9,9 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useFilterStore } from "../stores/useFilterStore";
-// import { useChatStore } from "../stores/useChatStore";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect } from "react";
-import { TChatSession } from "../types/chat-types";
-import {
-  ChatIcon,
-  EraserIcon,
-  PlusIcon,
-  TrashSimpleIcon,
-} from "@phosphor-icons/react";
+import { useEffect } from "react";
+import { ChatIcon, EraserIcon, PlusIcon } from "@phosphor-icons/react";
 import { useChatSession } from "../hooks/use-chat-session";
 import moment from "moment";
 import { Button } from "@/components/ui/button";
@@ -39,10 +32,6 @@ export const FilterModal = () => {
   const isFilterOpen = useFilterStore((state) => state.isFilterOpen);
   const toggleFilter = useFilterStore((state) => state.toggleFilter);
   const filterClose = useFilterStore((state) => state.dismiss);
-  // const sessions = useChatStore((state) => state.sessions);
-  // const createSession = useChatStore((state) => state.createSession);
-  // const clearChatSessions = useChatStore((state) => state.clearChatSessions);
-  // const removeSession = useChatStore((state) => state.removeSession);
 
   const {
     sessions,
@@ -77,8 +66,8 @@ export const FilterModal = () => {
       action: async () => {
         const newSession = await createSession();
 
-        if (newSession[0]?.id) {
-          router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+        if (newSession?.id) {
+          router.push(`/bezs/ai-hub/ask-ai/${newSession.id}`);
           filterClose();
         }
       },
@@ -94,12 +83,8 @@ export const FilterModal = () => {
           action: {
             label: "Delete",
             onClick: async () => {
-              await clearChatSessions!();
-              const newSession = await createSession();
-
-              if (newSession[0]?.id) {
-                router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
-              }
+              await clearChatSessions();
+              router.push(`/bezs/ai-hub/ask-ai`);
             },
           },
           actionButtonStyle: {

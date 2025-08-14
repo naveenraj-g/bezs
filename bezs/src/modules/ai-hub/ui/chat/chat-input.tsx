@@ -185,13 +185,11 @@ export const ChatInput = () => {
     }
 
     runModel({
-      props: {
-        role: RoleType.assistant,
-        type: PromptType.ask,
-        image: attachment?.base64,
-        query: removeExtraSpaces(query),
-        context: removeExtraSpaces(contextValue),
-      },
+      role: RoleType.assistant,
+      type: PromptType.ask,
+      image: attachment?.base64,
+      query: removeExtraSpaces(query),
+      context: removeExtraSpaces(contextValue),
       sessionId: sessionId!.toString(),
       selectedModel: selectedModelRef.current || undefined,
       selectedAssistant: selectedAssistantRef.current || undefined,

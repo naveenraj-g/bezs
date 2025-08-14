@@ -14,7 +14,7 @@ import { AdminKnowledgeBasedModal } from "../modals/admin/admin-knowledge-based"
 import { AdminAddModelSettingsModal } from "../modals/admin/admin-add-modelSettings";
 import { AdminEditModelSettingsModal } from "../modals/admin/admin-edit-modelSettings";
 import { DeleteModelSettingsModal } from "../modals/admin/admin-delete-modelSettings";
-import { AdminAddKnowledgeBasedModal } from "../modals/admin/admin-add-knowledgebased";
+import { AdminCreateAssistantKnowledgeBasedModal } from "../modals/admin/admin-add-assistant-knowledgebased";
 
 export const AskAIAdminModalProvider = () => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -40,7 +40,7 @@ export const AskAIAdminModalProvider = () => {
       <AdminAddModelSettingsModal />
       <AdminEditModelSettingsModal />
       <DeleteModelSettingsModal />
-      <AdminAddKnowledgeBasedModal />
+      <AdminCreateAssistantKnowledgeBasedModal />
     </>
   );
 };

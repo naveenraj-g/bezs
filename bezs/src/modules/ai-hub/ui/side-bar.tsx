@@ -18,22 +18,17 @@ import { Ellipsis, Trash2 } from "lucide-react";
 
 export const HistorySidebar = () => {
   const [open, setOpen] = useState(false);
-  const {
-    sessions,
-    createSession,
-    clearChatSessions,
-    removeSession,
-    currentSession,
-  } = useChatContext();
+  const { sessions, createSession, removeSession, currentSession } =
+    useChatContext();
   const router = useRouter();
   const { sortSessions } = useChatSession();
 
   async function handleCreateSession() {
     const newSession = await createSession();
 
-    if (newSession[0]?.id) {
+    if (newSession?.id) {
       setOpen(false);
-      router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+      router.push(`/bezs/ai-hub/ask-ai/${newSession.id}`);
     }
   }
 

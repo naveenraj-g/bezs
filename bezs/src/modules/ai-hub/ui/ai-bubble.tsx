@@ -37,8 +37,23 @@ export type TAIMessageBubble = {
 };
 
 export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
-  const { id, rawAI, isLoading, model, errorMessage, isToolRunning, toolName } =
-    chatMessage;
+  const {
+    id,
+    rawAI,
+    isLoading,
+    model,
+    errorMessage,
+    isToolRunning,
+    toolName,
+    type,
+    context,
+    role,
+    query,
+    image,
+  } = chatMessage;
+
+  console.log({ id });
+
   const { removeMessage, runModel } = useChatContext();
   const { getToolInfoByKey } = useTools();
 
@@ -165,7 +180,11 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                     runModel({
                       messageId: chatMessage.id,
                       selectedModel: model || undefined,
-                      props: chatMessage.props!,
+                      role,
+                      type,
+                      context,
+                      image,
+                      query,
                       sessionId: chatMessage.sessionId,
                       selectedAssistant:
                         selectedAssistantRef.current || undefined,
@@ -174,17 +193,17 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                 />
               )}
               <Popover>
-                <PopoverTrigger asChild>
-                  <ActionTooltipProvider
-                    label="Delete"
-                    align="center"
-                    side="bottom"
-                  >
+                <ActionTooltipProvider
+                  label="Delete"
+                  align="center"
+                  side="bottom"
+                >
+                  <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon">
                       <TrashSimpleIcon size={16} weight="bold" />
                     </Button>
-                  </ActionTooltipProvider>
-                </PopoverTrigger>
+                  </PopoverTrigger>
+                </ActionTooltipProvider>
                 <PopoverContent side="bottom" collisionPadding={10}>
                   <p className="text-sm font-medium pb-2">
                     Are you sure, you want to delete this message?
@@ -193,8 +212,8 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                     <Button
                       size="sm"
                       className="h-7 px-2 bg-red-600 hover:bg-red-700 text-white"
-                      onClick={() => {
-                        removeMessage(id);
+                      onClick={async () => {
+                        await removeMessage(id);
                       }}
                     >
                       Delete Message

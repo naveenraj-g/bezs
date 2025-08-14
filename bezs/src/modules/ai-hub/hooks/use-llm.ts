@@ -17,17 +17,19 @@ import { useSelectedModelStore } from "../stores/useSelectedModelStore";
 import moment from "moment";
 import type { Serialized } from "@langchain/core/load/serializable";
 import { LLMResult } from "@langchain/core/outputs";
-import { RunnableLike, RunnableSequence } from "@langchain/core/runnables";
 import { toast } from "sonner";
 import { useTools } from "./use-tools";
 import { AgentExecutor, createToolCallingAgent } from "langchain/agents";
 import { usePreferences, defaultPreferences } from "./use-preferences";
 import { Assistant } from "../../../../prisma/generated/ai-hub";
-import { assistantStore } from "../stores/assistantStore";
+import {
+  addMessageToSessionDB,
+  getSessionById,
+  updateSessionTitle,
+} from "../serveractions/session-server-actions";
 
 export const useLLM = ({ onChange }: TUseLLM) => {
-  const { getSessionById, addMessageToSession, sortMessages, updateSession } =
-    useChatSession();
+  const { sortMessages } = useChatSession();
   const { createInstance } = useModelList();
   const modelPreferences = useSelectedModelStore(
     (state) => state.modelPreferences
@@ -35,7 +37,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
 
   const { getPreferences } = usePreferences();
   const abortController = new AbortController();
-  const { calculatorTool, webSearchTool, getToolByKey } = useTools();
+  const { getToolByKey } = useTools();
 
   const stopGeneration = () => {
     abortController?.abort();
@@ -43,6 +45,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
 
   const preparePrompt = async (
     props: PromptProps,
+
     history: TChatMessage[],
     assistant?: Assistant
   ) => {
@@ -93,19 +96,29 @@ export const useLLM = ({ onChange }: TUseLLM) => {
   };
 
   const runModel = async ({
-    props,
+    role,
+    type,
+    context,
+    image,
+    query,
     sessionId,
     messageId,
     selectedModel,
     selectedAssistant,
   }: TRunModel) => {
-    const currentSession = await getSessionById(sessionId);
+    const [data] = await getSessionById({ sessionId: sessionId.toString() });
+    const currentSession = data?.session;
 
-    // const selectedAssistant = assistantStore(
-    //   (state) => state.selectedAssistant
-    // );
+    const props = {
+      role,
+      type,
+      context,
+      image,
+      query,
+    };
 
-    if (!props?.query) {
+    console.log({ messageId, query, props });
+    if (!query) {
       return;
     }
 
@@ -121,10 +134,14 @@ export const useLLM = ({ onChange }: TUseLLM) => {
 
     const defaultChangeProps = {
       id: newMessageId,
-      props,
+      role,
+      type,
+      context,
+      image,
+      query,
       model: selectedModel,
       sessionId,
-      rawHuman: props.query,
+      rawHuman: query,
       createdAt: moment().toISOString(),
     };
 
@@ -297,8 +314,27 @@ export const useLLM = ({ onChange }: TUseLLM) => {
         }
       );
 
+      const chatMessageForDB = {
+        id: newMessageId,
+        sessionId: sessionId,
+        model: selectedModel,
+        rawHuman: props.query!,
+        rawAI: stream?.content || stream?.output,
+        toolName,
+        context: props.context,
+        image: props.image,
+        role: props.role,
+        type: props.type,
+        query: props.query!,
+      };
+
+      const [data] = await addMessageToSessionDB(chatMessageForDB);
+
+      console.log({ data });
+
       const chatMessage: TChatMessage = {
         ...defaultChangeProps,
+        id: data!.id,
         rawHuman: props.query,
         rawAI: stream?.content || stream?.output,
         isToolRunning: false,
@@ -308,7 +344,6 @@ export const useLLM = ({ onChange }: TUseLLM) => {
         createdAt: moment().toISOString(),
       };
 
-      await addMessageToSession(sessionId, chatMessage);
       await generateTitleForSession(sessionId, selectedModel);
       await onChange?.(chatMessage);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -332,7 +367,9 @@ export const useLLM = ({ onChange }: TUseLLM) => {
     sessionId: string,
     selectedModel: string
   ) => {
-    const session = await getSessionById(sessionId);
+    const [data] = await getSessionById({ sessionId });
+
+    const session = data?.session;
 
     if (!selectedModel) {
       throw new Error("Model not found");
@@ -364,10 +401,11 @@ export const useLLM = ({ onChange }: TUseLLM) => {
       const generation = await model.invoke(prompt, {});
       console.log("title generation", generation);
       const newTitle = generation?.content?.toString() || session.title;
-      await updateSession(
+
+      await updateSessionTitle({
         sessionId,
-        newTitle ? { title: newTitle, updatedAt: moment().toISOString() } : {}
-      );
+        title: newTitle?.toString() || "Untitled",
+      });
     } catch (err) {
       console.log(err);
       return firstMessage?.rawHuman;

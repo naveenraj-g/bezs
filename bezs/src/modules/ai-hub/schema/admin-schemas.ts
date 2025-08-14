@@ -203,3 +203,9 @@ export const AdminCreateKnowledgeBasedSchema = z.object({
     .number({ invalid_type_error: "Assistant ID must be a number" })
     .int({ message: "Assistant ID must be an integer" }),
 });
+
+export const AdminKnowledgeBasedAssistantIdSchema = z.object({
+  assistantId: z
+    .number({ invalid_type_error: "Assistant ID must be a number" })
+    .int({ message: "Assistant ID must be an integer" }),
+});

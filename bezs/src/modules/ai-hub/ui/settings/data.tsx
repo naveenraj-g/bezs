@@ -1,24 +1,22 @@
 import { useRouter } from "next/navigation";
-import { useChatSession } from "../../hooks/use-chat-session";
 import { SettingsContainer } from "./settings-container";
 import { Button } from "@/components/ui/button";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { toast } from "sonner";
+import { useChatContext } from "../../context/chat/context";
 
 export const Data = () => {
   const router = useRouter();
   const onClose = useSettingsStore((state) => state.dismiss);
 
-  const { createNewSession, clearSessions } = useChatSession();
+  const { clearChatSessions } = useChatContext();
 
   const clearAllData = async () => {
-    await clearSessions();
-    const newSessions = await createNewSession();
-    const session = Array.isArray(newSessions) ? newSessions[0] : newSessions;
+    await clearChatSessions();
     toast("Data Cleared.", {
       description: "All chat data has been cleared.",
     });
-    router.push(`/bezs/ai-hub/ask-ai/${session.id}`);
+    router.push(`/bezs/ai-hub/ask-ai`);
     onClose();
   };
 

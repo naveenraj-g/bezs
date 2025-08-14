@@ -1,5 +1,3 @@
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
-import { TModelKey } from "../hooks/use-model-list";
 import { Assistant } from "../../../../prisma/generated/ai-hub";
 
 export enum ModelType {
@@ -31,26 +29,30 @@ export type PromptProps = {
   type: PromptType;
   context?: string;
   role: RoleType;
-  query?: string;
+  query: string;
   image?: string;
 };
 
 export type TChatMessage = {
   id: string;
-  model?: string;
-  rawHuman?: string;
-  rawAI?: string;
+  model?: string | null;
+  rawHuman?: string | null;
+  rawAI?: string | null;
   sessionId: string;
-  toolName?: string;
-  toolResult?: string;
+  toolName?: string | null;
+  toolResult?: string | null;
   isToolRunning?: boolean;
   isLoading?: boolean;
   hasError?: boolean;
-  errorMessage?: string;
-  props?: PromptProps;
-  image?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  errorMessage?: string | null;
+  isGoodResponse?: boolean | null;
+  type: PromptType | null;
+  context?: string;
+  role: RoleType;
+  query: string;
+  image?: string | null;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 };
 
 export type TChatSession = {
@@ -62,16 +64,15 @@ export type TChatSession = {
 };
 
 export type TUseLLM = {
-  // onInit: (props: TChatMessage) => Promise<void>;
-  // onStreamStart: (props: TChatMessage) => Promise<void>;
-  // onStream: (props: TChatMessage) => Promise<void>;
-  // onStreamEnd: (props: TChatMessage) => Promise<void>;
-  // onError: (props: TChatMessage) => Promise<void>;
   onChange?: (props: TChatMessage) => void;
 };
 
 export type TRunModel = {
-  props: PromptProps;
+  type: PromptType;
+  context?: string;
+  role: RoleType;
+  query?: string;
+  image?: string;
   sessionId: string;
   messageId?: string;
   selectedModel?: string;

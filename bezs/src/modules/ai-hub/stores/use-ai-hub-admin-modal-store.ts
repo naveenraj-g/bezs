@@ -21,7 +21,9 @@ export type ModalType =
   | "addModelSettings"
   | "editModelSettings"
   | "deleteModelSettings"
-  | "addKnowledgeBased";
+  | "addKnowledgeBased"
+  | "editKnowledgeBased"
+  | "deletKnowledgeBased";
 
 type TModelsForAssistantMap = {
   id: string;

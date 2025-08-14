@@ -15,6 +15,7 @@ import {
   AdminCreateModelSettingsSchema,
   AdminEditModelSettingsSchema,
   AdminCreateKnowledgeBasedSchema,
+  AdminKnowledgeBasedAssistantIdSchema,
 } from "../schema/admin-schemas";
 import { getAppSlugServerOnly } from "@/utils/getAppSlugServerOnly";
 
@@ -511,6 +512,34 @@ export const deleteAssistant = authProcedures
           id: Number(input.assistantId),
         },
       });
+    } catch (err) {
+      throw new Error(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : JSON.stringify(err)
+      );
+    }
+  });
+
+export const getKnowledgeBased = authProcedures
+  .createServerAction()
+  .input(AdminKnowledgeBasedAssistantIdSchema)
+  .handler(async ({ input }) => {
+    try {
+      const knowledgeBased = await prismaAiHub.knowledgeBased.findMany({
+        where: {
+          assistantId: input.assistantId,
+        },
+      });
+      const total = await prismaAiHub.knowledgeBased.count({
+        where: {
+          assistantId: input.assistantId,
+        },
+      });
+
+      return { knowledgeBased, total };
     } catch (err) {
       throw new Error(
         typeof err === "string"

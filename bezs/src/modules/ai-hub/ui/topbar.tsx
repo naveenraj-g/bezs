@@ -1,18 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-// import { useChatStore } from "../stores/useChatStore";
 import { useRouter } from "next/navigation";
 import { HistoryIcon, Settings, SquarePen } from "lucide-react";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { useFilterStore } from "../stores/useFilterStore";
 import { useChatContext } from "../context/chat/context";
 import { HistorySidebar } from "./side-bar";
-import { RobotIcon, TextboxIcon } from "@phosphor-icons/react";
-import { Badge } from "@/components/ui/badge";
 
 export const Topbar = () => {
-  // const { sessions, createSession } = useChatStore();
   const { createSession } = useChatContext();
   const router = useRouter();
   const openSettings = useSettingsStore((state) => state.open);
@@ -20,9 +16,8 @@ export const Topbar = () => {
 
   async function handleCreateSession() {
     const newSession = await createSession();
-
-    if (newSession[0]?.id) {
-      router.push(`/bezs/ai-hub/ask-ai/${newSession[0].id}`);
+    if (newSession?.id) {
+      router.push(`/bezs/ai-hub/ask-ai/${newSession.id}`);
     }
   }
 

@@ -16,7 +16,9 @@ import {
   TRolesForAssistant,
 } from "./admin-manage-assistants-table";
 import { BrainIcon } from "@phosphor-icons/react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 type TAssistant = Assistant & {
   model: TModelForAssistant;
@@ -103,21 +105,23 @@ export const adminManageAssistantsColumn: ColumnDef<TAssistant>[] = [
     },
     accessorKey: "13",
     cell: ({ row }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const openModal = useAiHubAdminModal((state) => state.onOpen);
-
       const assistantId = row.original.id;
+      const assistantName = row.original.name;
 
       return (
-        <div
-          className="flex items-center w-fit mx-auto"
-          onClick={() => {
-            openModal({ type: "addKnowledgeBased", id: assistantId });
-          }}
-        >
-          <Button size="icon" variant="secondary" className="h-8">
+        <div className="flex items-center w-fit mx-auto">
+          <Link
+            href={`/bezs/ai-hub/admin/manage-assistants/knowledge-based?assistantId=${assistantId}&assistantName=${assistantName}`}
+            className={cn(
+              "h-8",
+              buttonVariants({
+                size: "icon",
+                variant: "secondary",
+              })
+            )}
+          >
             <BrainIcon size={16} weight="bold" />
-          </Button>
+          </Link>
         </div>
       );
     },

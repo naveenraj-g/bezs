@@ -32,7 +32,7 @@ const knowledgeBasedTypeList = Object.keys(KnowledgeBasedType).map((type) => ({
   value: type,
 }));
 
-export const AdminAddKnowledgeBasedModal = () => {
+export const AdminCreateAssistantKnowledgeBasedModal = () => {
   const session = useSession();
 
   const closeModal = useAiHubAdminModal((state) => state.onClose);
@@ -111,7 +111,7 @@ export const AdminAddKnowledgeBasedModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex justify-center items-center gap-2">
-            Create Knowledge Based
+            Knowledge Based
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
@@ -121,27 +121,30 @@ export const AdminAddKnowledgeBasedModal = () => {
               className="space-y-8"
             >
               <div className="space-y-4">
+                <div className="flex gap-2 xs:flex-nowrap flex-wrap">
+                  <CustomInput
+                    type="input"
+                    name="name"
+                    label="Knowledge Base Name"
+                    placeholder="Enter knowledge base name"
+                    control={knowledgeForm.control}
+                  />
+                  <CustomInput
+                    type="select"
+                    name="type"
+                    label="Type"
+                    placeholder="Select a type"
+                    className="w-full"
+                    control={knowledgeForm.control}
+                    selectList={knowledgeBasedTypeList}
+                  />
+                </div>
                 <CustomInput
                   type="input"
-                  name="name"
-                  label="Knowledge Base Name"
-                  placeholder="Enter knowledge base name"
-                  control={knowledgeForm.control}
-                />
-                <CustomInput
-                  type="textarea"
                   name="connections"
                   label="Connections"
                   placeholder="Enter connection details (e.g., DB URI)"
                   control={knowledgeForm.control}
-                />
-                <CustomInput
-                  type="select"
-                  name="type"
-                  label="Type"
-                  placeholder="Select type"
-                  control={knowledgeForm.control}
-                  selectList={knowledgeBasedTypeList}
                 />
               </div>
 

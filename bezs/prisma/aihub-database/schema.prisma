@@ -27,6 +27,37 @@ enum KnowledgeBasedType {
     TextSQL
 }
 
+model Session {
+    id     String @id @default(uuid())
+    title  String @default("Untitled")
+    userId String
+
+    messages Message[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Message {
+    id             String   @id @default(uuid())
+    model          String
+    rawHuman       String?
+    rawAI          String?
+    toolName       String?
+    context        String?
+    image          String?
+    role           String?
+    query          String?
+    type           String?
+    isGoodResponse Boolean?
+
+    sessionId String
+    session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model AiModel {
     id          String      @id @default(uuid())
     displayName String?     @unique
@@ -85,7 +116,7 @@ model Assistant {
     status           Status @default(ACTIVE)
 
     accessRoles    AccessRole[]
-    knowledgeBased KnowledgeBased?
+    knowledgeBased KnowledgeBased[]
 
     modelId String?
     model   AiModel? @relation(fields: [modelId], references: [id], onDelete: Cascade)
@@ -112,7 +143,7 @@ model KnowledgeBased {
     type        KnowledgeBasedType
     connections String
 
-    assistantId Int       @unique
+    assistantId Int
     assistant   Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
