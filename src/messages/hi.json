@@ -1,0 +1,66 @@
+{
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "buttonLable": "Login",
+      "googleOauthLable": "Google",
+      "githubOauthLable": "GitHub",
+      "usernameOrEmailInputLable": "Username or Email",
+      "passwordInputLable": "Password",
+      "forgetPass": "Forget Password",
+      "createAccount": "Don't have an account?",
+      "signupLink": "Sign Up",
+      "or": "or"
+    },
+    "forgetPassDialog": {
+      "title": "Forget Password",
+      "submitBtnLable": "Submit",
+      "formLable": "Email"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "buttonLable": "Create an account",
+      "googleOauthLable": "Google",
+      "githubOauthLable": "GitHub",
+      "nameInputLable": "Name",
+      "emailInputLable": "Email",
+      "passwordInputLable": "Password",
+      "forgetPass": "Forget Password",
+      "existAccount": "Already have an account?",
+      "signinLink": "Sign In",
+      "or": "or"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "newPasswordInputLable": "New Password",
+      "buttonLable": "Reset"
+    },
+    "two-fa-form": {
+      "title": "2FA Authentication",
+      "subTitle": "Enter your OTP to verify yourself",
+      "otpInputLable": "One-Time Password",
+      "otpInputDesc": "Please enter the one-time password sent to your phone.",
+      "reqOTP": "Request OTP",
+      "buttonLable": "Submit",
+      "buttonLableSubmitting": "Submitting..."
+    },
+    "emailVerification": {
+      "title": "Verify Email",
+      "desc": "Hey, we send email verification email to your email go and verify email. If you verified email then refresh this page. If email not received then",
+      "emailReq": "request again"
+    }
+  },
+  "HomePage": {
+    "navbar": {
+      "title": "ऐप खोलें",
+      "loginBtnLable": "लॉग इन करें",
+      "signupBtnLable": "साइन अप करें"
+    }
+  },
+  "bezs": {
+    "welcome": "वापसी पर स्वागत है"
+  },
+  "bezs/dashboard": {
+    "test": "होम डैशबोर्ड"
+  }
+}

@@ -1,0 +1,79 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/filenest"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL_FILE_NEST")
+}
+
+enum CloudStorageType {
+    AWS_S3
+    AZURE_BLOB
+}
+
+model CloudStorageCredential {
+    id           String           @id @default(uuid())
+    name         String           @unique
+    type         CloudStorageType
+    bucketName   String
+    region       String
+    clientId     String           @unique
+    clientSecret String           @unique
+    maxFileSize  BigInt
+
+    appStorageSetting AppStorageSetting[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum StorageType {
+    LOCAL
+    CLOUD
+}
+
+model AppStorageSetting {
+    id          String      @id @default(uuid())
+    appId       String
+    appName     String
+    orgId       String
+    orgName     String
+    appSlug     String
+    basePath    String?
+    subFolder   String?
+    maxFileSize BigInt
+    type        StorageType
+
+    credentialId String?
+    credential   CloudStorageCredential? @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum ReferenceType {
+    patientProfile
+}
+
+model UserFile {
+    id            Int            @id @default(autoincrement())
+    userId        String?
+    appId         String?
+    appName       String?
+    appSlug       String?
+    fileId        String
+    fileName      String
+    fileType      String
+    fileSize      BigInt
+    filePathType  StorageType
+    filePath      String
+    referenceType ReferenceType?
+    referenceId   String?
+    createdBy     String
+    updatedBy     String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

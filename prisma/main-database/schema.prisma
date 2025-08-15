@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/main"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_MAIN")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  twoFactorEnabled Boolean?
+  twofactors       TwoFactor[]
+
+  role       String?
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
+  members     Member[]
+  invitations Invitation[]
+  rbac        RBAC[]
+
+  username        String?
+  displayUsername String?
+
+  @@unique([email])
+  @@unique([username])
+  @@index([id])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
+
+  activeOrganizationId String?
+
+  @@unique([token])
+  @@index([id])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([id])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@index([id])
+  @@map("verification")
+}
+
+model TwoFactor {
+  id          String @id @default(uuid())
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([id])
+  @@map("twoFactor")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String?
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  metadata  String?
+
+  members         Member[]
+  invitations     Invitation[]
+  appOrganization AppOrganization[]
+  rbac            RBAC[]
+
+  @@unique([slug])
+  @@index([id])
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([id])
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@index([id])
+  @@map("invitation")
+}
+
+model Role {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String
+
+  menuPermission   MenuPermission[]
+  actionPermission ActionPermission[]
+  rbac             RBAC[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([id])
+}
+
+enum AppType {
+  platform
+  custom
+}
+
+model App {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String
+  slug        String  @unique
+  type        AppType
+  imageUrl    String?
+
+  appMenuItems     AppMenuItem[]
+  appActions       AppAction[]
+  appOrganization  AppOrganization[]
+  menuPermission   MenuPermission[]
+  actionPermission ActionPermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([id])
+}
+
+model AppOrganization {
+  appId          String
+  organizationId String
+  app            App          @relation(fields: [appId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([appId, organizationId])
+  @@index([appId, organizationId])
+}
+
+model AppMenuItem {
+  id          String  @id @default(uuid())
+  name        String
+  description String
+  slug        String
+  icon        String?
+
+  appId String
+  app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  menuPermission MenuPermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([appId, slug])
+  @@index([id])
+}
+
+enum AppActionType {
+  button
+  link
+}
+
+model AppAction {
+  id          String        @id @default(uuid())
+  actionName  String
+  description String
+  actionType  AppActionType
+  icon        String?
+
+  appId String
+  app   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  actionPermission ActionPermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([appId, actionName])
+  @@index([id])
+}
+
+model MenuPermission {
+  id String @id @default(uuid())
+
+  roleId        String
+  appId         String
+  appMenuItemId String
+  role          Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  app           App         @relation(fields: [appId], references: [id], onDelete: Cascade)
+  appMenuItem   AppMenuItem @relation(fields: [appMenuItemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, appId, appMenuItemId])
+  @@index([roleId])
+  @@index([appId])
+  @@index([appMenuItemId])
+}
+
+model ActionPermission {
+  id String @id @default(uuid())
+
+  roleId      String
+  appId       String
+  appActionId String
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  app         App       @relation(fields: [appId], references: [id], onDelete: Cascade)
+  appAction   AppAction @relation(fields: [appActionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, appId, appActionId])
+  @@index([roleId])
+  @@index([appId])
+  @@index([appActionId])
+}
+
+model RBAC {
+  id String @id @default(uuid())
+
+  organizationId String
+  userId         String
+  roleId         String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role         Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, userId, roleId])
+}

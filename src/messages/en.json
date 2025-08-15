@@ -1,0 +1,70 @@
+{
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "buttonLable": "Login",
+      "googleOauthLable": "Google",
+      "githubOauthLable": "GitHub",
+      "usernameOrEmailInputLable": "Username or Email",
+      "passwordInputLable": "Password",
+      "forgetPass": "Forget Password",
+      "createAccount": "Don't have an account?",
+      "signupLink": "Sign Up",
+      "or": "or"
+    },
+    "forgetPassDialog": {
+      "title": "Forget Password",
+      "submitBtnLable": "Submit",
+      "formLable": "Email"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "buttonLable": "Create an account",
+      "googleOauthLable": "Google",
+      "githubOauthLable": "GitHub",
+      "nameInputLable": "Name",
+      "usernameInputLable": "Username",
+      "emailInputLable": "Email",
+      "passwordInputLable": "Password",
+      "forgetPass": "Forget Password",
+      "existAccount": "Already have an account?",
+      "signinLink": "Sign In",
+      "or": "or"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "newPasswordInputLable": "New Password",
+      "buttonLable": "Reset"
+    },
+    "two-fa-form": {
+      "formSchema": {
+        "otp": "Your one-time password must be 6 characters."
+      },
+      "title": "2FA Authentication",
+      "subTitle": "Enter your OTP to verify yourself",
+      "otpInputLable": "One-Time Password",
+      "otpInputDesc": "Please enter the one-time password sent to your phone.",
+      "reqOTP": "Request OTP",
+      "buttonLable": "Submit",
+      "buttonLableSubmitting": "Submitting..."
+    },
+    "emailVerification": {
+      "title": "Verify Email",
+      "desc": "We’ve sent a verification link to your email. Please check your inbox and verify your email address. Once verified, refresh this page to continue. If email not received then",
+      "emailReq": "request again"
+    }
+  },
+  "HomePage": {
+    "navbar": {
+      "title": "Open app",
+      "loginBtnLable": "Log in",
+      "signupBtnLable": "Sign up"
+    }
+  },
+  "bezs": {
+    "welcome": "Welcome back"
+  },
+  "bezs/dashboard": {
+    "test": "Home Dashboard"
+  }
+}
