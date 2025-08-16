@@ -10,7 +10,9 @@ import {
   CheckIcon,
   CopyIcon,
   InfoIcon,
-  ThumbsDownIcon,
+  SpeakerHighIcon,
+  SpinnerIcon,
+  StopCircleIcon,
   ThumbsUpIcon,
   TrashSimpleIcon,
 } from "@phosphor-icons/react";
@@ -31,6 +33,9 @@ import { TToolKey, useTools } from "../hooks/use-tools";
 import { assistantStore } from "../stores/assistantStore";
 import { Assistant } from "../../../../prisma/generated/ai-hub";
 import { selectedModel } from "../stores/useSelectedModelStore";
+import { useParams } from "next/navigation";
+import { goodResponseMessage } from "../serveractions/model-server-actions";
+import { useTextToSpeech } from "../hooks/use-text-to-speeck";
 
 export type TAIMessageBubble = {
   chatMessage: TChatMessage;
@@ -38,6 +43,9 @@ export type TAIMessageBubble = {
 };
 
 export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
+  const params = useParams();
+  const sessionId = params?.sessionId;
+
   const {
     id,
     rawAI,
@@ -45,6 +53,7 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
     model,
     errorMessage,
     isToolRunning,
+    isGoodResponse,
     toolName,
     type,
     context,
@@ -53,8 +62,14 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
     image,
   } = chatMessage;
 
-  const { removeMessage, runModel } = useChatContext();
+  const { removeMessage, runModel, setIsGoodResponse } = useChatContext();
   const { getToolInfoByKey } = useTools();
+  const {
+    start,
+    stop,
+    isSpeaking,
+    isLoading: isTextToSpeechLoading,
+  } = useTextToSpeech();
 
   const toolUsed = toolName
     ? getToolInfoByKey(toolName as TToolKey)
@@ -151,17 +166,56 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
                 align="center"
                 side="bottom"
               >
-                <Button variant="ghost" size="icon">
-                  <ThumbsUpIcon size={16} weight="bold" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={async () => {
+                    if (!isGoodResponse) {
+                      setIsGoodResponse!({
+                        messageId: id,
+                        sessionId: sessionId!.toString(),
+                      });
+                      await goodResponseMessage({ messageId: id });
+                    }
+                  }}
+                >
+                  <ThumbsUpIcon
+                    size={16}
+                    weight={`${isGoodResponse ? "fill" : "bold"}`}
+                    color="white"
+                  />
                 </Button>
               </ActionTooltipProvider>
               <ActionTooltipProvider
-                label="Bad response"
+                label="Read aloud"
                 align="center"
                 side="bottom"
               >
-                <Button variant="ghost" size="icon">
-                  <ThumbsDownIcon size={16} weight="bold" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={isTextToSpeechLoading}
+                  onClick={() => {
+                    if (isSpeaking) {
+                      stop();
+                    } else {
+                      if (rawAI) {
+                        start(rawAI);
+                      }
+                    }
+                  }}
+                >
+                  {isTextToSpeechLoading ? (
+                    <SpinnerIcon
+                      className="animate-spin"
+                      size={16}
+                      weight="bold"
+                    />
+                  ) : isSpeaking ? (
+                    <StopCircleIcon size={16} weight="bold" />
+                  ) : (
+                    <SpeakerHighIcon size={16} weight="bold" />
+                  )}
                 </Button>
               </ActionTooltipProvider>
               <ActionTooltipProvider label="Copy" align="center" side="bottom">

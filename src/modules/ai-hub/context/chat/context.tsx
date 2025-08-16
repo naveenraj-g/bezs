@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from "react";
 import { TChatSession, TRunModel } from "../../types/chat-types";
+import { TSetIsGoodResponseMessageData } from "./provider";
 
 export type TChatContext = {
   sessions: TChatSession[];
@@ -16,6 +17,7 @@ export type TChatContext = {
   runModel: (props: TRunModel) => Promise<void>;
   removeMessage: (messageId: string) => Promise<void>;
   error?: string | undefined;
+  setIsGoodResponse?: (messageData: TSetIsGoodResponseMessageData) => void;
 
   initialPrompt?: string;
   setInitialPrompt: (query: string | undefined) => void;

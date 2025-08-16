@@ -16,6 +16,11 @@ export type TChatProvider = {
   children: React.ReactNode;
 };
 
+export type TSetIsGoodResponseMessageData = {
+  sessionId: string;
+  messageId: string;
+};
+
 export const ChatProvider = ({ children }: TChatProvider) => {
   const params = useParams();
   const sessionId = params?.sessionId;
@@ -54,6 +59,32 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         messages: [...session.messages, props],
       };
     });
+  };
+
+  const setIsGoodResponse = (messageData: TSetIsGoodResponseMessageData) => {
+    if (!messageData.messageId && !messageData.sessionId) return;
+
+    if (messageData.sessionId === currentSession?.id) {
+      setCurrentSession((session) => {
+        if (!session) return undefined;
+        const existingMessage = session.messages.find(
+          (message) => message.id === messageData.messageId
+        );
+        if (existingMessage) {
+          return {
+            ...session,
+            messages: session.messages.map((message) => {
+              if (message.id === messageData.messageId) {
+                return { ...message, isGoodResponse: true };
+              }
+              return message;
+            }),
+          };
+        }
+
+        return session;
+      });
+    }
   };
 
   const { runModel, stopGeneration } = useLLM({
@@ -145,6 +176,7 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         stopGeneration,
         removeMessage,
         initialPrompt,
+        setIsGoodResponse,
         setInitialPrompt,
       }}
     >

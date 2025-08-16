@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  console.log({ modelId, dbModel });
   if (!dbModel) {
     return NextResponse.json({ error: "Invalid model id" }, { status: 400 });
   }
