@@ -1,28 +1,22 @@
 "use client";
-// 2:47
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { CircleStop, File, Mic, Send, Upload, X } from "lucide-react";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-// import { useChatStore } from "../../stores/useChatStore";
 import { PromptType, RoleType } from "../../types/chat-types";
-import { SparkleIcon, StopIcon } from "@phosphor-icons/react/dist/ssr";
-import { cn } from "@/lib/utils";
+import { StopIcon } from "@phosphor-icons/react/dist/ssr";
 import { ModelSelect } from "../model-select";
-import { easeInOut, motion } from "framer-motion";
-import { useSelectedModelStore } from "../../stores/useSelectedModelStore";
+import {
+  selectedModel,
+  useSelectedModelStore,
+} from "../../stores/useSelectedModelStore";
 import { useSpeechRecognition } from "../../hooks/use-speech-recognition";
 import { VoiceWaveAnimation } from "../voice-wave-animation";
 import { useScrollToBottom } from "../../hooks/use-scroll-to-bottom";
-import {
-  ArrowDownIcon,
-  PlusIcon,
-  QuotesIcon,
-  XIcon,
-} from "@phosphor-icons/react";
+import { ArrowDownIcon, QuotesIcon, XIcon } from "@phosphor-icons/react";
 import { useTextSelection } from "../../hooks/use-text-selection";
 import { ChatExamples } from "./chat-examples";
 import { toast } from "sonner";
@@ -39,7 +33,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { examplePrompts, roles } from "../../lib/prompts";
+import { examplePrompts } from "../../lib/prompts";
 
 import Document from "@tiptap/extension-document";
 import Highlight from "@tiptap/extension-highlight";
@@ -61,24 +55,6 @@ import { Assistant } from "../../../../../prisma/generated/ai-hub";
 export type TAttachment = {
   file?: File;
   base64?: string;
-};
-
-const slideUpVariant = {
-  initial: { y: 50, opacity: 0 },
-  animate: {
-    y: 0,
-    opacity: 1,
-    transition: { duration: 0.5, ease: easeInOut },
-  },
-};
-
-const zoomVariant = {
-  initial: { scale: 0.8, opacity: 0 },
-  animate: {
-    scale: 1,
-    opacity: 1,
-    transition: { duration: 0.5, ease: easeInOut, delay: 1 },
-  },
 };
 
 export const ChatInput = () => {
@@ -107,7 +83,7 @@ export const ChatInput = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [contextValue, setContextValue] = useState<string>("");
 
-  const selectedModelRef = useRef<string | null>(null);
+  const selectedModelRef = useRef<selectedModel | null>(null);
   const selectedAssistantRef = useRef<Assistant | null>(
     assistantStore.getState().selectedAssistant
   );
@@ -140,7 +116,7 @@ export const ChatInput = () => {
 
   useEffect(() => {
     if (selectedModel) {
-      selectedModelRef.current = selectedModel.modelName;
+      selectedModelRef.current = selectedModel;
     }
   }, [selectedModel]);
 

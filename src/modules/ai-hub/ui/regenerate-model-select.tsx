@@ -1,52 +1,52 @@
-import { useState } from "react";
-import { useSelectedModelStore } from "../stores/useSelectedModelStore";
+import { useEffect, useRef } from "react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  selectedModel,
+  useSelectedModelStore,
+} from "../stores/useSelectedModelStore";
 import ActionTooltipProvider from "@/modules/auth/providers/action-tooltip-provider";
 import { Button } from "@/components/ui/button";
 import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
 export type TRegenerateModelSelect = {
-  onRegenerate: (modelKey: string | undefined) => void;
+  onRegenerate: (model: selectedModel) => void;
 };
 
 export const RegenerateWithModelSelect = ({
   onRegenerate,
 }: TRegenerateModelSelect) => {
-  const selectedModel = useSelectedModelStore((state) => state.selectedModel);
+  const selectedModelRef = useRef<selectedModel | null>(
+    useSelectedModelStore.getState().selectedModel
+  );
 
-  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    const unsub = useSelectedModelStore.subscribe((state) => {
+      selectedModelRef.current = state.selectedModel;
+    });
+
+    return unsub;
+  }, []);
 
   return (
     <>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <ActionTooltipProvider label="Regenerate" side="bottom">
-          <DropdownMenuTrigger asChild>
-            {
-              <Button variant="ghost" size="icon">
-                <ArrowClockwiseIcon size={16} weight="bold" />
-              </Button>
+      <ActionTooltipProvider label="Regenerate" side="bottom">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            if (
+              selectedModelRef.current &&
+              selectedModelRef.current.modelName
+            ) {
+              onRegenerate(selectedModelRef.current || undefined);
             }
-          </DropdownMenuTrigger>
-        </ActionTooltipProvider>
-
-        <DropdownMenuContent>
-          <DropdownMenuItem
-            onClick={() => {
-              if (selectedModel && selectedModel.modelName) {
-                onRegenerate(selectedModel.modelName || undefined);
-              }
-            }}
-            disabled={!selectedModel || !selectedModel.modelName}
-          >
-            {selectedModel?.modelName ?? "No model selected"}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          }}
+          disabled={
+            !selectedModelRef.current || !selectedModelRef.current.modelName
+          }
+        >
+          <ArrowClockwiseIcon size={16} weight="bold" />
+        </Button>
+      </ActionTooltipProvider>
     </>
   );
 };

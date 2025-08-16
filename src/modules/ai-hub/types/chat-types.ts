@@ -1,4 +1,5 @@
 import { Assistant } from "../../../../prisma/generated/ai-hub";
+import { selectedModel } from "../stores/useSelectedModelStore";
 
 export enum ModelType {
   GPT3 = "gpt-3",
@@ -75,6 +76,6 @@ export type TRunModel = {
   image?: string;
   sessionId: string;
   messageId?: string;
-  selectedModel?: string;
+  selectedModel?: selectedModel;
   selectedAssistant?: Assistant;
 };

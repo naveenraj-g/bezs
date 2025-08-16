@@ -19,7 +19,12 @@ export type TPluginSelect = {
 export const PluginSelect = () => {
   const { tools } = useTools();
   const { setPreferences, getPreferences } = usePreferences();
-  const { plugins } = useSelectedModelStore((state) => state.modelPreferences);
+  const selectedModel = useSelectedModelStore((state) => state.selectedModel);
+  const defaultModelPreferences = useSelectedModelStore(
+    (state) => state.defaultModelPreferences
+  );
+
+  const plugins = selectedModel?.plugins || defaultModelPreferences.plugins;
 
   const [selectedPlugins, setSelectedPlugins] = useState<TToolKey[]>([]);
   const [isOpen, setIsOpen] = useState(false);

@@ -11,6 +11,16 @@ export const getModelsName = authProcedures
         id: true,
         modelName: true,
         displayName: true,
+        tokens: true,
+        modelSettings: {
+          select: {
+            defaultPrompt: true,
+            maxToken: true,
+            temperature: true,
+            topK: true,
+            topP: true,
+          },
+        },
       },
     });
 

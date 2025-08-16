@@ -30,6 +30,7 @@ import { useTokenCounter } from "../hooks/use-token-counter";
 import { TToolKey, useTools } from "../hooks/use-tools";
 import { assistantStore } from "../stores/assistantStore";
 import { Assistant } from "../../../../prisma/generated/ai-hub";
+import { selectedModel } from "../stores/useSelectedModelStore";
 
 export type TAIMessageBubble = {
   chatMessage: TChatMessage;
@@ -174,10 +175,10 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
               </ActionTooltipProvider>
               {chatMessage && isLast && (
                 <RegenerateWithModelSelect
-                  onRegenerate={(model: string | undefined) => {
+                  onRegenerate={(model: selectedModel) => {
                     runModel({
                       messageId: chatMessage.id,
-                      selectedModel: model || undefined,
+                      selectedModel: model,
                       role,
                       type,
                       context,

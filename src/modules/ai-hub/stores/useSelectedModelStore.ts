@@ -2,18 +2,26 @@ import { create } from "zustand";
 import { TToolKey } from "../hooks/use-tools";
 
 export type selectedModel = {
-  id: string;
+  id: string | null;
   displayName: string | null;
   modelName: string | null;
+  tokens: string | null;
+  defaultPrompt?: string;
+  messageLimit?: number | "all";
+  temperature?: number;
+  topP?: number;
+  topK?: number;
+  maxToken?: number;
+  plugins?: TToolKey[];
 };
 
 export type TModelPreferences = {
-  systemPrompt: string;
+  defaultPrompt: string;
   messageLimit: number | "all";
   temperature: number;
   topP: number;
   topK: number;
-  maxTokens: number;
+  maxToken: number;
   plugins: TToolKey[];
 };
 
@@ -27,26 +35,35 @@ export type TSelectedModelStore = {
 
 export const useSelectedModelStore = create<TSelectedModelStore>((set) => {
   return {
-    selectedModel: null,
+    selectedModel: {
+      id: null,
+      displayName: null,
+      modelName: null,
+      tokens: null,
+      messageLimit: "all",
+      plugins: ["calculator", "web_search"],
+    },
     setSelectedModel(selectedModel) {
-      set({ selectedModel });
+      set((state) => ({
+        selectedModel: { ...state.selectedModel, ...selectedModel },
+      }));
     },
     modelPreferences: {
-      systemPrompt: "You are a helpful assistant.",
+      defaultPrompt: "You are a helpful assistant.",
       messageLimit: "all",
       temperature: 0.5,
       topP: 1.0,
       topK: 5,
-      maxTokens: 1000,
+      maxToken: 1000,
       plugins: ["calculator", "web_search"],
     },
     defaultModelPreferences: {
-      systemPrompt: "You are a helpful assistant.",
+      defaultPrompt: "You are a helpful assistant.",
       messageLimit: "all",
       temperature: 0.5,
       topP: 1.0,
       topK: 5,
-      maxTokens: 1000,
+      maxToken: 1000,
       plugins: ["calculator", "web_search"],
     },
     setModelPreferences(preferences) {

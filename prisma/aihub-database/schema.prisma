@@ -64,7 +64,7 @@ model AiModel {
     modelName   String?
     tokens      String?
     type        AiModelType
-    secretKey   String?     @unique
+    secretKey   String?
     modelUrl    String?
 
     defaultPrompt String @default("You are a helpful assistant.")

@@ -11,19 +11,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { useServerAction } from "zsa-react";
 import { getModelsName } from "../serveractions/model-server-actions";
-import {
-  selectedModel,
-  useSelectedModelStore,
-} from "../stores/useSelectedModelStore";
+import { useSelectedModelStore } from "../stores/useSelectedModelStore";
 import { AlertCircleIcon, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type TModel = {
+  id: string | null;
+  displayName: string | null;
+  modelName: string | null;
+  tokens: string | null;
+  defaultPrompt?: string;
+  temperature?: number;
+  topP?: number;
+  topK?: number;
+  maxToken?: number;
+};
 
 export const ModelSelect = () => {
   const setSelectedModel = useSelectedModelStore(
     (state) => state.setSelectedModel
   );
   const selectedModel = useSelectedModelStore((state) => state.selectedModel);
-  const [allModels, setAllModels] = useState<selectedModel[]>([]);
+  const [allModels, setAllModels] = useState<TModel[]>([]);
 
   const { execute, isPending, isError } = useServerAction(getModelsName);
 
@@ -32,15 +41,24 @@ export const ModelSelect = () => {
       const [data] = await execute();
 
       if (data) {
-        setAllModels(data || []);
-        setSelectedModel(data[0]);
+        const modelData = data.map((d) => {
+          return {
+            id: d?.id,
+            displayName: d.displayName,
+            modelName: d.modelName,
+            tokens: d.tokens,
+            ...d.modelSettings,
+          };
+        });
+        setAllModels(modelData ?? []);
+        setSelectedModel(modelData[0]);
       }
     })();
   }, [execute, setSelectedModel]);
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild className="">
+      <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="sm"

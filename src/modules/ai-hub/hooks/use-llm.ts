@@ -20,7 +20,7 @@ import { LLMResult } from "@langchain/core/outputs";
 import { toast } from "sonner";
 import { useTools } from "./use-tools";
 import { AgentExecutor, createToolCallingAgent } from "langchain/agents";
-import { usePreferences, defaultPreferences } from "./use-preferences";
+import { usePreferences } from "./use-preferences";
 import { Assistant } from "../../../../prisma/generated/ai-hub";
 import {
   addMessageToSessionDB,
@@ -31,8 +31,11 @@ import {
 export const useLLM = ({ onChange }: TUseLLM) => {
   const { sortMessages } = useChatSession();
   const { createInstance } = useModelList();
-  const modelPreferences = useSelectedModelStore(
-    (state) => state.modelPreferences
+  const selectedModelData = useSelectedModelStore(
+    (state) => state.selectedModel
+  );
+  const defaultPreferences = useSelectedModelStore(
+    (state) => state.defaultModelPreferences
   );
 
   const { getPreferences } = usePreferences();
@@ -49,12 +52,11 @@ export const useLLM = ({ onChange }: TUseLLM) => {
     history: TChatMessage[],
     assistant?: Assistant
   ) => {
-    const preference = await getPreferences();
     const hasPreviousMessages = history?.length > 0;
     const systemPrompt =
       assistant?.prompt ||
-      preference.systemPrompt ||
-      defaultPreferences.systemPrompt;
+      selectedModelData?.defaultPrompt ||
+      defaultPreferences.defaultPrompt;
 
     const system: BaseMessagePromptTemplateLike = [
       "system",
@@ -132,7 +134,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
       currentSession?.messages?.filter((m) => m.id !== messageId) || [];
     const chatHistory = sortMessages(allPreviousMessages, "createdAt");
     const messageLimit =
-      preferences.messageLimit || defaultPreferences.messageLimit;
+      selectedModelData?.messageLimit || defaultPreferences.messageLimit;
     const plugins = preferences.defaultPlugins || [];
 
     const defaultChangeProps = {
@@ -142,7 +144,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
       context,
       image,
       query,
-      model: selectedModel,
+      model: selectedModel?.modelName,
       sessionId,
       rawHuman: query,
       createdAt: moment().toISOString(),
@@ -164,7 +166,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
     }
 
     try {
-      const model = await createInstance(selectedModel);
+      const model = await createInstance(selectedModel.modelName!);
 
       const prompt = await preparePrompt(
         props,
@@ -186,7 +188,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
         );
 
       const availableTools =
-        modelPreferences.plugins
+        selectedModelData?.plugins
           ?.filter((p) => {
             return plugins.includes(p);
           })
@@ -320,7 +322,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
       const chatMessageForDB = {
         id: newMessageId,
         sessionId: sessionId,
-        model: selectedModel,
+        model: selectedModel.modelName!,
         rawHuman: props.query!,
         rawAI: stream?.content || stream?.output,
         toolName,
@@ -331,14 +333,13 @@ export const useLLM = ({ onChange }: TUseLLM) => {
         query: props.query!,
       };
 
-      const [data] = await addMessageToSessionDB(chatMessageForDB);
-
-      console.log({ data });
+      await addMessageToSessionDB(chatMessageForDB);
 
       const chatMessage: TChatMessage = {
         ...defaultChangeProps,
-        id: data!.id,
+        id: newMessageId,
         rawHuman: props.query,
+        model: selectedModel.modelName!,
         rawAI: stream?.content || stream?.output,
         isToolRunning: false,
         toolName,
@@ -347,7 +348,7 @@ export const useLLM = ({ onChange }: TUseLLM) => {
         createdAt: moment().toISOString(),
       };
 
-      await generateTitleForSession(sessionId, selectedModel);
+      await generateTitleForSession(sessionId, selectedModel.modelName!);
       await onChange?.(chatMessage);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e: any) {
